@@ -36,4 +36,4 @@ Este workshop ofrece una introducción práctica a metodologías avanzadas para 
 -   Quarto instalado.
 -   Conocimientos básicos de R.
 
-Para comenzar, por favor visita la sección [Empezar](0-getstarted.qmd).
+Para comenzar, por favor visita la sección [Empezar](getstarted.qmd).
