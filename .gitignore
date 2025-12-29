@@ -1,0 +1,16 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+
+# renv
+renv/library/
+renv/python/
+renv/staging/
+renv/local/
+
+# System
+.DS_Store
+
+# Keep docs for GitHub Pages
+!docs/

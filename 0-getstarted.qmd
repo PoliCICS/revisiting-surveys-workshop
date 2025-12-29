@@ -1,0 +1,37 @@
+---
+title: "Empezar"
+---
+
+## Instalación
+
+Para seguir este workshop, necesitarás tener instalado el siguiente software:
+
+1.  [R](https://cran.r-project.org/)
+2.  [RStudio](https://posit.co/download/rstudio-desktop/)
+3.  [Quarto](https://quarto.org/docs/get-started/)
+
+## Restaurar Entorno (renv)
+
+Este proyecto utiliza `renv` para gestionar las dependencias de R y asegurar la reproducibilidad.
+
+1.  Abre el proyecto `revisiting-surveys.Rproj` en RStudio.
+2.  Ejecuta el siguiente comando en la consola de R para instalar las librerías necesarias:
+
+```r
+renv::restore()
+```
+
+## Verificar Instalación
+
+Para verificar que todo funciona correctamente, intenta renderizar este sitio web:
+
+1.  En RStudio, ve a la pestaña **Build**.
+2.  Haz clic en **Render Website**.
+
+Si el proceso termina con éxito, ¡estás listo para comenzar!
+
+## Estructura del Repositorio
+
+-   `replication-smith2014-table3/`: Código base para la replicación de Smith & McPherson (2014).
+-   `files/`: Archivos de datos y ejemplos para descargar.
+-   `docs/`: Sitio web renderizado (no editar manualmente).

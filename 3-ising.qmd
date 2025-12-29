@@ -1,0 +1,29 @@
+---
+title: "Modelo de Ising y Psicometría"
+---
+
+## De las Redes Sociales a las Redes Psicológicas
+
+El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes.
+
+## Conceptos Básicos
+
+-   **Nodos:** Ítems de una encuesta (ej. síntomas de depresión).
+-   **Enlaces:** Interacciones parciales entre ítems.
+-   **Estados:** Binarios (0/1 o -1/1).
+
+## Ejemplo Simulado
+
+(Placeholder: Aquí implementaremos un ejemplo simple usando el paquete `IsingSampler` o `IsingFit` durante el workshop).
+
+```{r}
+#| label: ising-placeholder
+#| echo: true
+
+# Simulación conceptual
+n_nodos <- 5
+matriz_interaccion <- matrix(0.5, n_nodos, n_nodos)
+diag(matriz_interaccion) <- 0
+print("Matriz de Interacción Teórica:")
+print(matriz_interaccion)
+```

@@ -1,0 +1,37 @@
+---
+title: "Redes desde Encuestas"
+---
+
+Este módulo cubre la metodología de imputación de redes basada en **Smith & McPherson (2014)** y **McPherson & Smith (2019)**.
+
+## Pipeline de Trabajo
+
+1.  **Estimación de Homofilia:** Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).
+2.  **Imputación de Red:** Generar lazos probables entre encuestados basados en su similitud en el "Blaaumspace" (espacio social).
+3.  **Difusión:** Simular procesos de difusión en la red imputada.
+
+## Replicación: Smith & McPherson (2014)
+
+Utilizaremos los scripts ubicados en la carpeta `replication-smith2014-table3/` como base.
+
+A continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:
+
+```{r}
+#| label: load-config
+#| echo: true
+#| warning: false
+
+# Intento de leer el archivo de configuración si existe
+config_path <- "replication-smith2014-table3/00_config.R"
+
+if (file.exists(config_path)) {
+  # Solo leemos las primeras líneas como demostración de texto
+  head(readLines(config_path), 10)
+} else {
+  print("Archivo de configuración no encontrado.")
+}
+```
+
+## Próximos Pasos
+
+En la sesión presencial, profundizaremos en el script `02_case_control_construction.R` para entender cómo se construyen los lazos probables.

@@ -1,0 +1,30 @@
+---
+title: "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad"
+---
+
+Bienvenido al sitio web del workshop **"Revisitando las encuestas"**.
+
+## Descripción
+
+Este workshop ofrece una introducción práctica a metodologías avanzadas para el análisis de encuestas desde la perspectiva de las ciencias de la complejidad. Exploraremos cómo imputar estructuras de red a datos de encuestas y cómo aplicar modelos de redes tipo Ising a datos psicométricos.
+
+## Objetivos
+
+1.  Comprender las encuestas como sistemas complejos.
+2.  Aprender a imputar redes sociales latentes en encuestas (metodología Smith & McPherson).
+3.  Introducir el análisis de redes psicométricas (Ising models).
+
+## Información del Curso
+
+-   **Docentes:** Aníbal Olivera & Advisor
+-   **Fechas:**
+    -   Jueves 8 de Enero: 14:30 – 15:50
+    -   Viernes 9 de Enero: 09:00 – 12:50
+
+## Requisitos Previos
+
+-   R y RStudio instalados.
+-   Quarto instalado.
+-   Conocimientos básicos de R.
+
+Para comenzar, por favor visita la sección [Empezar](0-getstarted.qmd).

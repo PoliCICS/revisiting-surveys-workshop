@@ -1,0 +1,26 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Revisitando las encuestas"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: 0-getstarted.qmd
+        text: Empezar
+      - href: 1-introduction.qmd
+        text: Introducción
+      - href: 2-network-from-surveys.qmd
+        text: Redes desde Encuestas
+      - href: 3-ising.qmd
+        text: Ising & Psicometría
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-fold: show
+    code-tools: true
+    lang: es

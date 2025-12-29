@@ -1,0 +1,17 @@
+---
+title: "Introducción"
+---
+
+## Las Encuestas como Sistemas
+
+Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas.
+
+## Ideas Clave
+
+-   **Contexto Social:** Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).
+-   **Propiedades Emergentes:** Patrones macroscópicos que surgen de interacciones microscópicas no triviales.
+-   **Recuperación de Estructura:** ¿Podemos "reconstruir" la red social subyacente a partir de datos de encuestas transversal?
+
+## Motivación
+
+En este workshop, desafiaremos la visión atomista de las encuestas y propondremos métodos para reincorporar la estructura relacional en el análisis estadística.
