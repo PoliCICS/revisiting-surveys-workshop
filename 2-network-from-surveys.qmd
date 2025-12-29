@@ -1,6 +1,6 @@
 ---
 title: "Redes desde Encuestas"
-author: "Aníbal Olivera & Jorge Fábrega"
+author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
 
@@ -9,7 +9,7 @@ Este módulo cubre la metodología de imputación de redes basada en **Smith & M
 ## Pipeline de Trabajo
 
 1.  **Estimación de Homofilia:** Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).
-2.  **Imputación de Red:** Generar lazos probables entre encuestados basados en su similitud en el "Blaaumspace" (espacio social).
+2.  **Imputación de Red:** Generar lazos probables entre encuestados basados en su similitud en el "Blau space" (espacio social).
 3.  **Difusión:** Simular procesos de difusión en la red imputada.
 
 ## Replicación: Smith & McPherson (2014)
@@ -27,10 +27,10 @@ A continuación, un ejemplo simple cargando la configuración de la replicación
 config_path <- "replication-smith2014-table3/00_config.R"
 
 if (file.exists(config_path)) {
-  # Solo leemos las primeras líneas como demostración de texto
-  head(readLines(config_path), 10)
+    # Solo leemos las primeras líneas como demostración de texto
+    head(readLines(config_path), 10)
 } else {
-  print("Archivo de configuración no encontrado.")
+    print("Archivo de configuración no encontrado.")
 }
 ```
 

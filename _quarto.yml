@@ -16,6 +16,8 @@ website:
             href: 1-introduction.qmd
           - text: Redes desde Encuestas
             href: 2-network-from-surveys.qmd
+          - text: Smith & McPherson (2014)
+            href: 2-homophily-strength.qmd
           - text: Ising & Psicometría
             href: 3-ising.qmd
     right:
@@ -23,6 +25,8 @@ website:
         menu:
           - text: Empezar
             href: 0-getstarted.qmd
+          - text: Limpieza GSS
+            href: gss-cleaning.qmd
 
 format:
   html:

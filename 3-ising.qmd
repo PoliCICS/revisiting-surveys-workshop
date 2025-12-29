@@ -1,6 +1,6 @@
 ---
 title: "Modelo de Ising y Psicometría"
-author: "Aníbal Olivera"
+author: "Aníbal Olivera & Jorge Fábrega"
 date: "2025-01-09"
 ---
 

@@ -8,7 +8,7 @@
 
 <meta name="author" content="Aníbal Olivera">
 
-<title>Redes desde Encuestas – Revisitando las encuestas</title>
+<title>Limpieza de Datos GSS – Revisitando las encuestas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3942,11 +3942,14 @@ vertical-align: -.125em;
     <h2 id="toc-title">En esta página</h2>
    
   <ul>
-  <li><a href="#pipeline-de-trabajo" id="toc-pipeline-de-trabajo" class="nav-link active" data-scroll-target="#pipeline-de-trabajo">Pipeline de Trabajo</a></li>
-  <li><a href="#replicación-smith-mcpherson-2014" id="toc-replicación-smith-mcpherson-2014" class="nav-link" data-scroll-target="#replicación-smith-mcpherson-2014">Replicación: Smith &amp; McPherson (2014)</a></li>
-  <li><a href="#próximos-pasos" id="toc-próximos-pasos" class="nav-link" data-scroll-target="#próximos-pasos">Próximos Pasos</a></li>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción">Introducción</a></li>
+  <li><a href="#configuración-y-paquetes" id="toc-configuración-y-paquetes" class="nav-link" data-scroll-target="#configuración-y-paquetes">Configuración y Paquetes</a></li>
+  <li><a href="#mapeo-de-variables" id="toc-mapeo-de-variables" class="nav-link" data-scroll-target="#mapeo-de-variables">Mapeo de Variables</a></li>
+  <li><a href="#función-de-procesamiento" id="toc-función-de-procesamiento" class="nav-link" data-scroll-target="#función-de-procesamiento">Función de Procesamiento</a></li>
+  <li><a href="#ejecución-del-procesamiento" id="toc-ejecución-del-procesamiento" class="nav-link" data-scroll-target="#ejecución-del-procesamiento">Ejecución del Procesamiento</a></li>
+  <li><a href="#resumen-de-datos-generados" id="toc-resumen-de-datos-generados" class="nav-link" data-scroll-target="#resumen-de-datos-generados">Resumen de Datos Generados</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/2-network-from-surveys.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/2-network-from-surveys.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/gss-cleaning.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/gss-cleaning.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -3957,7 +3960,7 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Redes desde Encuestas</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Código</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Mostrar todo el código</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Ocultar todo el código</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">Ver el código fuente</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title">Limpieza de Datos GSS</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Código</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Mostrar todo el código</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Ocultar todo el código</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">Ver el código fuente</a></li></ul></div></div>
 </div>
 
 
@@ -3986,40 +3989,221 @@ vertical-align: -.125em;
 </header>
 
 
-<p>Este módulo cubre la metodología de imputación de redes basada en <strong>Smith &amp; McPherson (2014)</strong> y <strong>McPherson &amp; Smith (2019)</strong>.</p>
-<section id="pipeline-de-trabajo" class="level2">
-<h2 class="anchored" data-anchor-id="pipeline-de-trabajo">Pipeline de Trabajo</h2>
-<ol type="1">
-<li><strong>Estimación de Homofilia:</strong> Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).</li>
-<li><strong>Imputación de Red:</strong> Generar lazos probables entre encuestados basados en su similitud en el “Blau space” (espacio social).</li>
-<li><strong>Difusión:</strong> Simular procesos de difusión en la red imputada.</li>
-</ol>
+<section id="introducción" class="level2">
+<h2 class="anchored" data-anchor-id="introducción">Introducción</h2>
+<p>Este documento detalla el proceso de limpieza y preparación de los datos de la <strong>General Social Survey (GSS)</strong> (años 1985 y 2004) para replicar el análisis de homofilia de Smith &amp; McPherson (2014).</p>
+<p>El código aquí presentado es una adaptación del script <code>01_data_prep.R</code> del material de replicación original.</p>
 </section>
-<section id="replicación-smith-mcpherson-2014" class="level2">
-<h2 class="anchored" data-anchor-id="replicación-smith-mcpherson-2014">Replicación: Smith &amp; McPherson (2014)</h2>
-<p>Utilizaremos los scripts ubicados en la carpeta <code>replication-smith2014-table3/</code> como base.</p>
-<p>A continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:</p>
+<section id="configuración-y-paquetes" class="level2">
+<h2 class="anchored" data-anchor-id="configuración-y-paquetes">Configuración y Paquetes</h2>
 <div class="cell">
 <details open class="code-fold">
 <summary>Código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Intento de leer el archivo de configuración si existe</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>config_path <span class="ot">&lt;-</span> <span class="st">&quot;replication-smith2014-table3/00_config.R&quot;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(config_path)) {</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Solo leemos las primeras líneas como demostración de texto</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="fu">readLines</span>(config_path), <span class="dv">10</span>)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">&quot;Archivo de configuración no encontrado.&quot;</span>)</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Configuración de rutas</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>GSS_1985_PATH <span class="ot">&lt;-</span> <span class="st">&quot;data/GSS_1985_NORC.dta&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>GSS_2004_PATH <span class="ot">&lt;-</span> <span class="st">&quot;data/GSS_2004_NORC.dta&quot;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>OUTPUT_DIR <span class="ot">&lt;-</span> <span class="st">&quot;data&quot;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(OUTPUT_DIR)) <span class="fu">dir.create</span>(OUTPUT_DIR)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] &quot;Archivo de configuración no encontrado.&quot;</code></pre>
-</div>
 </div>
 </section>
-<section id="próximos-pasos" class="level2">
-<h2 class="anchored" data-anchor-id="próximos-pasos">Próximos Pasos</h2>
-<p>En la sesión presencial, profundizaremos en el script <code>02_case_control_construction.R</code> para entender cómo se construyen los lazos probables.</p>
+<section id="mapeo-de-variables" class="level2">
+<h2 class="anchored" data-anchor-id="mapeo-de-variables">Mapeo de Variables</h2>
+<p>Definimos un mapeo para estandarizar los nombres de variables entre los distintos años de la GSS.</p>
+<div class="cell">
+<details open class="code-fold">
+<summary>Código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mapeo de Variables Originales (GSS names) a Variables Estandarizadas</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>VAR_MAP <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">ID =</span> <span class="st">&quot;id&quot;</span>,             <span class="co"># Respondent ID</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">AGE =</span> <span class="st">&quot;age&quot;</span>,           <span class="co"># Age of respondent</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">SEX =</span> <span class="st">&quot;sex&quot;</span>,           <span class="co"># Sex of respondent</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">RACE =</span> <span class="st">&quot;race&quot;</span>,         <span class="co"># Race of respondent</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">RELIG =</span> <span class="st">&quot;relig&quot;</span>,       <span class="co"># Religion of respondent</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">EDUC =</span> <span class="st">&quot;educ&quot;</span>,         <span class="co"># Education (years) of respondent</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Atributos de los Alter (Prefixes)</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_AGE =</span> <span class="st">&quot;age&quot;</span>,     <span class="co"># e.g., age1, age2...</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_SEX =</span> <span class="st">&quot;sex&quot;</span>,     <span class="co"># e.g., sex1, sex2...</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_RACE =</span> <span class="st">&quot;race&quot;</span>,   <span class="co"># e.g., race1, race2...</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_RELIG =</span> <span class="st">&quot;relig&quot;</span>, <span class="co"># e.g., relig1, relig2...</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_EDUC =</span> <span class="st">&quot;educ&quot;</span>,   <span class="co"># e.g., educ1, educ2...</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Relaciones</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_SPOUSE =</span> <span class="st">&quot;spouse&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_PARENT =</span> <span class="st">&quot;parent&quot;</span>,</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_SIBLING =</span> <span class="st">&quot;sibling&quot;</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_CHILD =</span> <span class="st">&quot;child&quot;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Mapeo de Educación (Categorías a Años de estudio)</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Basado en la recodificación del paper</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>EDUC_MAPPING <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="fl">3.5</span>,  <span class="co"># 1-6 years</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="dv">8</span>,    <span class="co"># 7-9 years</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2&quot;</span> <span class="ot">=</span> <span class="dv">11</span>,   <span class="co"># 10-12 years (Non-graduate)</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;3&quot;</span> <span class="ot">=</span> <span class="dv">12</span>,   <span class="co"># HS grad</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;4&quot;</span> <span class="ot">=</span> <span class="fl">13.5</span>, <span class="co"># Some college</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;5&quot;</span> <span class="ot">=</span> <span class="dv">14</span>,   <span class="co"># Associate deg</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;6&quot;</span> <span class="ot">=</span> <span class="dv">16</span>,   <span class="co"># Bachelor&#39;s</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;7&quot;</span> <span class="ot">=</span> <span class="dv">18</span>    <span class="co"># Grad/Prof</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="función-de-procesamiento" class="level2">
+<h2 class="anchored" data-anchor-id="función-de-procesamiento">Función de Procesamiento</h2>
+<p>Creamos una función genérica <code>prepare_gss_data</code> que: 1. Carga el archivo RAW. 2. Extrae atributos del Ego. 3. Reshapea los atributos de los Alters (de Wide a Long). 4. Recodifica Raza y Educación.</p>
+<div class="cell">
+<details open class="code-fold">
+<summary>Código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>prepare_gss_data <span class="ot">&lt;-</span> <span class="cf">function</span>(file_path, year) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="fu">paste</span>(<span class="st">&quot;Procesando año:&quot;</span>, year))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Cargar Datos</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">grepl</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">.dta$&quot;</span>, file_path)) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># haven lee .dta</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    raw_data <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(file_path)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    raw_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(file_path)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convertir nombres a minúsculas para consistencia (GSS a veces varía)</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># names(raw_data) &lt;- tolower(names(raw_data)) </span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># NOTA: Asumiremos nombres consistentes con el VAR_MAP por ahora.</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Variables Ego</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Seleccionamos y renombramos</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  ego_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(VAR_MAP<span class="sc">$</span>ID, VAR_MAP<span class="sc">$</span>AGE, VAR_MAP<span class="sc">$</span>SEX, VAR_MAP<span class="sc">$</span>RACE, VAR_MAP<span class="sc">$</span>RELIG, VAR_MAP<span class="sc">$</span>EDUC)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Verificar existencia (simple check)</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">all</span>(ego_vars <span class="sc">%in%</span> <span class="fu">names</span>(raw_data))) {</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>     missing <span class="ot">&lt;-</span> ego_vars[<span class="sc">!</span>ego_vars <span class="sc">%in%</span> <span class="fu">names</span>(raw_data)]</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>     <span class="fu">warning</span>(<span class="fu">paste</span>(<span class="st">&quot;Faltan variables ego:&quot;</span>, <span class="fu">paste</span>(missing, <span class="at">collapse=</span><span class="st">&quot;, &quot;</span>)))</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  ego_df <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">any_of</span>(ego_vars)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_id =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>ID),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_age =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>AGE),</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_sex =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>SEX),</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_race =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>RACE),</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_relig =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>RELIG),</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_educ =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>EDUC)</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">year =</span> year) <span class="sc">%&gt;%</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>() <span class="co"># Eliminar casos con datos faltantes en atributos propios</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Variables Alter (Reshape Wide -&gt; Long)</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  max_alters <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  alter_long <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>max_alters) {</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Construir nombres de columnas para el alter i</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    col_age <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_AGE, i)</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    col_sex <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_SEX, i)</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    col_race <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_RACE, i)</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    col_relig <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_RELIG, i)</span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    col_educ <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_EDUC, i)</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Columnas esperadas</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>    current_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(col_age, col_sex, col_race, col_relig, col_educ)</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Verificar si existen en la data</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">all</span>(current_cols <span class="sc">%in%</span> <span class="fu">names</span>(raw_data))) {</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>      temp <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(<span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>ID), <span class="fu">all_of</span>(current_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>          <span class="at">ego_id =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>ID),</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_age =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_age),</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_sex =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_sex),</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_race =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_race),</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_relig =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_relig),</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_educ_cat =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_educ)</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">alter_rank =</span> i)</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Kinship (simplificado para este ejemplo)</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Aquí se podría añadir lógica de is_kin basada en spouse1, parent1, etc.</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Para esta versión &quot;clean&quot;, nos enfocaremos en atributos demográficos.</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>      alter_long <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(alter_long, temp)</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 4. Join y Limpieza Final</span></span>
+<span id="cb3-79"><a href="#cb3-79" aria-hidden="true" tabindex="-1"></a>  dyads <span class="ot">&lt;-</span> alter_long <span class="sc">%&gt;%</span></span>
+<span id="cb3-80"><a href="#cb3-80" aria-hidden="true" tabindex="-1"></a>    <span class="fu">inner_join</span>(ego_df, <span class="at">by =</span> <span class="st">&quot;ego_id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb3-81"><a href="#cb3-81" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(alter_sex)) <span class="co"># Eliminar alters vacíos</span></span>
+<span id="cb3-82"><a href="#cb3-82" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-83"><a href="#cb3-83" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recodificación de Raza (Estandarización)</span></span>
+<span id="cb3-84"><a href="#cb3-84" aria-hidden="true" tabindex="-1"></a>  <span class="co"># GSS: 1=White, 2=Black, 3=Other (Simplificado)</span></span>
+<span id="cb3-85"><a href="#cb3-85" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Dependiendo del año GSS, esto puede variar. Asumimos codificación estándar del paper.</span></span>
+<span id="cb3-86"><a href="#cb3-86" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 4-&gt;1 (White), 2-&gt;2 (Black), Resto-&gt;3 (Other)</span></span>
+<span id="cb3-87"><a href="#cb3-87" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb3-88"><a href="#cb3-88" aria-hidden="true" tabindex="-1"></a>  dyads <span class="ot">&lt;-</span> dyads <span class="sc">%&gt;%</span></span>
+<span id="cb3-89"><a href="#cb3-89" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb3-90"><a href="#cb3-90" aria-hidden="true" tabindex="-1"></a>      <span class="at">alter_race_orig =</span> <span class="fu">as.numeric</span>(alter_race),</span>
+<span id="cb3-91"><a href="#cb3-91" aria-hidden="true" tabindex="-1"></a>      <span class="at">alter_race =</span> <span class="fu">case_when</span>(</span>
+<span id="cb3-92"><a href="#cb3-92" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>(alter_race) <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># White</span></span>
+<span id="cb3-93"><a href="#cb3-93" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>(alter_race) <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">2</span>, <span class="co"># Black</span></span>
+<span id="cb3-94"><a href="#cb3-94" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>(alter_race) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>) <span class="sc">~</span> <span class="dv">3</span>, <span class="co"># Other</span></span>
+<span id="cb3-95"><a href="#cb3-95" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_real_</span></span>
+<span id="cb3-96"><a href="#cb3-96" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb3-97"><a href="#cb3-97" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_race =</span> <span class="fu">as.numeric</span>(ego_race)</span>
+<span id="cb3-98"><a href="#cb3-98" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-99"><a href="#cb3-99" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-100"><a href="#cb3-100" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recodificación de Educación</span></span>
+<span id="cb3-101"><a href="#cb3-101" aria-hidden="true" tabindex="-1"></a>  dyads <span class="ot">&lt;-</span> dyads <span class="sc">%&gt;%</span></span>
+<span id="cb3-102"><a href="#cb3-102" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb3-103"><a href="#cb3-103" aria-hidden="true" tabindex="-1"></a>      <span class="at">alter_educ =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(<span class="fu">factor</span>(alter_educ_cat, </span>
+<span id="cb3-104"><a href="#cb3-104" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">levels =</span> <span class="fu">names</span>(EDUC_MAPPING), </span>
+<span id="cb3-105"><a href="#cb3-105" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">labels =</span> EDUC_MAPPING)))</span>
+<span id="cb3-106"><a href="#cb3-106" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb3-107"><a href="#cb3-107" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>(ego_age, alter_age, ego_educ, alter_educ, ego_sex, alter_sex, ego_race, alter_race)</span>
+<span id="cb3-108"><a href="#cb3-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-109"><a href="#cb3-109" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(dyads)</span>
+<span id="cb3-110"><a href="#cb3-110" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="ejecución-del-procesamiento" class="level2">
+<h2 class="anchored" data-anchor-id="ejecución-del-procesamiento">Ejecución del Procesamiento</h2>
+<p>Procesamos ambos datasets y guardamos los resultados en formato RDS para su uso en los módulos de análisis.</p>
+<div class="cell">
+<details open class="code-fold">
+<summary>Código</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Procesar 1985</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(GSS_1985_PATH)) {</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  clean_1985 <span class="ot">&lt;-</span> <span class="fu">prepare_gss_data</span>(GSS_1985_PATH, <span class="dv">1985</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(clean_1985, <span class="at">file =</span> <span class="fu">file.path</span>(OUTPUT_DIR, <span class="st">&quot;clean_gss_1985.rds&quot;</span>))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;1985 guardado. N Dyads:&quot;</span>, <span class="fu">nrow</span>(clean_1985)))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">&quot;Archivo GSS 1985 no encontrado.&quot;</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Procesar 2004</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(GSS_2004_PATH)) {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  clean_2004 <span class="ot">&lt;-</span> <span class="fu">prepare_gss_data</span>(GSS_2004_PATH, <span class="dv">2004</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(clean_2004, <span class="at">file =</span> <span class="fu">file.path</span>(OUTPUT_DIR, <span class="st">&quot;clean_gss_2004.rds&quot;</span>))</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;2004 guardado. N Dyads:&quot;</span>, <span class="fu">nrow</span>(clean_2004)))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">&quot;Archivo GSS 2004 no encontrado.&quot;</span>)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+</div>
+</section>
+<section id="resumen-de-datos-generados" class="level2">
+<h2 class="anchored" data-anchor-id="resumen-de-datos-generados">Resumen de Datos Generados</h2>
 
 
 <!-- -->
@@ -4478,45 +4662,245 @@ vertical-align: -.125em;
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Redes desde Encuestas&quot;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> &quot;Aníbal Olivera&quot;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> &quot;2025-01-08&quot;</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>Este módulo cubre la metodología de imputación de redes basada en **Smith &amp; McPherson (2014)** y **McPherson &amp; Smith (2019)**.</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## Pipeline de Trabajo</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Estimación de Homofilia:** Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Imputación de Red:** Generar lazos probables entre encuestados basados en su similitud en el &quot;Blau space&quot; (espacio social).</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>**Difusión:** Simular procesos de difusión en la red imputada.</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">## Replicación: Smith &amp; McPherson (2014)</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>Utilizaremos los scripts ubicados en la carpeta <span class="in">`replication-smith2014-table3/`</span> como base.</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>A continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load-config</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Intento de leer el archivo de configuración si existe</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>config_path <span class="ot">&lt;-</span> <span class="st">&quot;replication-smith2014-table3/00_config.R&quot;</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(config_path)) {</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Solo leemos las primeras líneas como demostración de texto</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">head</span>(<span class="fu">readLines</span>(config_path), <span class="dv">10</span>)</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">&quot;Archivo de configuración no encontrado.&quot;</span>)</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="fu">## Próximos Pasos</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>En la sesión presencial, profundizaremos en el script <span class="in">`02_case_control_construction.R`</span> para entender cómo se construyen los lazos probables.</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Limpieza de Datos GSS&quot;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> &quot;Aníbal Olivera&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> &quot;2025-01-08&quot;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Introducción</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Este documento detalla el proceso de limpieza y preparación de los datos de la **General Social Survey (GSS)** (años 1985 y 2004) para replicar el análisis de homofilia de Smith &amp; McPherson (2014).</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>El código aquí presentado es una adaptación del script <span class="in">`01_data_prep.R`</span> del material de replicación original.</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Configuración y Paquetes</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Configuración de rutas</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>GSS_1985_PATH <span class="ot">&lt;-</span> <span class="st">&quot;data/GSS_1985_NORC.dta&quot;</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>GSS_2004_PATH <span class="ot">&lt;-</span> <span class="st">&quot;data/GSS_2004_NORC.dta&quot;</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>OUTPUT_DIR <span class="ot">&lt;-</span> <span class="st">&quot;data&quot;</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">dir.exists</span>(OUTPUT_DIR)) <span class="fu">dir.create</span>(OUTPUT_DIR)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mapeo de Variables</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>Definimos un mapeo para estandarizar los nombres de variables entre los distintos años de la GSS.</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: mappings</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Mapeo de Variables Originales (GSS names) a Variables Estandarizadas</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>VAR_MAP <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">ID =</span> <span class="st">&quot;id&quot;</span>,             <span class="co"># Respondent ID</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">AGE =</span> <span class="st">&quot;age&quot;</span>,           <span class="co"># Age of respondent</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">SEX =</span> <span class="st">&quot;sex&quot;</span>,           <span class="co"># Sex of respondent</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">RACE =</span> <span class="st">&quot;race&quot;</span>,         <span class="co"># Race of respondent</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>  <span class="at">RELIG =</span> <span class="st">&quot;relig&quot;</span>,       <span class="co"># Religion of respondent</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a>  <span class="at">EDUC =</span> <span class="st">&quot;educ&quot;</span>,         <span class="co"># Education (years) of respondent</span></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Atributos de los Alter (Prefixes)</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_AGE =</span> <span class="st">&quot;age&quot;</span>,     <span class="co"># e.g., age1, age2...</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_SEX =</span> <span class="st">&quot;sex&quot;</span>,     <span class="co"># e.g., sex1, sex2...</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_RACE =</span> <span class="st">&quot;race&quot;</span>,   <span class="co"># e.g., race1, race2...</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_RELIG =</span> <span class="st">&quot;relig&quot;</span>, <span class="co"># e.g., relig1, relig2...</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>  <span class="at">ALTER_EDUC =</span> <span class="st">&quot;educ&quot;</span>,   <span class="co"># e.g., educ1, educ2...</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Relaciones</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_SPOUSE =</span> <span class="st">&quot;spouse&quot;</span>,</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_PARENT =</span> <span class="st">&quot;parent&quot;</span>,</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_SIBLING =</span> <span class="st">&quot;sibling&quot;</span>,</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>  <span class="at">REL_CHILD =</span> <span class="st">&quot;child&quot;</span></span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="co"># Mapeo de Educación (Categorías a Años de estudio)</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="co"># Basado en la recodificación del paper</span></span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>EDUC_MAPPING <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="fl">3.5</span>,  <span class="co"># 1-6 years</span></span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="dv">8</span>,    <span class="co"># 7-9 years</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;2&quot;</span> <span class="ot">=</span> <span class="dv">11</span>,   <span class="co"># 10-12 years (Non-graduate)</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;3&quot;</span> <span class="ot">=</span> <span class="dv">12</span>,   <span class="co"># HS grad</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;4&quot;</span> <span class="ot">=</span> <span class="fl">13.5</span>, <span class="co"># Some college</span></span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;5&quot;</span> <span class="ot">=</span> <span class="dv">14</span>,   <span class="co"># Associate deg</span></span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;6&quot;</span> <span class="ot">=</span> <span class="dv">16</span>,   <span class="co"># Bachelor&#39;s</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;7&quot;</span> <span class="ot">=</span> <span class="dv">18</span>    <span class="co"># Grad/Prof</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="fu">## Función de Procesamiento</span></span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>Creamos una función genérica <span class="in">`prepare_gss_data`</span> que:</span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Carga el archivo RAW.</span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Extrae atributos del Ego.</span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Reshapea los atributos de los Alters (de Wide a Long).</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span>Recodifica Raza y Educación.</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: func-prep</span></span>
+<span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>prepare_gss_data <span class="ot">&lt;-</span> <span class="cf">function</span>(file_path, year) {</span>
+<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="fu">paste</span>(<span class="st">&quot;Procesando año:&quot;</span>, year))</span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Cargar Datos</span></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">grepl</span>(<span class="st">&quot;</span><span class="sc">\\</span><span class="st">.dta$&quot;</span>, file_path)) {</span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    <span class="co"># haven lee .dta</span></span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>    raw_data <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(file_path)</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>    raw_data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(file_path)</span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Convertir nombres a minúsculas para consistencia (GSS a veces varía)</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>  <span class="co"># names(raw_data) &lt;- tolower(names(raw_data)) </span></span>
+<span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a>  <span class="co"># NOTA: Asumiremos nombres consistentes con el VAR_MAP por ahora.</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. Variables Ego</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Seleccionamos y renombramos</span></span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>  ego_vars <span class="ot">&lt;-</span> <span class="fu">c</span>(VAR_MAP<span class="sc">$</span>ID, VAR_MAP<span class="sc">$</span>AGE, VAR_MAP<span class="sc">$</span>SEX, VAR_MAP<span class="sc">$</span>RACE, VAR_MAP<span class="sc">$</span>RELIG, VAR_MAP<span class="sc">$</span>EDUC)</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Verificar existencia (simple check)</span></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">all</span>(ego_vars <span class="sc">%in%</span> <span class="fu">names</span>(raw_data))) {</span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>     missing <span class="ot">&lt;-</span> ego_vars[<span class="sc">!</span>ego_vars <span class="sc">%in%</span> <span class="fu">names</span>(raw_data)]</span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>     <span class="fu">warning</span>(<span class="fu">paste</span>(<span class="st">&quot;Faltan variables ego:&quot;</span>, <span class="fu">paste</span>(missing, <span class="at">collapse=</span><span class="st">&quot;, &quot;</span>)))</span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>  ego_df <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">any_of</span>(ego_vars)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rename</span>(</span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_id =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>ID),</span>
+<span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_age =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>AGE),</span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_sex =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>SEX),</span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_race =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>RACE),</span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_relig =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>RELIG),</span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_educ =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>EDUC)</span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">year =</span> year) <span class="sc">%&gt;%</span></span>
+<span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>() <span class="co"># Eliminar casos con datos faltantes en atributos propios</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Variables Alter (Reshape Wide -&gt; Long)</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>  max_alters <span class="ot">&lt;-</span> <span class="dv">5</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a>  alter_long <span class="ot">&lt;-</span> <span class="fu">data.frame</span>()</span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>max_alters) {</span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Construir nombres de columnas para el alter i</span></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>    col_age <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_AGE, i)</span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>    col_sex <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_SEX, i)</span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>    col_race <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_RACE, i)</span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>    col_relig <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_RELIG, i)</span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>    col_educ <span class="ot">&lt;-</span> <span class="fu">paste0</span>(VAR_MAP<span class="sc">$</span>ALTER_EDUC, i)</span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Columnas esperadas</span></span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>    current_cols <span class="ot">&lt;-</span> <span class="fu">c</span>(col_age, col_sex, col_race, col_relig, col_educ)</span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Verificar si existen en la data</span></span>
+<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">all</span>(current_cols <span class="sc">%in%</span> <span class="fu">names</span>(raw_data))) {</span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a>      temp <span class="ot">&lt;-</span> raw_data <span class="sc">%&gt;%</span></span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(<span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>ID), <span class="fu">all_of</span>(current_cols)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(</span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>          <span class="at">ego_id =</span> <span class="sc">!!</span><span class="fu">sym</span>(VAR_MAP<span class="sc">$</span>ID),</span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_age =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_age),</span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_sex =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_sex),</span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_race =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_race),</span>
+<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_relig =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_relig),</span>
+<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>          <span class="at">alter_educ_cat =</span> <span class="sc">!!</span><span class="fu">sym</span>(col_educ)</span>
+<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>        ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">alter_rank =</span> i)</span>
+<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Kinship (simplificado para este ejemplo)</span></span>
+<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Aquí se podría añadir lógica de is_kin basada en spouse1, parent1, etc.</span></span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Para esta versión &quot;clean&quot;, nos enfocaremos en atributos demográficos.</span></span>
+<span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a>      alter_long <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(alter_long, temp)</span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 4. Join y Limpieza Final</span></span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a>  dyads <span class="ot">&lt;-</span> alter_long <span class="sc">%&gt;%</span></span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>    <span class="fu">inner_join</span>(ego_df, <span class="at">by =</span> <span class="st">&quot;ego_id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(alter_sex)) <span class="co"># Eliminar alters vacíos</span></span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recodificación de Raza (Estandarización)</span></span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a>  <span class="co"># GSS: 1=White, 2=Black, 3=Other (Simplificado)</span></span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Dependiendo del año GSS, esto puede variar. Asumimos codificación estándar del paper.</span></span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 4-&gt;1 (White), 2-&gt;2 (Black), Resto-&gt;3 (Other)</span></span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a>  dyads <span class="ot">&lt;-</span> dyads <span class="sc">%&gt;%</span></span>
+<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a>      <span class="at">alter_race_orig =</span> <span class="fu">as.numeric</span>(alter_race),</span>
+<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a>      <span class="at">alter_race =</span> <span class="fu">case_when</span>(</span>
+<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>(alter_race) <span class="sc">==</span> <span class="dv">4</span> <span class="sc">~</span> <span class="dv">1</span>, <span class="co"># White</span></span>
+<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>(alter_race) <span class="sc">==</span> <span class="dv">2</span> <span class="sc">~</span> <span class="dv">2</span>, <span class="co"># Black</span></span>
+<span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>(alter_race) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">5</span>) <span class="sc">~</span> <span class="dv">3</span>, <span class="co"># Other</span></span>
+<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a>        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_real_</span></span>
+<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a>      <span class="at">ego_race =</span> <span class="fu">as.numeric</span>(ego_race)</span>
+<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recodificación de Educación</span></span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a>  dyads <span class="ot">&lt;-</span> dyads <span class="sc">%&gt;%</span></span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(</span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a>      <span class="at">alter_educ =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(<span class="fu">factor</span>(alter_educ_cat, </span>
+<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">levels =</span> <span class="fu">names</span>(EDUC_MAPPING), </span>
+<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">labels =</span> EDUC_MAPPING)))</span>
+<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>(ego_age, alter_age, ego_educ, alter_educ, ego_sex, alter_sex, ego_race, alter_race)</span>
+<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(dyads)</span>
+<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ejecución del Procesamiento</span></span>
+<span id="cb5-207"><a href="#cb5-207" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-208"><a href="#cb5-208" aria-hidden="true" tabindex="-1"></a>Procesamos ambos datasets y guardamos los resultados en formato RDS para su uso en los módulos de análisis.</span>
+<span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-prep</span></span>
+<span id="cb5-214"><a href="#cb5-214" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb5-215"><a href="#cb5-215" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-216"><a href="#cb5-216" aria-hidden="true" tabindex="-1"></a><span class="co"># Procesar 1985</span></span>
+<span id="cb5-217"><a href="#cb5-217" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(GSS_1985_PATH)) {</span>
+<span id="cb5-218"><a href="#cb5-218" aria-hidden="true" tabindex="-1"></a>  clean_1985 <span class="ot">&lt;-</span> <span class="fu">prepare_gss_data</span>(GSS_1985_PATH, <span class="dv">1985</span>)</span>
+<span id="cb5-219"><a href="#cb5-219" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(clean_1985, <span class="at">file =</span> <span class="fu">file.path</span>(OUTPUT_DIR, <span class="st">&quot;clean_gss_1985.rds&quot;</span>))</span>
+<span id="cb5-220"><a href="#cb5-220" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;1985 guardado. N Dyads:&quot;</span>, <span class="fu">nrow</span>(clean_1985)))</span>
+<span id="cb5-221"><a href="#cb5-221" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-222"><a href="#cb5-222" aria-hidden="true" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">&quot;Archivo GSS 1985 no encontrado.&quot;</span>)</span>
+<span id="cb5-223"><a href="#cb5-223" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-224"><a href="#cb5-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-225"><a href="#cb5-225" aria-hidden="true" tabindex="-1"></a><span class="co"># Procesar 2004</span></span>
+<span id="cb5-226"><a href="#cb5-226" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(GSS_2004_PATH)) {</span>
+<span id="cb5-227"><a href="#cb5-227" aria-hidden="true" tabindex="-1"></a>  clean_2004 <span class="ot">&lt;-</span> <span class="fu">prepare_gss_data</span>(GSS_2004_PATH, <span class="dv">2004</span>)</span>
+<span id="cb5-228"><a href="#cb5-228" aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(clean_2004, <span class="at">file =</span> <span class="fu">file.path</span>(OUTPUT_DIR, <span class="st">&quot;clean_gss_2004.rds&quot;</span>))</span>
+<span id="cb5-229"><a href="#cb5-229" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">paste</span>(<span class="st">&quot;2004 guardado. N Dyads:&quot;</span>, <span class="fu">nrow</span>(clean_2004)))</span>
+<span id="cb5-230"><a href="#cb5-230" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-231"><a href="#cb5-231" aria-hidden="true" tabindex="-1"></a>  <span class="fu">warning</span>(<span class="st">&quot;Archivo GSS 2004 no encontrado.&quot;</span>)</span>
+<span id="cb5-232"><a href="#cb5-232" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-233"><a href="#cb5-233" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-234"><a href="#cb5-234" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-235"><a href="#cb5-235" aria-hidden="true" tabindex="-1"></a><span class="fu">## Resumen de Datos Generados</span></span>
+<span id="cb5-236"><a href="#cb5-236" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-239"><a href="#cb5-239" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-240"><a href="#cb5-240" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: summary</span></span>
+<span id="cb5-241"><a href="#cb5-241" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb5-242"><a href="#cb5-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-243"><a href="#cb5-243" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar para mostrar resumen si existen</span></span>
+<span id="cb5-244"><a href="#cb5-244" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(<span class="st">&quot;data/clean_gss_1985.rds&quot;</span>)) {</span>
+<span id="cb5-245"><a href="#cb5-245" aria-hidden="true" tabindex="-1"></a>  d85 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/clean_gss_1985.rds&quot;</span>)</span>
+<span id="cb5-246"><a href="#cb5-246" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;GSS 1985 Dyads:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-247"><a href="#cb5-247" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="fu">glimpse</span>(d85))</span>
+<span id="cb5-248"><a href="#cb5-248" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-249"><a href="#cb5-249" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
@@ -4524,4 +4908,4 @@ vertical-align: -.125em;
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/2-network-from-surveys.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/2-network-from-surveys.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/gss-cleaning.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/gss-cleaning.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></div></div></footer></body></html>

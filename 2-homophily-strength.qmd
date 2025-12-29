@@ -1,0 +1,195 @@
+---
+title: "Smith & McPherson (2014): Fuerza de Homofilia"
+author: "Aníbal Olivera"
+date: "2025-01-08"
+---
+
+## Objetivo
+
+Este módulo tiene como objetivo replicar la **Tabla 3** del paper:
+**Smith, McPherson & Smith-Lovin (2014), "Social Distance in the United States..."**.
+
+Estimaremos parámetros de "fuerza de homofilia" ($u, v, w, ...$) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios).
+
+## 1. Cargar Datos Limpios
+
+Cargamos los datos procesados en el paso de [Limpieza GSS](gss-cleaning.qmd).
+
+```{r}
+#| label: load-clean
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(tidyr)
+library(broom)
+library(stargazer) # Opcional, para tablas bonitas
+
+# Rutas de datos intermedios
+FILE_1985 <- "data/clean_gss_1985.rds"
+FILE_2004 <- "data/clean_gss_2004.rds"
+
+# Cargar si existen (Placeholder logic)
+if (file.exists(FILE_1985)) {
+  egos_1985 <- readRDS(FILE_1985)
+  # Nota: En gss-cleaning, guardamos directamente los DYADS (casos), no la lista completa.
+  # Ajustaremos gss-cleaning para que guarde los Egos también si es necesario, 
+  # pero para construcción de controles necesitamos el pool de Egos.
+  # REVISIÓN: gss-cleaning devuelve 'dyads' que tiene info de Ego y Alter.
+  # Podemos recuperar el set de Egos únicos desde ahí.
+  cases_1985 <- egos_1985 # Renombramos para claridad, esto son los casos observados.
+  egos_unique_1985 <- cases_1985 %>% 
+    select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %>%
+    distinct()
+} else {
+  cases_1985 <- NULL
+  egos_unique_1985 <- NULL
+}
+
+if (file.exists(FILE_2004)) {
+  cases_2004 <- readRDS(FILE_2004)
+  egos_unique_2004 <- cases_2004 %>% 
+    select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %>%
+    distinct()
+} else {
+  cases_2004 <- NULL
+  egos_unique_2004 <- NULL
+}
+
+# Combinar años (si ambos existen)
+if (!is.null(cases_1985) & !is.null(cases_2004)) {
+  all_cases <- bind_rows(cases_1985, cases_2004)
+  all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
+} else {
+  # Fallback a lo que haya (o error controlado)
+  all_cases <- bind_rows(cases_1985, cases_2004)
+  all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
+}
+```
+
+## 2. Construcción de Casos y Controles
+
+Para cada "caso" (lazo observado Ego-Alter), generamos "controles" (lazos no existentes Ego-Random).
+Metodología: emparejar cada encuestado con otro encuestado elegido al azar.
+
+```{r}
+#| label: generate-controls
+
+generate_controls <- function(ego_df, n_controls_per_case = 1) {
+  
+  if (is.null(ego_df) || nrow(ego_df) == 0) return(NULL)
+  
+  n_egos <- nrow(ego_df)
+  target_n <- n_egos * n_controls_per_case
+  
+  # Expandir egos
+  controls <- ego_df[rep(1:n_egos, each = n_controls_per_case), ]
+  
+  # Samplear alters (otros egos)
+  alter_indices <- sample(1:n_egos, nrow(controls), replace = TRUE)
+  sampled_alters <- ego_df[alter_indices, ]
+  
+  # Asignar atributos del alter ficticio
+  controls$alter_id <- sampled_alters$ego_id
+  controls$alter_age <- sampled_alters$ego_age
+  controls$alter_sex <- sampled_alters$ego_sex
+  controls$alter_race <- sampled_alters$ego_race
+  controls$alter_relig <- sampled_alters$ego_relig
+  controls$alter_educ <- sampled_alters$ego_educ # Ya está en años
+  
+  # Eliminar auto-lazos accidentales
+  controls <- controls %>% filter(ego_id != alter_id)
+  
+  # Marcas
+  controls$tie <- 0
+  controls$is_kin <- 0
+  
+  return(controls)
+}
+
+# Generar controles (usando el pool completo o por año? Lo correcto es por año para no mezclar tiempos)
+# Generamos controles por separado para 1985 y 2004
+controls_1985 <- if(!is.null(egos_unique_1985)) generate_controls(egos_unique_1985, n_controls_per_case = 20) else NULL 
+# NOTA: Usamos ratio alto (ej. 20) para acercarnos a la N reportada en paper, o 1 para test rápido.
+# Table 3 Model 1 N = 1,139,161. Casos reales ~3000 * 3 alters = 9000. 
+# Implica muchísimos controles o un set expandido. Usaremos 10 para demostración rápida.
+
+controls_2004 <- if(!is.null(egos_unique_2004)) generate_controls(egos_unique_2004, n_controls_per_case = 20) else NULL
+
+all_controls <- bind_rows(controls_1985, controls_2004)
+```
+
+## 3. Calcular Predictores (Distancia Social)
+
+Calculamos las diferencias en dimensiones clave entre Ego y Alter.
+
+```{r}
+#| label: calc-predictors
+
+calculate_predictors <- function(dyad_df) {
+  dyad_df %>%
+    mutate(
+      # Binarias (1 = Diferente, 0 = Igual)
+      diff_sex = if_else(ego_sex != alter_sex, 1, 0),
+      diff_race = if_else(ego_race != alter_race, 1, 0),
+      diff_relig = if_else(ego_relig != alter_relig, 1, 0),
+      
+      # Continuas (Distancia Absoluta)
+      age_diff = abs(ego_age - alter_age),
+      edu_diff = abs(ego_educ - alter_educ)
+    )
+}
+
+# Preparar dataset final
+# Asegurar columna 'tie' en casos
+if(!is.null(all_cases)) all_cases$tie <- 1
+if(!is.null(all_cases)) all_cases$is_kin <- 0 # Asumimos 0 si falta, o usamos variable real si existe
+
+# Unir y calcular
+analysis_data <- bind_rows(
+  all_cases %>% select(any_of(names(all_controls))),
+  all_controls
+) 
+
+if (nrow(analysis_data) > 0) {
+  analysis_data <- calculate_predictors(analysis_data)
+}
+```
+
+## 4. Modelos de Regresión (Tabla 3)
+
+Ajustamos modelos logísticos para estimar la probabilidad de lazo ($tie=1$).
+
+$$ \log \left( \frac{P(tie=1)}{P(tie=0)} \right) = \beta_0 + \beta_1(DiffSex) + \beta_2(DiffRace) + ... $$
+
+Los coeficientes negativos indican homofilia (mayor diferencia -> menor probabilidad de lazo).
+
+```{r}
+#| label: models
+#| results: asis
+
+if (exists("analysis_data") && nrow(analysis_data) > 0) {
+  
+  # Modelo 1: Efectos principales (Main Effects)
+  m1 <- glm(tie ~ diff_race + diff_relig + diff_sex + age_diff + edu_diff + factor(year), 
+            data = analysis_data, 
+            family = binomial(link = "logit"))
+  
+  # Modelo 2: Interacciones con Año (Cambio en homofilia)
+  m2 <- glm(tie ~ (diff_race + diff_relig + diff_sex + age_diff + edu_diff) * factor(year), 
+            data = analysis_data, 
+            family = binomial(link = "logit"))
+
+  stargazer(m1, m2, type = "html", 
+            title = "Replicación Tabla 3: Modelos Logísticos de Homofilia",
+            column.labels = c("Modelo 1", "Modelo 2"),
+            covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ"),
+            dep.var.labels = "Probabilidad de Lazo")
+} else {
+  print("No hay datos suficientes para correr los modelos.")
+}
+```
+
+## Conclusión
+
+Los coeficientes obtenidos representan la "fuerza de selección" impuesta por la estructura social. Estos parámetros serán utilizados en el siguiente módulo para imputar redes en encuestas donde no observamos los lazos directamente.

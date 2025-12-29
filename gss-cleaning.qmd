@@ -1,0 +1,239 @@
+---
+title: "Limpieza de Datos GSS"
+author: "Aníbal Olivera"
+date: "2025-01-08"
+---
+
+## Introducción
+
+Este documento detalla el proceso de limpieza y preparación de los datos de la **General Social Survey (GSS)** (años 1985 y 2004) para replicar el análisis de homofilia de Smith & McPherson (2014).
+
+El código aquí presentado es una adaptación del script `01_data_prep.R` del material de replicación original.
+
+## Configuración y Paquetes
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(tidyr)
+library(haven)
+library(readr)
+
+# Configuración de rutas
+GSS_1985_PATH <- "data/GSS_1985_NORC.dta"
+GSS_2004_PATH <- "data/GSS_2004_NORC.dta"
+OUTPUT_DIR <- "data"
+
+if (!dir.exists(OUTPUT_DIR)) dir.create(OUTPUT_DIR)
+```
+
+## Mapeo de Variables
+
+Definimos un mapeo para estandarizar los nombres de variables entre los distintos años de la GSS.
+
+```{r}
+#| label: mappings
+
+# Mapeo de Variables Originales (GSS names) a Variables Estandarizadas
+VAR_MAP <- list(
+  ID = "id",             # Respondent ID
+  AGE = "age",           # Age of respondent
+  SEX = "sex",           # Sex of respondent
+  RACE = "race",         # Race of respondent
+  RELIG = "relig",       # Religion of respondent
+  EDUC = "educ",         # Education (years) of respondent
+  
+  # Atributos de los Alter (Prefixes)
+  ALTER_AGE = "age",     # e.g., age1, age2...
+  ALTER_SEX = "sex",     # e.g., sex1, sex2...
+  ALTER_RACE = "race",   # e.g., race1, race2...
+  ALTER_RELIG = "relig", # e.g., relig1, relig2...
+  ALTER_EDUC = "educ",   # e.g., educ1, educ2...
+  
+  # Relaciones
+  REL_SPOUSE = "spouse",
+  REL_PARENT = "parent",
+  REL_SIBLING = "sibling",
+  REL_CHILD = "child"
+)
+
+# Mapeo de Educación (Categorías a Años de estudio)
+# Basado en la recodificación del paper
+EDUC_MAPPING <- c(
+  "0" = 3.5,  # 1-6 years
+  "1" = 8,    # 7-9 years
+  "2" = 11,   # 10-12 years (Non-graduate)
+  "3" = 12,   # HS grad
+  "4" = 13.5, # Some college
+  "5" = 14,   # Associate deg
+  "6" = 16,   # Bachelor's
+  "7" = 18    # Grad/Prof
+)
+```
+
+## Función de Procesamiento
+
+Creamos una función genérica `prepare_gss_data` que:
+1.  Carga el archivo RAW.
+2.  Extrae atributos del Ego.
+3.  Reshapea los atributos de los Alters (de Wide a Long).
+4.  Recodifica Raza y Educación.
+
+```{r}
+#| label: func-prep
+
+prepare_gss_data <- function(file_path, year) {
+  
+  message(paste("Procesando año:", year))
+  
+  # 1. Cargar Datos
+  if (grepl("\\.dta$", file_path)) {
+    # haven lee .dta
+    raw_data <- read_dta(file_path)
+  } else {
+    raw_data <- read.csv(file_path)
+  }
+  
+  # Convertir nombres a minúsculas para consistencia (GSS a veces varía)
+  # names(raw_data) <- tolower(names(raw_data)) 
+  # NOTA: Asumiremos nombres consistentes con el VAR_MAP por ahora.
+  
+  # 2. Variables Ego
+  # Seleccionamos y renombramos
+  ego_vars <- c(VAR_MAP$ID, VAR_MAP$AGE, VAR_MAP$SEX, VAR_MAP$RACE, VAR_MAP$RELIG, VAR_MAP$EDUC)
+  
+  # Verificar existencia (simple check)
+  if (!all(ego_vars %in% names(raw_data))) {
+     missing <- ego_vars[!ego_vars %in% names(raw_data)]
+     warning(paste("Faltan variables ego:", paste(missing, collapse=", ")))
+  }
+  
+  ego_df <- raw_data %>%
+    select(any_of(ego_vars)) %>%
+    rename(
+      ego_id = !!sym(VAR_MAP$ID),
+      ego_age = !!sym(VAR_MAP$AGE),
+      ego_sex = !!sym(VAR_MAP$SEX),
+      ego_race = !!sym(VAR_MAP$RACE),
+      ego_relig = !!sym(VAR_MAP$RELIG),
+      ego_educ = !!sym(VAR_MAP$EDUC)
+    ) %>%
+    mutate(year = year) %>%
+    drop_na() # Eliminar casos con datos faltantes en atributos propios
+    
+  # 3. Variables Alter (Reshape Wide -> Long)
+  max_alters <- 5
+  alter_long <- data.frame()
+  
+  for (i in 1:max_alters) {
+    # Construir nombres de columnas para el alter i
+    col_age <- paste0(VAR_MAP$ALTER_AGE, i)
+    col_sex <- paste0(VAR_MAP$ALTER_SEX, i)
+    col_race <- paste0(VAR_MAP$ALTER_RACE, i)
+    col_relig <- paste0(VAR_MAP$ALTER_RELIG, i)
+    col_educ <- paste0(VAR_MAP$ALTER_EDUC, i)
+    
+    # Columnas esperadas
+    current_cols <- c(col_age, col_sex, col_race, col_relig, col_educ)
+    
+    # Verificar si existen en la data
+    if (all(current_cols %in% names(raw_data))) {
+      
+      temp <- raw_data %>%
+        select(!!sym(VAR_MAP$ID), all_of(current_cols)) %>%
+        rename(
+          ego_id = !!sym(VAR_MAP$ID),
+          alter_age = !!sym(col_age),
+          alter_sex = !!sym(col_sex),
+          alter_race = !!sym(col_race),
+          alter_relig = !!sym(col_relig),
+          alter_educ_cat = !!sym(col_educ)
+        ) %>%
+        mutate(alter_rank = i)
+      
+      # Kinship (simplificado para este ejemplo)
+      # Aquí se podría añadir lógica de is_kin basada en spouse1, parent1, etc.
+      # Para esta versión "clean", nos enfocaremos en atributos demográficos.
+      
+      alter_long <- bind_rows(alter_long, temp)
+    }
+  }
+  
+  # 4. Join y Limpieza Final
+  dyads <- alter_long %>%
+    inner_join(ego_df, by = "ego_id") %>%
+    filter(!is.na(alter_sex)) # Eliminar alters vacíos
+  
+  # Recodificación de Raza (Estandarización)
+  # GSS: 1=White, 2=Black, 3=Other (Simplificado)
+  # Dependiendo del año GSS, esto puede variar. Asumimos codificación estándar del paper.
+  # 4->1 (White), 2->2 (Black), Resto->3 (Other)
+  
+  dyads <- dyads %>%
+    mutate(
+      alter_race_orig = as.numeric(alter_race),
+      alter_race = case_when(
+        as.numeric(alter_race) == 4 ~ 1, # White
+        as.numeric(alter_race) == 2 ~ 2, # Black
+        as.numeric(alter_race) %in% c(1, 3, 5) ~ 3, # Other
+        TRUE ~ NA_real_
+      ),
+      ego_race = as.numeric(ego_race)
+    )
+    
+  # Recodificación de Educación
+  dyads <- dyads %>%
+    mutate(
+      alter_educ = as.numeric(as.character(factor(alter_educ_cat, 
+                                                  levels = names(EDUC_MAPPING), 
+                                                  labels = EDUC_MAPPING)))
+    ) %>%
+    drop_na(ego_age, alter_age, ego_educ, alter_educ, ego_sex, alter_sex, ego_race, alter_race)
+
+  return(dyads)
+}
+```
+
+## Ejecución del Procesamiento
+
+Procesamos ambos datasets y guardamos los resultados en formato RDS para su uso en los módulos de análisis.
+
+```{r}
+#| label: run-prep
+#| eval: false
+
+# Procesar 1985
+if (file.exists(GSS_1985_PATH)) {
+  clean_1985 <- prepare_gss_data(GSS_1985_PATH, 1985)
+  saveRDS(clean_1985, file = file.path(OUTPUT_DIR, "clean_gss_1985.rds"))
+  print(paste("1985 guardado. N Dyads:", nrow(clean_1985)))
+} else {
+  warning("Archivo GSS 1985 no encontrado.")
+}
+
+# Procesar 2004
+if (file.exists(GSS_2004_PATH)) {
+  clean_2004 <- prepare_gss_data(GSS_2004_PATH, 2004)
+  saveRDS(clean_2004, file = file.path(OUTPUT_DIR, "clean_gss_2004.rds"))
+  print(paste("2004 guardado. N Dyads:", nrow(clean_2004)))
+} else {
+  warning("Archivo GSS 2004 no encontrado.")
+}
+```
+
+## Resumen de Datos Generados
+
+```{r}
+#| label: summary
+#| echo: false
+
+# Cargar para mostrar resumen si existen
+if (file.exists("data/clean_gss_1985.rds")) {
+  d85 <- readRDS("data/clean_gss_1985.rds")
+  cat("GSS 1985 Dyads:\n")
+  print(glimpse(d85))
+}
+```
