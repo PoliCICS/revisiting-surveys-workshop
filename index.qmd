@@ -16,7 +16,7 @@ Este workshop ofrece una introducción práctica a metodologías avanzadas para 
 
 ## Información del Curso
 
--   **Docentes:** Aníbal Olivera & Advisor
+-   **Docentes:** Aníbal Olivera & Jorge Fábrega
 -   **Fechas:**
     -   Jueves 8 de Enero: 14:30 – 15:50
     -   Viernes 9 de Enero: 09:00 – 12:50

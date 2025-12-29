@@ -60,7 +60,7 @@
     "href": "index.html#información-del-curso",
     "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
     "section": "Información del Curso",
-    "text": "Información del Curso\n\nDocentes: Aníbal Olivera & Advisor\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 12:50"
+    "text": "Información del Curso\n\nDocentes: Aníbal Olivera & Jorge Fábrega\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 12:50"
   },
   {
     "objectID": "index.html#requisitos-previos",
@@ -144,7 +144,7 @@
     "href": "2-network-from-surveys.html#replicación-smith-mcpherson-2014",
     "title": "Redes desde Encuestas",
     "section": "Replicación: Smith & McPherson (2014)",
-    "text": "Replicación: Smith & McPherson (2014)\nUtilizaremos los scripts ubicados en la carpeta replication-smith2014-table3/ como base.\nA continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:\n\n\nCódigo\n# Intento de leer el archivo de configuración si existe\nconfig_path &lt;- \"replication-smith2014-table3/00_config.R\"\n\nif (file.exists(config_path)) {\n  # Solo leemos las primeras líneas como demostración de texto\n  head(readLines(config_path), 10)\n} else {\n  print(\"Archivo de configuración no encontrado.\")\n}\n\n\n [1] \"# ==============================================================================\"\n [2] \"# 00_config.R\"                                                                   \n [3] \"# Configuration for Smith, McPherson & Smith-Lovin (2014) Replication\"           \n [4] \"# ==============================================================================\"\n [5] \"\"                                                                                \n [6] \"# ------------------------------------------------------------------------------\"\n [7] \"# 1. File Paths\"                                                                 \n [8] \"# ------------------------------------------------------------------------------\"\n [9] \"# Update these paths to point to your local GSS data extracts.\"                  \n[10] \"# The scripts assume data is in a format readable by haven::read_dta or read.csv\""
+    "text": "Replicación: Smith & McPherson (2014)\nUtilizaremos los scripts ubicados en la carpeta replication-smith2014-table3/ como base.\nA continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:\n\n\nCódigo\n# Intento de leer el archivo de configuración si existe\nconfig_path &lt;- \"replication-smith2014-table3/00_config.R\"\n\nif (file.exists(config_path)) {\n  # Solo leemos las primeras líneas como demostración de texto\n  head(readLines(config_path), 10)\n} else {\n  print(\"Archivo de configuración no encontrado.\")\n}\n\n\n[1] \"Archivo de configuración no encontrado.\""
   },
   {
     "objectID": "2-network-from-surveys.html#próximos-pasos",

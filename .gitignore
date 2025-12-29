@@ -18,3 +18,4 @@ renv/local/
 /.quarto/
 **/*.quarto_ipynb
 replication-smith2014-table3/
+_0_ignore/

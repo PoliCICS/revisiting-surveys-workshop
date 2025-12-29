@@ -1,6 +1,6 @@
 ---
 title: "Redes desde Encuestas"
-author: "Aníbal Olivera & Advisor"
+author: "Aníbal Olivera & Jorge Fábrega"
 date: "2025-01-08"
 ---
 
