@@ -1,5 +1,9 @@
 # Revisitando las encuestas: Workshop
 
+Bienvenido al repositorio del workshop.
+
+**Sitio Web:** [https://policics.github.io/revisiting-surveys-workshop/](https://policics.github.io/revisiting-surveys-workshop/)
+
 Este repositorio contiene el material y el código fuente para el sitio web del workshop "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad".
 
 ## Estructura
