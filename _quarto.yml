@@ -9,7 +9,7 @@ website:
   navbar:
     left:
       - text: Home
-        href: index.qmd
+        href: 0-index.qmd
       - text: Módulos
         menu:
           - text: Introducción
@@ -24,7 +24,7 @@ website:
       - text: Recursos
         menu:
           - text: Empezar
-            href: 0-getstarted.qmd
+            href: getstarted.qmd
           - text: Limpieza GSS
             href: gss-cleaning.qmd
 

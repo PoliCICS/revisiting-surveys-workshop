@@ -7,7 +7,8 @@ date: "2025-01-08"
 ## Objetivo
 
 Este módulo tiene como objetivo replicar la **Tabla 3** del paper:
-**Smith, McPherson & Smith-Lovin (2014), "Social Distance in the United States..."**.
+**Smith, McPherson & Smith-Lovin (2014), "Social Distance in the United States..."**
+[[DOI: 10.1177/0003122414531776](https://doi.org/10.1177/0003122414531776)]
 
 Estimaremos parámetros de "fuerza de homofilia" ($u, v, w, ...$) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios).
 

@@ -4,7 +4,7 @@ author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
 
-Este módulo cubre la metodología de imputación de redes basada en **Smith & McPherson (2014)** y **McPherson & Smith (2019)**.
+Este módulo cubre la metodología de imputación de redes basada en **Smith & McPherson (2014)** y **McPherson & Smith (2019)** [[DOI: 10.1177/2378023119868591](https://doi.org/10.1177/2378023119868591)].
 
 ## Pipeline de Trabajo
 

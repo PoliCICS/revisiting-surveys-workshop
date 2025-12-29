@@ -1,5 +1,201 @@
 [
   {
+    "objectID": "getstarted.html",
+    "href": "getstarted.html",
+    "title": "Empezar",
+    "section": "",
+    "text": "Para seguir este workshop, necesitarás tener instalado el siguiente software:\n\nR\nRStudio\nQuarto"
+  },
+  {
+    "objectID": "getstarted.html#instalación",
+    "href": "getstarted.html#instalación",
+    "title": "Empezar",
+    "section": "",
+    "text": "Para seguir este workshop, necesitarás tener instalado el siguiente software:\n\nR\nRStudio\nQuarto"
+  },
+  {
+    "objectID": "getstarted.html#restaurar-entorno-renv",
+    "href": "getstarted.html#restaurar-entorno-renv",
+    "title": "Empezar",
+    "section": "Restaurar Entorno (renv)",
+    "text": "Restaurar Entorno (renv)\nEste proyecto utiliza renv para gestionar las dependencias de R y asegurar la reproducibilidad.\n\nAbre el proyecto revisiting-surveys.Rproj en RStudio.\nEjecuta el siguiente comando en la consola de R para instalar las librerías necesarias:\n\nrenv::restore()"
+  },
+  {
+    "objectID": "getstarted.html#verificar-instalación",
+    "href": "getstarted.html#verificar-instalación",
+    "title": "Empezar",
+    "section": "Verificar Instalación",
+    "text": "Verificar Instalación\nPara verificar que todo funciona correctamente, intenta renderizar este sitio web:\n\nEn RStudio, ve a la pestaña Build.\nHaz clic en Render Website.\n\nSi el proceso termina con éxito, ¡estás listo para comenzar!"
+  },
+  {
+    "objectID": "getstarted.html#estructura-del-repositorio",
+    "href": "getstarted.html#estructura-del-repositorio",
+    "title": "Empezar",
+    "section": "Estructura del Repositorio",
+    "text": "Estructura del Repositorio\n\nreplication-smith2014-table3/: Código base para la replicación de Smith & McPherson (2014).\nfiles/: Archivos de datos y ejemplos para descargar.\ndocs/: Sitio web renderizado (no editar manualmente)."
+  },
+  {
+    "objectID": "2-homophily-strength.html",
+    "href": "2-homophily-strength.html",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "",
+    "text": "Este módulo tiene como objetivo replicar la Tabla 3 del paper: Smith, McPherson & Smith-Lovin (2014), “Social Distance in the United States…” [DOI: 10.1177/0003122414531776]\nEstimaremos parámetros de “fuerza de homofilia” (\\(u, v, w, ...\\)) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios)."
+  },
+  {
+    "objectID": "2-homophily-strength.html#objetivo",
+    "href": "2-homophily-strength.html#objetivo",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "",
+    "text": "Este módulo tiene como objetivo replicar la Tabla 3 del paper: Smith, McPherson & Smith-Lovin (2014), “Social Distance in the United States…” [DOI: 10.1177/0003122414531776]\nEstimaremos parámetros de “fuerza de homofilia” (\\(u, v, w, ...\\)) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios)."
+  },
+  {
+    "objectID": "2-homophily-strength.html#cargar-datos-limpios",
+    "href": "2-homophily-strength.html#cargar-datos-limpios",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "1. Cargar Datos Limpios",
+    "text": "1. Cargar Datos Limpios\nCargamos los datos procesados en el paso de Limpieza GSS.\n\n\nCódigo\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(broom)\nlibrary(stargazer) # Opcional, para tablas bonitas\n\n# Rutas de datos intermedios\nFILE_1985 &lt;- \"data/clean_gss_1985.rds\"\nFILE_2004 &lt;- \"data/clean_gss_2004.rds\"\n\n# Cargar si existen (Placeholder logic)\nif (file.exists(FILE_1985)) {\n    egos_1985 &lt;- readRDS(FILE_1985)\n    # Nota: En gss-cleaning, guardamos directamente los DYADS (casos), no la lista completa.\n    # Ajustaremos gss-cleaning para que guarde los Egos también si es necesario,\n    # pero para construcción de controles necesitamos el pool de Egos.\n    # REVISIÓN: gss-cleaning devuelve 'dyads' que tiene info de Ego y Alter.\n    # Podemos recuperar el set de Egos únicos desde ahí.\n    cases_1985 &lt;- egos_1985 # Renombramos para claridad, esto son los casos observados.\n    egos_unique_1985 &lt;- cases_1985 %&gt;%\n        select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %&gt;%\n        distinct()\n} else {\n    cases_1985 &lt;- NULL\n    egos_unique_1985 &lt;- NULL\n}\n\nif (file.exists(FILE_2004)) {\n    cases_2004 &lt;- readRDS(FILE_2004)\n    egos_unique_2004 &lt;- cases_2004 %&gt;%\n        select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %&gt;%\n        distinct()\n} else {\n    cases_2004 &lt;- NULL\n    egos_unique_2004 &lt;- NULL\n}\n\n# Combinar años (si ambos existen)\nif (!is.null(cases_1985) & !is.null(cases_2004)) {\n    all_cases &lt;- bind_rows(cases_1985, cases_2004)\n    all_egos &lt;- bind_rows(egos_unique_1985, egos_unique_2004)\n} else {\n    # Fallback a lo que haya (o error controlado)\n    all_cases &lt;- bind_rows(cases_1985, cases_2004)\n    all_egos &lt;- bind_rows(egos_unique_1985, egos_unique_2004)\n}"
+  },
+  {
+    "objectID": "2-homophily-strength.html#construcción-de-casos-y-controles",
+    "href": "2-homophily-strength.html#construcción-de-casos-y-controles",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "2. Construcción de Casos y Controles",
+    "text": "2. Construcción de Casos y Controles\nPara cada “caso” (lazo observado Ego-Alter), generamos “controles” (lazos no existentes Ego-Random). Metodología: emparejar cada encuestado con otro encuestado elegido al azar.\n\n\nCódigo\ngenerate_controls &lt;- function(ego_df, n_controls_per_case = 1) {\n    if (is.null(ego_df) || nrow(ego_df) == 0) {\n        return(NULL)\n    }\n\n    n_egos &lt;- nrow(ego_df)\n    target_n &lt;- n_egos * n_controls_per_case\n\n    # Expandir egos\n    controls &lt;- ego_df[rep(1:n_egos, each = n_controls_per_case), ]\n\n    # Samplear alters (otros egos)\n    alter_indices &lt;- sample(1:n_egos, nrow(controls), replace = TRUE)\n    sampled_alters &lt;- ego_df[alter_indices, ]\n\n    # Asignar atributos del alter ficticio\n    controls$alter_id &lt;- sampled_alters$ego_id\n    controls$alter_age &lt;- sampled_alters$ego_age\n    controls$alter_sex &lt;- sampled_alters$ego_sex\n    controls$alter_race &lt;- sampled_alters$ego_race\n    controls$alter_relig &lt;- sampled_alters$ego_relig\n    controls$alter_educ &lt;- sampled_alters$ego_educ # Ya está en años\n\n    # Eliminar auto-lazos accidentales\n    controls &lt;- controls %&gt;% filter(ego_id != alter_id)\n\n    # Marcas\n    controls$tie &lt;- 0\n    controls$is_kin &lt;- 0\n\n    return(controls)\n}\n\n# Generar controles (usando el pool completo o por año? Lo correcto es por año para no mezclar tiempos)\n# Generamos controles por separado para 1985 y 2004\ncontrols_1985 &lt;- if (!is.null(egos_unique_1985)) generate_controls(egos_unique_1985, n_controls_per_case = 20) else NULL\n# NOTA: Usamos ratio alto (ej. 20) para acercarnos a la N reportada en paper, o 1 para test rápido.\n# Table 3 Model 1 N = 1,139,161. Casos reales ~3000 * 3 alters = 9000.\n# Implica muchísimos controles o un set expandido. Usaremos 10 para demostración rápida.\n\ncontrols_2004 &lt;- if (!is.null(egos_unique_2004)) generate_controls(egos_unique_2004, n_controls_per_case = 20) else NULL\n\nall_controls &lt;- bind_rows(controls_1985, controls_2004)"
+  },
+  {
+    "objectID": "2-homophily-strength.html#calcular-predictores-distancia-social",
+    "href": "2-homophily-strength.html#calcular-predictores-distancia-social",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "3. Calcular Predictores (Distancia Social)",
+    "text": "3. Calcular Predictores (Distancia Social)\nCalculamos las diferencias en dimensiones clave entre Ego y Alter.\n\n\nCódigo\ncalculate_predictors &lt;- function(dyad_df) {\n    dyad_df %&gt;%\n        mutate(\n            # Binarias (1 = Diferente, 0 = Igual)\n            diff_sex = if_else(ego_sex != alter_sex, 1, 0),\n            diff_race = if_else(ego_race != alter_race, 1, 0),\n            diff_relig = if_else(ego_relig != alter_relig, 1, 0),\n\n            # Continuas (Distancia Absoluta)\n            age_diff = abs(ego_age - alter_age),\n            edu_diff = abs(ego_educ - alter_educ)\n        )\n}\n\n# Preparar dataset final\n# Asegurar columna 'tie' en casos\nif (!is.null(all_cases)) all_cases$tie &lt;- 1\nif (!is.null(all_cases)) all_cases$is_kin &lt;- 0 # Asumimos 0 si falta, o usamos variable real si existe\n\n# Unir y calcular\nanalysis_data &lt;- bind_rows(\n    all_cases %&gt;% select(any_of(names(all_controls))),\n    all_controls\n)\n\nif (nrow(analysis_data) &gt; 0) {\n    analysis_data &lt;- calculate_predictors(analysis_data)\n}"
+  },
+  {
+    "objectID": "2-homophily-strength.html#modelos-de-regresión-tabla-3",
+    "href": "2-homophily-strength.html#modelos-de-regresión-tabla-3",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "4. Modelos de Regresión (Tabla 3)",
+    "text": "4. Modelos de Regresión (Tabla 3)\nAjustamos modelos logísticos para estimar la probabilidad de lazo (\\(tie=1\\)).\n\\[ \\log \\left( \\frac{P(tie=1)}{P(tie=0)} \\right) = \\beta_0 + \\beta_1(DiffSex) + \\beta_2(DiffRace) + ... \\]\nLos coeficientes negativos indican homofilia (mayor diferencia -&gt; menor probabilidad de lazo).\n\nCódigo\nif (exists(\"analysis_data\") && nrow(analysis_data) &gt; 0) {\n    # Modelo 1: Efectos principales (Main Effects)\n    m1 &lt;- glm(tie ~ diff_race + diff_relig + diff_sex + age_diff + edu_diff + factor(year),\n        data = analysis_data,\n        family = binomial(link = \"logit\")\n    )\n\n    # Modelo 2: Interacciones con Año (Cambio en homofilia)\n    m2 &lt;- glm(tie ~ (diff_race + diff_relig + diff_sex + age_diff + edu_diff) * factor(year),\n        data = analysis_data,\n        family = binomial(link = \"logit\")\n    )\n\n    stargazer(m1, m2,\n        type = \"html\",\n        title = \"Replicación Tabla 3: Modelos Logísticos de Homofilia\",\n        column.labels = c(\"Modelo 1\", \"Modelo 2\"),\n        covariate.labels = c(\"Diff Raza\", \"Diff Relig\", \"Diff Sexo\", \"Diff Edad\", \"Diff Educ\"),\n        dep.var.labels = \"Probabilidad de Lazo\"\n    )\n} else {\n    print(\"No hay datos suficientes para correr los modelos.\")\n}\n\n\n\nReplicación Tabla 3: Modelos Logísticos de Homofilia\n\n\n\n\n\n\n\n\n\nDependent variable:\n\n\n\n\n\n\n\n\n\n\n\n\nProbabilidad de Lazo\n\n\n\n\n\n\nModelo 1\n\n\nModelo 2\n\n\n\n\n\n\n(1)\n\n\n(2)\n\n\n\n\n\n\n\n\nDiff Raza\n\n\n-1.452***\n\n\n-1.558***\n\n\n\n\n\n\n(0.052)\n\n\n(0.076)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Relig\n\n\n-1.329***\n\n\n-1.322***\n\n\n\n\n\n\n(0.030)\n\n\n(0.040)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Sexo\n\n\n-0.359***\n\n\n-0.389***\n\n\n\n\n\n\n(0.029)\n\n\n(0.037)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Edad\n\n\n-0.048***\n\n\n-0.047***\n\n\n\n\n\n\n(0.001)\n\n\n(0.002)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Educ\n\n\n-0.165***\n\n\n-0.148***\n\n\n\n\n\n\n(0.007)\n\n\n(0.008)\n\n\n\n\n\n\n\n\n\n\n\n\nfactor(year)2004\n\n\n0.004\n\n\n0.107*\n\n\n\n\n\n\n(0.029)\n\n\n(0.065)\n\n\n\n\n\n\n\n\n\n\n\n\ndiff_race:factor(year)2004\n\n\n\n\n0.202*\n\n\n\n\n\n\n\n\n(0.104)\n\n\n\n\n\n\n\n\n\n\n\n\ndiff_relig:factor(year)2004\n\n\n\n\n-0.018\n\n\n\n\n\n\n\n\n(0.062)\n\n\n\n\n\n\n\n\n\n\n\n\ndiff_sex:factor(year)2004\n\n\n\n\n0.073\n\n\n\n\n\n\n\n\n(0.059)\n\n\n\n\n\n\n\n\n\n\n\n\nage_diff:factor(year)2004\n\n\n\n\n-0.003\n\n\n\n\n\n\n\n\n(0.003)\n\n\n\n\n\n\n\n\n\n\n\n\nedu_diff:factor(year)2004\n\n\n\n\n-0.047***\n\n\n\n\n\n\n\n\n(0.014)\n\n\n\n\n\n\n\n\n\n\n\n\nConstant\n\n\n0.085***\n\n\n0.050\n\n\n\n\n\n\n(0.033)\n\n\n(0.039)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nObservations\n\n\n54,490\n\n\n54,490\n\n\n\n\nLog Likelihood\n\n\n-16,800.030\n\n\n-16,790.900\n\n\n\n\nAkaike Inf. Crit.\n\n\n33,614.060\n\n\n33,605.790\n\n\n\n\n\n\n\n\nNote:\n\n\np&lt;0.1; p&lt;0.05; p&lt;0.01"
+  },
+  {
+    "objectID": "2-homophily-strength.html#conclusión",
+    "href": "2-homophily-strength.html#conclusión",
+    "title": "Calculando la Fuerza de Homofilia",
+    "section": "Conclusión",
+    "text": "Conclusión\nLos coeficientes obtenidos representan la “fuerza de selección” impuesta por la estructura social. Estos parámetros serán utilizados en el siguiente módulo para imputar redes en encuestas donde no observamos los lazos directamente."
+  },
+  {
+    "objectID": "3-ising.html",
+    "href": "3-ising.html",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "",
+    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
+  },
+  {
+    "objectID": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
+    "href": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "",
+    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
+  },
+  {
+    "objectID": "3-ising.html#conceptos-básicos",
+    "href": "3-ising.html#conceptos-básicos",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "Conceptos Básicos",
+    "text": "Conceptos Básicos\n\nNodos: Ítems de una encuesta (ej. síntomas de depresión).\nEnlaces: Interacciones parciales entre ítems.\nEstados: Binarios (0/1 o -1/1)."
+  },
+  {
+    "objectID": "3-ising.html#ejemplo-simulado",
+    "href": "3-ising.html#ejemplo-simulado",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "Ejemplo Simulado",
+    "text": "Ejemplo Simulado\n(Placeholder: Aquí implementaremos un ejemplo simple usando el paquete IsingSampler o IsingFit durante el workshop).\n\n\nCódigo\n# Simulación conceptual\nn_nodos &lt;- 5\nmatriz_interaccion &lt;- matrix(0.5, n_nodos, n_nodos)\ndiag(matriz_interaccion) &lt;- 0\nprint(\"Matriz de Interacción Teórica:\")\n\n\n[1] \"Matriz de Interacción Teórica:\"\n\n\nCódigo\nprint(matriz_interaccion)\n\n\n     [,1] [,2] [,3] [,4] [,5]\n[1,]  0.0  0.5  0.5  0.5  0.5\n[2,]  0.5  0.0  0.5  0.5  0.5\n[3,]  0.5  0.5  0.0  0.5  0.5\n[4,]  0.5  0.5  0.5  0.0  0.5\n[5,]  0.5  0.5  0.5  0.5  0.0"
+  },
+  {
+    "objectID": "1-introduction.html",
+    "href": "1-introduction.html",
+    "title": "Introducción",
+    "section": "",
+    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
+  },
+  {
+    "objectID": "1-introduction.html#las-encuestas-como-sistemas",
+    "href": "1-introduction.html#las-encuestas-como-sistemas",
+    "title": "Introducción",
+    "section": "",
+    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
+  },
+  {
+    "objectID": "1-introduction.html#ideas-clave",
+    "href": "1-introduction.html#ideas-clave",
+    "title": "Introducción",
+    "section": "Ideas Clave",
+    "text": "Ideas Clave\n\nContexto Social: Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).\nPropiedades Emergentes: Patrones macroscópicos que surgen de interacciones microscópicas no triviales.\nRecuperación de Estructura: ¿Podemos “reconstruir” la red social subyacente a partir de datos de encuestas transversal?"
+  },
+  {
+    "objectID": "1-introduction.html#motivación",
+    "href": "1-introduction.html#motivación",
+    "title": "Introducción",
+    "section": "Motivación",
+    "text": "Motivación\nEn este workshop, desafiaremos la visión atomista de las encuestas y propondremos métodos para reincorporar la estructura relacional en el análisis estadística."
+  },
+  {
+    "objectID": "0-index.html",
+    "href": "0-index.html",
+    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "section": "",
+    "text": "Bienvenido al sitio web del workshop “Revisitando las encuestas”.\nEste workshop ofrece una introducción práctica a metodologías avanzadas para el análisis de encuestas desde la perspectiva de las ciencias de la complejidad. Exploraremos cómo imputar estructuras de red a datos de encuestas y cómo aplicar modelos de redes tipo Ising a datos psicométricos."
+  },
+  {
+    "objectID": "0-index.html#objetivos",
+    "href": "0-index.html#objetivos",
+    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "section": "Objetivos",
+    "text": "Objetivos\n\nComprender las encuestas como sistemas complejos.\nAprender a imputar redes sociales latentes en encuestas (metodología Smith & McPherson).\nIntroducir el análisis de redes psicométricas (Ising models)."
+  },
+  {
+    "objectID": "0-index.html#información-del-curso",
+    "href": "0-index.html#información-del-curso",
+    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "section": "Información del Curso",
+    "text": "Información del Curso\n\nDocentes: Aníbal Olivera & Jorge Fábrega\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 12:50"
+  },
+  {
+    "objectID": "0-index.html#requisitos-previos",
+    "href": "0-index.html#requisitos-previos",
+    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "section": "Requisitos Previos",
+    "text": "Requisitos Previos\n\nR y RStudio instalados.\nQuarto instalado.\nConocimientos básicos de R.\n\nPara comenzar, por favor visita la sección Empezar."
+  },
+  {
+    "objectID": "2-network-from-surveys.html",
+    "href": "2-network-from-surveys.html",
+    "title": "Redes desde Encuestas",
+    "section": "",
+    "text": "Este módulo cubre la metodología de imputación de redes basada en Smith & McPherson (2014) y McPherson & Smith (2019) [DOI: 10.1177/2378023119868591]."
+  },
+  {
+    "objectID": "2-network-from-surveys.html#pipeline-de-trabajo",
+    "href": "2-network-from-surveys.html#pipeline-de-trabajo",
+    "title": "Redes desde Encuestas",
+    "section": "Pipeline de Trabajo",
+    "text": "Pipeline de Trabajo\n\nEstimación de Homofilia: Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).\nImputación de Red: Generar lazos probables entre encuestados basados en su similitud en el “Blau space” (espacio social).\nDifusión: Simular procesos de difusión en la red imputada."
+  },
+  {
+    "objectID": "2-network-from-surveys.html#replicación-smith-mcpherson-2014",
+    "href": "2-network-from-surveys.html#replicación-smith-mcpherson-2014",
+    "title": "Redes desde Encuestas",
+    "section": "Replicación: Smith & McPherson (2014)",
+    "text": "Replicación: Smith & McPherson (2014)\nUtilizaremos los scripts ubicados en la carpeta replication-smith2014-table3/ como base.\nA continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:\n\n\nCódigo\n# Intento de leer el archivo de configuración si existe\nconfig_path &lt;- \"replication-smith2014-table3/00_config.R\"\n\nif (file.exists(config_path)) {\n    # Solo leemos las primeras líneas como demostración de texto\n    head(readLines(config_path), 10)\n} else {\n    print(\"Archivo de configuración no encontrado.\")\n}\n\n\n[1] \"Archivo de configuración no encontrado.\""
+  },
+  {
+    "objectID": "2-network-from-surveys.html#próximos-pasos",
+    "href": "2-network-from-surveys.html#próximos-pasos",
+    "title": "Redes desde Encuestas",
+    "section": "Próximos Pasos",
+    "text": "Próximos Pasos\nEn la sesión presencial, profundizaremos en el script 02_case_control_construction.R para entender cómo se construyen los lazos probables."
+  },
+  {
     "objectID": "gss-cleaning.html",
     "href": "gss-cleaning.html",
     "title": "Limpieza de Datos GSS",
@@ -47,215 +243,5 @@
     "title": "Limpieza de Datos GSS",
     "section": "Resumen de Datos Generados",
     "text": "Resumen de Datos Generados\n\n\nGSS 1985 Dimensiones: 4258 15 \n\n\n  ego_id alter_age alter_sex alter_race alter_relig alter_educ_cat alter_rank\n1      1        32         1          1           3              7          1\n2      2        42         2          1           2              3          1\n3      3        25         2          1           3              6          1\n4      4        26         2          1           4              7          1\n5      5        44         2          1           2              3          1\n6      6        40         1          1           1              6          1\n  ego_age ego_sex ego_race ego_relig ego_educ year alter_race_orig alter_educ\n1      33       1        1         3       16 1985               4         18\n2      49       1        1         2       19 1985               4         12\n3      23       2        1         3       16 1985               4         16\n4      26       2        1         3       20 1985               4         18\n5      24       2        1         2       17 1985               4         12\n6      45       1        1         4       17 1985               4         16"
-  },
-  {
-    "objectID": "0-getstarted.html",
-    "href": "0-getstarted.html",
-    "title": "Empezar",
-    "section": "",
-    "text": "Para seguir este workshop, necesitarás tener instalado el siguiente software:\n\nR\nRStudio\nQuarto"
-  },
-  {
-    "objectID": "0-getstarted.html#instalación",
-    "href": "0-getstarted.html#instalación",
-    "title": "Empezar",
-    "section": "",
-    "text": "Para seguir este workshop, necesitarás tener instalado el siguiente software:\n\nR\nRStudio\nQuarto"
-  },
-  {
-    "objectID": "0-getstarted.html#restaurar-entorno-renv",
-    "href": "0-getstarted.html#restaurar-entorno-renv",
-    "title": "Empezar",
-    "section": "Restaurar Entorno (renv)",
-    "text": "Restaurar Entorno (renv)\nEste proyecto utiliza renv para gestionar las dependencias de R y asegurar la reproducibilidad.\n\nAbre el proyecto revisiting-surveys.Rproj en RStudio.\nEjecuta el siguiente comando en la consola de R para instalar las librerías necesarias:\n\nrenv::restore()"
-  },
-  {
-    "objectID": "0-getstarted.html#verificar-instalación",
-    "href": "0-getstarted.html#verificar-instalación",
-    "title": "Empezar",
-    "section": "Verificar Instalación",
-    "text": "Verificar Instalación\nPara verificar que todo funciona correctamente, intenta renderizar este sitio web:\n\nEn RStudio, ve a la pestaña Build.\nHaz clic en Render Website.\n\nSi el proceso termina con éxito, ¡estás listo para comenzar!"
-  },
-  {
-    "objectID": "0-getstarted.html#estructura-del-repositorio",
-    "href": "0-getstarted.html#estructura-del-repositorio",
-    "title": "Empezar",
-    "section": "Estructura del Repositorio",
-    "text": "Estructura del Repositorio\n\nreplication-smith2014-table3/: Código base para la replicación de Smith & McPherson (2014).\nfiles/: Archivos de datos y ejemplos para descargar.\ndocs/: Sitio web renderizado (no editar manualmente)."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "",
-    "text": "Bienvenido al sitio web del workshop “Revisitando las encuestas”."
-  },
-  {
-    "objectID": "index.html#descripción",
-    "href": "index.html#descripción",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Descripción",
-    "text": "Descripción\nEste workshop ofrece una introducción práctica a metodologías avanzadas para el análisis de encuestas desde la perspectiva de las ciencias de la complejidad. Exploraremos cómo imputar estructuras de red a datos de encuestas y cómo aplicar modelos de redes tipo Ising a datos psicométricos."
-  },
-  {
-    "objectID": "index.html#objetivos",
-    "href": "index.html#objetivos",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Objetivos",
-    "text": "Objetivos\n\nComprender las encuestas como sistemas complejos.\nAprender a imputar redes sociales latentes en encuestas (metodología Smith & McPherson).\nIntroducir el análisis de redes psicométricas (Ising models)."
-  },
-  {
-    "objectID": "index.html#información-del-curso",
-    "href": "index.html#información-del-curso",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Información del Curso",
-    "text": "Información del Curso\n\nDocentes: Aníbal Olivera & Jorge Fábrega\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 12:50"
-  },
-  {
-    "objectID": "index.html#requisitos-previos",
-    "href": "index.html#requisitos-previos",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Requisitos Previos",
-    "text": "Requisitos Previos\n\nR y RStudio instalados.\nQuarto instalado.\nConocimientos básicos de R.\n\nPara comenzar, por favor visita la sección Empezar."
-  },
-  {
-    "objectID": "index.html#estructura-del-workshop",
-    "href": "index.html#estructura-del-workshop",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Estructura del Workshop",
-    "text": "Estructura del Workshop\n\nMódulos\n\nIntroducción: Las encuestas como sistemas complejos.\nCalculando la Fuerza de Homofilia: Replicación de Smith & McPherson (2014).\nRedes desde Encuestas: Imputación de redes latentes.\nIsing & Psicometría: Modelos de redes psicométricas.\n\n\n\nRecursos\n\nEmpezar: Instalación y configuración.\nLimpieza de Datos GSS: Código de preparación de datos."
-  },
-  {
-    "objectID": "1-introduction.html",
-    "href": "1-introduction.html",
-    "title": "Introducción",
-    "section": "",
-    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
-  },
-  {
-    "objectID": "1-introduction.html#las-encuestas-como-sistemas",
-    "href": "1-introduction.html#las-encuestas-como-sistemas",
-    "title": "Introducción",
-    "section": "",
-    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
-  },
-  {
-    "objectID": "1-introduction.html#ideas-clave",
-    "href": "1-introduction.html#ideas-clave",
-    "title": "Introducción",
-    "section": "Ideas Clave",
-    "text": "Ideas Clave\n\nContexto Social: Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).\nPropiedades Emergentes: Patrones macroscópicos que surgen de interacciones microscópicas no triviales.\nRecuperación de Estructura: ¿Podemos “reconstruir” la red social subyacente a partir de datos de encuestas transversal?"
-  },
-  {
-    "objectID": "1-introduction.html#motivación",
-    "href": "1-introduction.html#motivación",
-    "title": "Introducción",
-    "section": "Motivación",
-    "text": "Motivación\nEn este workshop, desafiaremos la visión atomista de las encuestas y propondremos métodos para reincorporar la estructura relacional en el análisis estadística."
-  },
-  {
-    "objectID": "3-ising.html",
-    "href": "3-ising.html",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "",
-    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
-  },
-  {
-    "objectID": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
-    "href": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "",
-    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
-  },
-  {
-    "objectID": "3-ising.html#conceptos-básicos",
-    "href": "3-ising.html#conceptos-básicos",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "Conceptos Básicos",
-    "text": "Conceptos Básicos\n\nNodos: Ítems de una encuesta (ej. síntomas de depresión).\nEnlaces: Interacciones parciales entre ítems.\nEstados: Binarios (0/1 o -1/1)."
-  },
-  {
-    "objectID": "3-ising.html#ejemplo-simulado",
-    "href": "3-ising.html#ejemplo-simulado",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "Ejemplo Simulado",
-    "text": "Ejemplo Simulado\n(Placeholder: Aquí implementaremos un ejemplo simple usando el paquete IsingSampler o IsingFit durante el workshop).\n\n\nCódigo\n# Simulación conceptual\nn_nodos &lt;- 5\nmatriz_interaccion &lt;- matrix(0.5, n_nodos, n_nodos)\ndiag(matriz_interaccion) &lt;- 0\nprint(\"Matriz de Interacción Teórica:\")\n\n\n[1] \"Matriz de Interacción Teórica:\"\n\n\nCódigo\nprint(matriz_interaccion)\n\n\n     [,1] [,2] [,3] [,4] [,5]\n[1,]  0.0  0.5  0.5  0.5  0.5\n[2,]  0.5  0.0  0.5  0.5  0.5\n[3,]  0.5  0.5  0.0  0.5  0.5\n[4,]  0.5  0.5  0.5  0.0  0.5\n[5,]  0.5  0.5  0.5  0.5  0.0"
-  },
-  {
-    "objectID": "2-network-from-surveys.html",
-    "href": "2-network-from-surveys.html",
-    "title": "Redes desde Encuestas",
-    "section": "",
-    "text": "Este módulo cubre la metodología de imputación de redes basada en Smith & McPherson (2014) y McPherson & Smith (2019)."
-  },
-  {
-    "objectID": "2-network-from-surveys.html#pipeline-de-trabajo",
-    "href": "2-network-from-surveys.html#pipeline-de-trabajo",
-    "title": "Redes desde Encuestas",
-    "section": "Pipeline de Trabajo",
-    "text": "Pipeline de Trabajo\n\nEstimación de Homofilia: Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).\nImputación de Red: Generar lazos probables entre encuestados basados en su similitud en el “Blau space” (espacio social).\nDifusión: Simular procesos de difusión en la red imputada."
-  },
-  {
-    "objectID": "2-network-from-surveys.html#replicación-smith-mcpherson-2014",
-    "href": "2-network-from-surveys.html#replicación-smith-mcpherson-2014",
-    "title": "Redes desde Encuestas",
-    "section": "Replicación: Smith & McPherson (2014)",
-    "text": "Replicación: Smith & McPherson (2014)\nUtilizaremos los scripts ubicados en la carpeta replication-smith2014-table3/ como base.\nA continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:\n\n\nCódigo\n# Intento de leer el archivo de configuración si existe\nconfig_path &lt;- \"replication-smith2014-table3/00_config.R\"\n\nif (file.exists(config_path)) {\n    # Solo leemos las primeras líneas como demostración de texto\n    head(readLines(config_path), 10)\n} else {\n    print(\"Archivo de configuración no encontrado.\")\n}\n\n\n[1] \"Archivo de configuración no encontrado.\""
-  },
-  {
-    "objectID": "2-network-from-surveys.html#próximos-pasos",
-    "href": "2-network-from-surveys.html#próximos-pasos",
-    "title": "Redes desde Encuestas",
-    "section": "Próximos Pasos",
-    "text": "Próximos Pasos\nEn la sesión presencial, profundizaremos en el script 02_case_control_construction.R para entender cómo se construyen los lazos probables."
-  },
-  {
-    "objectID": "2-homophily-strength.html",
-    "href": "2-homophily-strength.html",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "",
-    "text": "Este módulo tiene como objetivo replicar la Tabla 3 del paper: Smith, McPherson & Smith-Lovin (2014), “Social Distance in the United States…”.\nEstimaremos parámetros de “fuerza de homofilia” (\\(u, v, w, ...\\)) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios)."
-  },
-  {
-    "objectID": "2-homophily-strength.html#objetivo",
-    "href": "2-homophily-strength.html#objetivo",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "",
-    "text": "Este módulo tiene como objetivo replicar la Tabla 3 del paper: Smith, McPherson & Smith-Lovin (2014), “Social Distance in the United States…”.\nEstimaremos parámetros de “fuerza de homofilia” (\\(u, v, w, ...\\)) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios)."
-  },
-  {
-    "objectID": "2-homophily-strength.html#cargar-datos-limpios",
-    "href": "2-homophily-strength.html#cargar-datos-limpios",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "1. Cargar Datos Limpios",
-    "text": "1. Cargar Datos Limpios\nCargamos los datos procesados en el paso de Limpieza GSS.\n\n\nCódigo\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(broom)\nlibrary(stargazer) # Opcional, para tablas bonitas\n\n# Rutas de datos intermedios\nFILE_1985 &lt;- \"data/clean_gss_1985.rds\"\nFILE_2004 &lt;- \"data/clean_gss_2004.rds\"\n\n# Cargar si existen (Placeholder logic)\nif (file.exists(FILE_1985)) {\n    egos_1985 &lt;- readRDS(FILE_1985)\n    # Nota: En gss-cleaning, guardamos directamente los DYADS (casos), no la lista completa.\n    # Ajustaremos gss-cleaning para que guarde los Egos también si es necesario,\n    # pero para construcción de controles necesitamos el pool de Egos.\n    # REVISIÓN: gss-cleaning devuelve 'dyads' que tiene info de Ego y Alter.\n    # Podemos recuperar el set de Egos únicos desde ahí.\n    cases_1985 &lt;- egos_1985 # Renombramos para claridad, esto son los casos observados.\n    egos_unique_1985 &lt;- cases_1985 %&gt;%\n        select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %&gt;%\n        distinct()\n} else {\n    cases_1985 &lt;- NULL\n    egos_unique_1985 &lt;- NULL\n}\n\nif (file.exists(FILE_2004)) {\n    cases_2004 &lt;- readRDS(FILE_2004)\n    egos_unique_2004 &lt;- cases_2004 %&gt;%\n        select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %&gt;%\n        distinct()\n} else {\n    cases_2004 &lt;- NULL\n    egos_unique_2004 &lt;- NULL\n}\n\n# Combinar años (si ambos existen)\nif (!is.null(cases_1985) & !is.null(cases_2004)) {\n    all_cases &lt;- bind_rows(cases_1985, cases_2004)\n    all_egos &lt;- bind_rows(egos_unique_1985, egos_unique_2004)\n} else {\n    # Fallback a lo que haya (o error controlado)\n    all_cases &lt;- bind_rows(cases_1985, cases_2004)\n    all_egos &lt;- bind_rows(egos_unique_1985, egos_unique_2004)\n}"
-  },
-  {
-    "objectID": "2-homophily-strength.html#construcción-de-casos-y-controles",
-    "href": "2-homophily-strength.html#construcción-de-casos-y-controles",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "2. Construcción de Casos y Controles",
-    "text": "2. Construcción de Casos y Controles\nPara cada “caso” (lazo observado Ego-Alter), generamos “controles” (lazos no existentes Ego-Random). Metodología: emparejar cada encuestado con otro encuestado elegido al azar.\n\n\nCódigo\ngenerate_controls &lt;- function(ego_df, n_controls_per_case = 1) {\n    if (is.null(ego_df) || nrow(ego_df) == 0) {\n        return(NULL)\n    }\n\n    n_egos &lt;- nrow(ego_df)\n    target_n &lt;- n_egos * n_controls_per_case\n\n    # Expandir egos\n    controls &lt;- ego_df[rep(1:n_egos, each = n_controls_per_case), ]\n\n    # Samplear alters (otros egos)\n    alter_indices &lt;- sample(1:n_egos, nrow(controls), replace = TRUE)\n    sampled_alters &lt;- ego_df[alter_indices, ]\n\n    # Asignar atributos del alter ficticio\n    controls$alter_id &lt;- sampled_alters$ego_id\n    controls$alter_age &lt;- sampled_alters$ego_age\n    controls$alter_sex &lt;- sampled_alters$ego_sex\n    controls$alter_race &lt;- sampled_alters$ego_race\n    controls$alter_relig &lt;- sampled_alters$ego_relig\n    controls$alter_educ &lt;- sampled_alters$ego_educ # Ya está en años\n\n    # Eliminar auto-lazos accidentales\n    controls &lt;- controls %&gt;% filter(ego_id != alter_id)\n\n    # Marcas\n    controls$tie &lt;- 0\n    controls$is_kin &lt;- 0\n\n    return(controls)\n}\n\n# Generar controles (usando el pool completo o por año? Lo correcto es por año para no mezclar tiempos)\n# Generamos controles por separado para 1985 y 2004\ncontrols_1985 &lt;- if (!is.null(egos_unique_1985)) generate_controls(egos_unique_1985, n_controls_per_case = 20) else NULL\n# NOTA: Usamos ratio alto (ej. 20) para acercarnos a la N reportada en paper, o 1 para test rápido.\n# Table 3 Model 1 N = 1,139,161. Casos reales ~3000 * 3 alters = 9000.\n# Implica muchísimos controles o un set expandido. Usaremos 10 para demostración rápida.\n\ncontrols_2004 &lt;- if (!is.null(egos_unique_2004)) generate_controls(egos_unique_2004, n_controls_per_case = 20) else NULL\n\nall_controls &lt;- bind_rows(controls_1985, controls_2004)"
-  },
-  {
-    "objectID": "2-homophily-strength.html#calcular-predictores-distancia-social",
-    "href": "2-homophily-strength.html#calcular-predictores-distancia-social",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "3. Calcular Predictores (Distancia Social)",
-    "text": "3. Calcular Predictores (Distancia Social)\nCalculamos las diferencias en dimensiones clave entre Ego y Alter.\n\n\nCódigo\ncalculate_predictors &lt;- function(dyad_df) {\n    dyad_df %&gt;%\n        mutate(\n            # Binarias (1 = Diferente, 0 = Igual)\n            diff_sex = if_else(ego_sex != alter_sex, 1, 0),\n            diff_race = if_else(ego_race != alter_race, 1, 0),\n            diff_relig = if_else(ego_relig != alter_relig, 1, 0),\n\n            # Continuas (Distancia Absoluta)\n            age_diff = abs(ego_age - alter_age),\n            edu_diff = abs(ego_educ - alter_educ)\n        )\n}\n\n# Preparar dataset final\n# Asegurar columna 'tie' en casos\nif (!is.null(all_cases)) all_cases$tie &lt;- 1\nif (!is.null(all_cases)) all_cases$is_kin &lt;- 0 # Asumimos 0 si falta, o usamos variable real si existe\n\n# Unir y calcular\nanalysis_data &lt;- bind_rows(\n    all_cases %&gt;% select(any_of(names(all_controls))),\n    all_controls\n)\n\nif (nrow(analysis_data) &gt; 0) {\n    analysis_data &lt;- calculate_predictors(analysis_data)\n}"
-  },
-  {
-    "objectID": "2-homophily-strength.html#modelos-de-regresión-tabla-3",
-    "href": "2-homophily-strength.html#modelos-de-regresión-tabla-3",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "4. Modelos de Regresión (Tabla 3)",
-    "text": "4. Modelos de Regresión (Tabla 3)\nAjustamos modelos logísticos para estimar la probabilidad de lazo (\\(tie=1\\)).\n\\[ \\log \\left( \\frac{P(tie=1)}{P(tie=0)} \\right) = \\beta_0 + \\beta_1(DiffSex) + \\beta_2(DiffRace) + ... \\]\nLos coeficientes negativos indican homofilia (mayor diferencia -&gt; menor probabilidad de lazo).\n\nCódigo\nif (exists(\"analysis_data\") && nrow(analysis_data) &gt; 0) {\n    # Modelo 1: Efectos principales (Main Effects)\n    m1 &lt;- glm(tie ~ diff_race + diff_relig + diff_sex + age_diff + edu_diff + factor(year),\n        data = analysis_data,\n        family = binomial(link = \"logit\")\n    )\n\n    # Modelo 2: Interacciones con Año (Cambio en homofilia)\n    m2 &lt;- glm(tie ~ (diff_race + diff_relig + diff_sex + age_diff + edu_diff) * factor(year),\n        data = analysis_data,\n        family = binomial(link = \"logit\")\n    )\n\n    stargazer(m1, m2,\n        type = \"html\",\n        title = \"Replicación Tabla 3: Modelos Logísticos de Homofilia\",\n        column.labels = c(\"Modelo 1\", \"Modelo 2\"),\n        covariate.labels = c(\"Diff Raza\", \"Diff Relig\", \"Diff Sexo\", \"Diff Edad\", \"Diff Educ\"),\n        dep.var.labels = \"Probabilidad de Lazo\"\n    )\n} else {\n    print(\"No hay datos suficientes para correr los modelos.\")\n}\n\n\n\nReplicación Tabla 3: Modelos Logísticos de Homofilia\n\n\n\n\n\n\n\n\n\nDependent variable:\n\n\n\n\n\n\n\n\n\n\n\n\nProbabilidad de Lazo\n\n\n\n\n\n\nModelo 1\n\n\nModelo 2\n\n\n\n\n\n\n(1)\n\n\n(2)\n\n\n\n\n\n\n\n\nDiff Raza\n\n\n-1.446***\n\n\n-1.524***\n\n\n\n\n\n\n(0.052)\n\n\n(0.076)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Relig\n\n\n-1.351***\n\n\n-1.350***\n\n\n\n\n\n\n(0.030)\n\n\n(0.040)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Sexo\n\n\n-0.347***\n\n\n-0.379***\n\n\n\n\n\n\n(0.029)\n\n\n(0.037)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Edad\n\n\n-0.047***\n\n\n-0.047***\n\n\n\n\n\n\n(0.001)\n\n\n(0.002)\n\n\n\n\n\n\n\n\n\n\n\n\nDiff Educ\n\n\n-0.170***\n\n\n-0.149***\n\n\n\n\n\n\n(0.007)\n\n\n(0.008)\n\n\n\n\n\n\n\n\n\n\n\n\nfactor(year)2004\n\n\n0.003\n\n\n0.118*\n\n\n\n\n\n\n(0.029)\n\n\n(0.065)\n\n\n\n\n\n\n\n\n\n\n\n\ndiff_race:factor(year)2004\n\n\n\n\n0.143\n\n\n\n\n\n\n\n\n(0.104)\n\n\n\n\n\n\n\n\n\n\n\n\ndiff_relig:factor(year)2004\n\n\n\n\n-0.004\n\n\n\n\n\n\n\n\n(0.062)\n\n\n\n\n\n\n\n\n\n\n\n\ndiff_sex:factor(year)2004\n\n\n\n\n0.080\n\n\n\n\n\n\n\n\n(0.059)\n\n\n\n\n\n\n\n\n\n\n\n\nage_diff:factor(year)2004\n\n\n\n\n-0.002\n\n\n\n\n\n\n\n\n(0.003)\n\n\n\n\n\n\n\n\n\n\n\n\nedu_diff:factor(year)2004\n\n\n\n\n-0.057***\n\n\n\n\n\n\n\n\n(0.014)\n\n\n\n\n\n\n\n\n\n\n\n\nConstant\n\n\n0.094***\n\n\n0.054\n\n\n\n\n\n\n(0.033)\n\n\n(0.039)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nObservations\n\n\n54,498\n\n\n54,498\n\n\n\n\nLog Likelihood\n\n\n-16,804.410\n\n\n-16,793.810\n\n\n\n\nAkaike Inf. Crit.\n\n\n33,622.810\n\n\n33,611.620\n\n\n\n\n\n\n\n\nNote:\n\n\np&lt;0.1; p&lt;0.05; p&lt;0.01"
-  },
-  {
-    "objectID": "2-homophily-strength.html#conclusión",
-    "href": "2-homophily-strength.html#conclusión",
-    "title": "Calculando la Fuerza de Homofilia",
-    "section": "Conclusión",
-    "text": "Conclusión\nLos coeficientes obtenidos representan la “fuerza de selección” impuesta por la estructura social. Estos parámetros serán utilizados en el siguiente módulo para imputar redes en encuestas donde no observamos los lazos directamente."
   }
 ]

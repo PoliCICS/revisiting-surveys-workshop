@@ -4,9 +4,18 @@ title: "Revisitando las encuestas: Una mirada desde las ciencias de la complejid
 
 Bienvenido al sitio web del workshop **"Revisitando las encuestas"**.
 
-## Descripción
-
 Este workshop ofrece una introducción práctica a metodologías avanzadas para el análisis de encuestas desde la perspectiva de las ciencias de la complejidad. Exploraremos cómo imputar estructuras de red a datos de encuestas y cómo aplicar modelos de redes tipo Ising a datos psicométricos.
+
+### Módulos
+1.  [Introducción](1-introduction.qmd): Las encuestas como sistemas complejos.
+2.  [Calculando la Fuerza de Homofilia](2-homophily-strength.qmd): Replicación de Smith & McPherson (2014).
+3.  [Redes desde Encuestas](2-network-from-surveys.qmd): Imputación de redes latentes.
+4.  [Ising & Psicometría](3-ising.qmd): Modelos de redes psicométricas.
+
+### Recursos
+-   [Empezar](getstarted.qmd): Instalación y configuración.
+-   [Limpieza de Datos GSS](gss-cleaning.qmd): Código de preparación de datos.
+
 
 ## Objetivos
 
@@ -28,15 +37,3 @@ Este workshop ofrece una introducción práctica a metodologías avanzadas para 
 -   Conocimientos básicos de R.
 
 Para comenzar, por favor visita la sección [Empezar](0-getstarted.qmd).
-
-## Estructura del Workshop
-
-### Módulos
-1.  [Introducción](1-introduction.qmd): Las encuestas como sistemas complejos.
-2.  [Calculando la Fuerza de Homofilia](2-homophily-strength.qmd): Replicación de Smith & McPherson (2014).
-3.  [Redes desde Encuestas](2-network-from-surveys.qmd): Imputación de redes latentes.
-4.  [Ising & Psicometría](3-ising.qmd): Modelos de redes psicométricas.
-
-### Recursos
--   [Empezar](0-getstarted.qmd): Instalación y configuración.
--   [Limpieza de Datos GSS](gss-cleaning.qmd): Código de preparación de datos.
