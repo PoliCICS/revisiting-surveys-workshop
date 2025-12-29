@@ -191,8 +191,9 @@ prepare_gss_data <- function(file_path, year) {
                                                   levels = names(EDUC_MAPPING), 
                                                   labels = EDUC_MAPPING)))
     ) %>%
-    drop_na(ego_age, alter_age, ego_educ, alter_educ, ego_sex, alter_sex, ego_race, alter_race)
-
+    drop_na(ego_age, alter_age, ego_educ, alter_educ, ego_sex, alter_sex, ego_race, alter_race) %>%
+    haven::zap_labels() # Eliminar etiquetas para evitar incompatibilidad en bind_rows
+  
   return(dyads)
 }
 ```
@@ -203,7 +204,7 @@ Procesamos ambos datasets y guardamos los resultados en formato RDS para su uso 
 
 ```{r}
 #| label: run-prep
-#| eval: false
+#| eval: true
 
 # Procesar 1985
 if (file.exists(GSS_1985_PATH)) {
@@ -233,7 +234,7 @@ if (file.exists(GSS_2004_PATH)) {
 # Cargar para mostrar resumen si existen
 if (file.exists("data/clean_gss_1985.rds")) {
   d85 <- readRDS("data/clean_gss_1985.rds")
-  cat("GSS 1985 Dyads:\n")
-  print(glimpse(d85))
+  cat("GSS 1985 Dimensiones:", dim(d85), "\n")
+  head(d85)
 }
 ```

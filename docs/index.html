@@ -3896,12 +3896,12 @@ vertical-align: -.125em;
  <span class="dropdown-text">Introducción</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./2-network-from-surveys.html">
- <span class="dropdown-text">Redes desde Encuestas</span></a>
+    <a class="dropdown-item" href="./2-homophily-strength.html">
+ <span class="dropdown-text">Calculando la Fuerza de Homofilia</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./2-homophily-strength.html">
- <span class="dropdown-text">Smith &amp; McPherson (2014)</span></a>
+    <a class="dropdown-item" href="./2-network-from-surveys.html">
+ <span class="dropdown-text">Redes desde Encuestas</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./3-ising.html">
@@ -3945,6 +3945,11 @@ vertical-align: -.125em;
   <li><a href="#objetivos" id="toc-objetivos" class="nav-link" data-scroll-target="#objetivos">Objetivos</a></li>
   <li><a href="#información-del-curso" id="toc-información-del-curso" class="nav-link" data-scroll-target="#información-del-curso">Información del Curso</a></li>
   <li><a href="#requisitos-previos" id="toc-requisitos-previos" class="nav-link" data-scroll-target="#requisitos-previos">Requisitos Previos</a></li>
+  <li><a href="#estructura-del-workshop" id="toc-estructura-del-workshop" class="nav-link" data-scroll-target="#estructura-del-workshop">Estructura del Workshop</a>
+  <ul class="collapse">
+  <li><a href="#módulos" id="toc-módulos" class="nav-link" data-scroll-target="#módulos">Módulos</a></li>
+  <li><a href="#recursos" id="toc-recursos" class="nav-link" data-scroll-target="#recursos">Recursos</a></li>
+  </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/index.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/index.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
 </nav>
@@ -4006,10 +4011,29 @@ vertical-align: -.125em;
 <li>Conocimientos básicos de R.</li>
 </ul>
 <p>Para comenzar, por favor visita la sección <a href="./0-getstarted.html">Empezar</a>.</p>
+</section>
+<section id="estructura-del-workshop" class="level2">
+<h2 class="anchored" data-anchor-id="estructura-del-workshop">Estructura del Workshop</h2>
+<section id="módulos" class="level3">
+<h3 class="anchored" data-anchor-id="módulos">Módulos</h3>
+<ol type="1">
+<li><a href="./1-introduction.html">Introducción</a>: Las encuestas como sistemas complejos.</li>
+<li><a href="./2-homophily-strength.html">Calculando la Fuerza de Homofilia</a>: Replicación de Smith &amp; McPherson (2014).</li>
+<li><a href="./2-network-from-surveys.html">Redes desde Encuestas</a>: Imputación de redes latentes.</li>
+<li><a href="./3-ising.html">Ising &amp; Psicometría</a>: Modelos de redes psicométricas.</li>
+</ol>
+</section>
+<section id="recursos" class="level3">
+<h3 class="anchored" data-anchor-id="recursos">Recursos</h3>
+<ul>
+<li><a href="./0-getstarted.html">Empezar</a>: Instalación y configuración.</li>
+<li><a href="./gss-cleaning.html">Limpieza de Datos GSS</a>: Código de preparación de datos.</li>
+</ul>
 
 
 <!-- -->
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -4493,7 +4517,19 @@ vertical-align: -.125em;
 <span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Quarto instalado.</span>
 <span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>Conocimientos básicos de R.</span>
 <span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>Para comenzar, por favor visita la sección <span class="co">[</span><span class="ot">Empezar</span><span class="co">](0-getstarted.qmd)</span>.</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>Para comenzar, por favor visita la sección <span class="co">[</span><span class="ot">Empezar</span><span class="co">](0-getstarted.qmd)</span>.</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="fu">## Estructura del Workshop</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="fu">### Módulos</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span><span class="co">[</span><span class="ot">Introducción</span><span class="co">](1-introduction.qmd)</span>: Las encuestas como sistemas complejos.</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span><span class="co">[</span><span class="ot">Calculando la Fuerza de Homofilia</span><span class="co">](2-homophily-strength.qmd)</span>: Replicación de Smith &amp; McPherson (2014).</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span><span class="co">[</span><span class="ot">Redes desde Encuestas</span><span class="co">](2-network-from-surveys.qmd)</span>: Imputación de redes latentes.</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="ss">4.  </span><span class="co">[</span><span class="ot">Ising &amp; Psicometría</span><span class="co">](3-ising.qmd)</span>: Modelos de redes psicométricas.</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="fu">### Recursos</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Empezar</span><span class="co">](0-getstarted.qmd)</span>: Instalación y configuración.</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="co">[</span><span class="ot">Limpieza de Datos GSS</span><span class="co">](gss-cleaning.qmd)</span>: Código de preparación de datos.</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

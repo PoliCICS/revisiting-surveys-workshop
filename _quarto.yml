@@ -14,10 +14,10 @@ website:
         menu:
           - text: Introducción
             href: 1-introduction.qmd
+          - text: Calculando la Fuerza de Homofilia
+            href: 2-homophily-strength.qmd
           - text: Redes desde Encuestas
             href: 2-network-from-surveys.qmd
-          - text: Smith & McPherson (2014)
-            href: 2-homophily-strength.qmd
           - text: Ising & Psicometría
             href: 3-ising.qmd
     right:
