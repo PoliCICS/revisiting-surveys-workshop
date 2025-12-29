@@ -1,5 +1,7 @@
 ---
 title: "Modelo de Ising y Psicometría"
+author: "Aníbal Olivera"
+date: "2025-01-09"
 ---
 
 ## De las Redes Sociales a las Redes Psicológicas

@@ -1,0 +1,15 @@
+{
+  "hash": "273485f14a923749d03a730d49847eb4",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Modelo de Ising y Psicometría\"\nauthor: \"Aníbal Olivera\"\ndate: \"2025-01-09\"\n---\n\n## De las Redes Sociales a las Redes Psicológicas\n\nEl modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes.\n\n## Conceptos Básicos\n\n-   **Nodos:** Ítems de una encuesta (ej. síntomas de depresión).\n-   **Enlaces:** Interacciones parciales entre ítems.\n-   **Estados:** Binarios (0/1 o -1/1).\n\n## Ejemplo Simulado\n\n(Placeholder: Aquí implementaremos un ejemplo simple usando el paquete `IsingSampler` o `IsingFit` durante el workshop).\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# Simulación conceptual\nn_nodos <- 5\nmatriz_interaccion <- matrix(0.5, n_nodos, n_nodos)\ndiag(matriz_interaccion) <- 0\nprint(\"Matriz de Interacción Teórica:\")\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n[1] \"Matriz de Interacción Teórica:\"\n```\n\n\n:::\n\n```{.r .cell-code}\nprint(matriz_interaccion)\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n     [,1] [,2] [,3] [,4] [,5]\n[1,]  0.0  0.5  0.5  0.5  0.5\n[2,]  0.5  0.0  0.5  0.5  0.5\n[3,]  0.5  0.5  0.0  0.5  0.5\n[4,]  0.5  0.5  0.5  0.0  0.5\n[5,]  0.5  0.5  0.5  0.5  0.0\n```\n\n\n:::\n:::\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

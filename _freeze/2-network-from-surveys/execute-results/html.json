@@ -1,0 +1,15 @@
+{
+  "hash": "81bcb39dcda62182da3351ebf6efdf63",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Redes desde Encuestas\"\nauthor: \"Aníbal Olivera & Advisor\"\ndate: \"2025-01-08\"\n---\n\nEste módulo cubre la metodología de imputación de redes basada en **Smith & McPherson (2014)** y **McPherson & Smith (2019)**.\n\n## Pipeline de Trabajo\n\n1.  **Estimación de Homofilia:** Usar datos existentes (ej. GSS) para estimar parámetros de homofilia en dimensiones clave (edad, educación, raza, etc.).\n2.  **Imputación de Red:** Generar lazos probables entre encuestados basados en su similitud en el \"Blaaumspace\" (espacio social).\n3.  **Difusión:** Simular procesos de difusión en la red imputada.\n\n## Replicación: Smith & McPherson (2014)\n\nUtilizaremos los scripts ubicados en la carpeta `replication-smith2014-table3/` como base.\n\nA continuación, un ejemplo simple cargando la configuración de la replicación para demostrar que el entorno de R está funcionando:\n\n\n::: {.cell}\n\n```{.r .cell-code}\n# Intento de leer el archivo de configuración si existe\nconfig_path <- \"replication-smith2014-table3/00_config.R\"\n\nif (file.exists(config_path)) {\n  # Solo leemos las primeras líneas como demostración de texto\n  head(readLines(config_path), 10)\n} else {\n  print(\"Archivo de configuración no encontrado.\")\n}\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\n [1] \"# ==============================================================================\"\n [2] \"# 00_config.R\"                                                                   \n [3] \"# Configuration for Smith, McPherson & Smith-Lovin (2014) Replication\"           \n [4] \"# ==============================================================================\"\n [5] \"\"                                                                                \n [6] \"# ------------------------------------------------------------------------------\"\n [7] \"# 1. File Paths\"                                                                 \n [8] \"# ------------------------------------------------------------------------------\"\n [9] \"# Update these paths to point to your local GSS data extracts.\"                  \n[10] \"# The scripts assume data is in a format readable by haven::read_dta or read.csv\"\n```\n\n\n:::\n:::\n\n\n## Próximos Pasos\n\nEn la sesión presencial, profundizaremos en el script `02_case_control_construction.R` para entender cómo se construyen los lazos probables.\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

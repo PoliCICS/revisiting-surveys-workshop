@@ -1,5 +1,7 @@
 ---
 title: "Redes desde Encuestas"
+author: "Aníbal Olivera & Advisor"
+date: "2025-01-08"
 ---
 
 Este módulo cubre la metodología de imputación de redes basada en **Smith & McPherson (2014)** y **McPherson & Smith (2019)**.

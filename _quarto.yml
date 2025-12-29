@@ -4,23 +4,35 @@ project:
 
 website:
   title: "Revisitando las encuestas"
+  repo-url: https://github.com/PoliCICS/revisiting-surveys-workshop
+  repo-actions: [edit, source]
   navbar:
     left:
-      - href: index.qmd
-        text: Home
-      - href: 0-getstarted.qmd
-        text: Empezar
-      - href: 1-introduction.qmd
-        text: Introducción
-      - href: 2-network-from-surveys.qmd
-        text: Redes desde Encuestas
-      - href: 3-ising.qmd
-        text: Ising & Psicometría
+      - text: Home
+        href: index.qmd
+      - text: Módulos
+        menu:
+          - text: Introducción
+            href: 1-introduction.qmd
+          - text: Redes desde Encuestas
+            href: 2-network-from-surveys.qmd
+          - text: Ising & Psicometría
+            href: 3-ising.qmd
+    right:
+      - text: Recursos
+        menu:
+          - text: Empezar
+            href: 0-getstarted.qmd
 
 format:
   html:
     theme: cosmo
     toc: true
+    toc-location: left
     code-fold: show
     code-tools: true
+    embed-resources: true
     lang: es
+
+execute:
+  freeze: auto
