@@ -6,13 +6,14 @@ date: "2025-01-08"
 
 ## 1. Introducción
 
-Este módulo tiene como objetivo replicar la metodología de estimación de fuerza homofílica (*homophily strength*) presentada en el paper:
+Este módulo tiene como objetivo replicar la metodología de estimación de fuerza homofílica presentada en el paper:
 
 Smith, J. A., McPherson, M., & Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456. [[10.1177/0003122414531776](https://doi.org/10.1177/0003122414531776)].
 
 El objetivo inferencial es estimar la homofilia relativa al azar: el efecto de la **distancia sociodemográfica** sobre la probabilidad de un lazo, una vez controlada la **estructura de oportunidades** inducida por las distribuciones marginales de atributos en la población.
 
-Trabajamos con datos de la General Social Survey (**GSS**) (1985 y 2004), específicamente el módulo de redes de discusión (*core discussion network / “important matters” module*), donde cada encuestado (ego) nomina hasta un número acotado de confidentes (alters). Para detalles de acceso a los microdatos: https://gss.norc.org/get-the-data/stata.html
+Trabajamos con datos de la General Social Survey (**GSS** 1985 y 2004), específicamente el módulo de redes de discusión (*core discussion network / important matters module*), donde cada encuestado -ego- nomina hasta un número acotado de confidentes -alters-. Para detalles de acceso a los microdatos: 
+[[https://gss.norc.org/get-the-data/stata.html](https://gss.norc.org/get-the-data/stata.html)].
 
 ### Case-control design
 
