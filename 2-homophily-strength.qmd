@@ -164,15 +164,15 @@ all_controls <- bind_rows(controls_1985, controls_2004)
 
 Calculamos el vector de distancias $\mathbf{d}_{ij}$ para cada díada.
 
-*   **Dimensiones Categóricas** (Sexo, Raza, Religión): Indicador de diferencia (*mismatch*).
+*   **Dimensiones Categóricas** (Sexo, Raza, Religión): Interpretamos distancia como *mismatch* entre valores.
     $$ d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j) $$
-*   **Dimensiones Continuas** (Edad, Educación): Diferencia absoluta.
+*   **Dimensiones Continuas** (Edad, Educación): Interpretamos distancia como diferencia absoluta.
     $$ d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j| $$
 
 ```{r}
 #| label: calc-predictors
 
-calculate_predictors <- function(dyad_df) {
+social_difference <- function(dyad_df) {
     dyad_df %>%
         mutate(
             # Mismatch Indicators
@@ -187,26 +187,25 @@ calculate_predictors <- function(dyad_df) {
 }
 
 # Preparar dataset analítico
-if (!is.null(all_cases)) all_cases$tie <- 1
-if (!is.null(all_cases)) all_cases$is_kin <- 0
+all_cases$tie <- 1
+all_cases$is_kin <- 0
 
-# Unir Casos y Controles
+# Unimos Casos y Controles
 analysis_data <- bind_rows(
     all_cases %>% select(any_of(names(all_controls))),
     all_controls
 )
 
-if (nrow(analysis_data) > 0) {
-    analysis_data <- calculate_predictors(analysis_data)
-}
+analysis_data <- social_difference(analysis_data)
 ```
 
 ### 2.4. Modelos de Regresión Logística
 
 Estimamos la probabilidad de lazo usando modelos logísticos.
 
-### Modelo Base (*Main Effects*)
+### Modelo Base
 
+El modelo base es un modelo logístico simple que evalúa la probabilidad de lazo $Y_{ij}$ como una función de la distancia social $\mathbf{d}_{ij}$:
 $$
 \text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)
 $$
@@ -215,50 +214,46 @@ Donde los coeficientes $\beta_k$ representan la **fuerza de homofilia**:
 *   $\beta_k < 0$: Mayor distancia reduce la probabilidad de lazo (Homofilia).
 *   La magnitud indica cuán "costoso" es cruzar barreras sociales en esa dimensión.
 
-### Modelo de Cambio Temporal (*Interaction Model*)
+### Modelo de Cambio Temporal
 
-Para evaluar cambios entre 1985 y 2004, introducimos interacciones:
+El modelo de cambio temporal es un modelo logístico que evalúa la probabilidad de lazo $Y_{ij}$ como una función de la distancia social $\mathbf{d}_{ij}$ y la interacción entre la distancia y el año 2004:
 
 $$
 \text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \boldsymbol{\gamma}^\top (\mathbf{d}_{ij} \cdot \mathbb{I}_{2004}) + \dots
 $$
 
-*   $\gamma_k < 0$: La homofilia se intensificó (*stronger homophily*) en 2004.
-*   $\gamma_k > 0$: La homofilia se debilitó (*weaker homophily*).
+*   $\gamma_k < 0$: La homofilia se intensificó en 2004.
+*   $\gamma_k > 0$: La homofilia se debilitó en 2004.
 
 ```{r}
 #| label: models
 #| results: asis
 
-if (exists("analysis_data") && nrow(analysis_data) > 0) {
-    # Modelo 1: Efectos principales (Main Effects)
-    m1 <- glm(tie ~ diff_race + diff_relig + diff_sex + age_diff + edu_diff + factor(year),
-        data = analysis_data,
-        family = binomial(link = "logit")
-    )
+# Modelo 1: Efectos principales (Main Effects)
+m1 <- glm(tie ~ diff_race + diff_relig + diff_sex + age_diff + edu_diff + factor(year),
+    data = analysis_data,
+    family = binomial(link = "logit")
+)
 
-    # Modelo 2: Interacciones con Año (Cambio en homofilia)
-    m2 <- glm(tie ~ (diff_race + diff_relig + diff_sex + age_diff + edu_diff) * factor(year),
-        data = analysis_data,
-        family = binomial(link = "logit")
-    )
+# Modelo 2: Interacciones con Año (Cambio en homofilia)
+m2 <- glm(tie ~ (diff_race + diff_relig + diff_sex + age_diff + edu_diff) * factor(year),
+    data = analysis_data,
+    family = binomial(link = "logit")
+)
 
-    stargazer(m1, m2,
-        type = "html",
-        title = "Replicación Tabla 3: Modelos Logísticos de Homofilia",
-        column.labels = c("Modelo Base", "Interacción Temporal"),
-        covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ", "Año 2004"),
-        dep.var.labels = "Probabilidad de Lazo",
-        notes = "Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado."
-    )
-} else {
-    print("No hay datos suficientes para correr los modelos.")
-}
+stargazer(m1, m2,
+    type = "html",
+    title = "Replicación Tabla 3: Modelos Logísticos de Homofilia",
+    column.labels = c("Modelo Base", "Interacción Temporal"),
+    covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ", "Año 2004"),
+    dep.var.labels = "Probabilidad de Lazo",
+    notes = "Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado."
+)
 ```
 
 ## 3. Interpretación
 
-Los coeficientes obtenidos ($\beta$) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto $\alpha$ no refleja la densidad real de la red y requeriría una calibración (*intercept calibration*) basada en modelos de grado para simulaciones realistas.
+Los coeficientes obtenidos ($\beta$) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto $\alpha$ no refleja la densidad real de la red y requeriría una calibración. 
 
 ## 4. Referencias
 
