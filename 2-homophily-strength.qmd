@@ -6,11 +6,34 @@ date: "2025-01-08"
 
 ## Objetivo
 
-Este módulo tiene como objetivo replicar la **Tabla 3** del paper:
-**Smith, McPherson & Smith-Lovin (2014), "Social Distance in the United States..."**
-[[DOI: 10.1177/0003122414531776](https://doi.org/10.1177/0003122414531776)]
+Este módulo tiene como objetivo replicar la metodología de estimación de **"fuerza de homofilia"** (*homophily strength*) presentada en **Smith, McPherson & Smith-Lovin (2014)** [[DOI: 10.1177/0003122414531776](https://doi.org/10.1177/0003122414531776)].
 
-Estimaremos parámetros de "fuerza de homofilia" ($u, v, w, ...$) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios).
+El objetivo inferencial es estimar la **homofilia relativa al azar** (*homophily relative to chance*), es decir, el excedente de coincidencia entre ego y alter una vez controlada la estructura de oportunidades demográficas (*net of opportunity structure*).
+
+## Datos y Diseño
+
+Utilizamos datos de la **General Social Survey (GSS)** (1985 y 2004), específicamente el módulo de redes de discusión (*core discussion network*).
+
+### Unidad de Análisis: Díadas
+
+Definimos nuestra variable respuesta $Y_{ij}$ para un par de individuos $(i, j)$:
+
+$$
+Y_{ij} =
+\begin{cases}
+1 & \text{si } i \text{ nomina a } j \text{ como confidente (caso)} \\
+0 & \text{si } (i, j) \text{ es un par aleatorio (control)}
+\end{cases}
+$$
+
+### Diseño de Cases y Controles (*Case-Control Design*)
+
+Dado que el espacio de díadas potenciales es enorme ($N(N-1)/2 \approx 10^6$), utilizamos una estrategia de **muestreo de controles** (*matched sample strategy*):
+
+1.  **Casos ($Y=1$):** Lazos observados reportados por los encuestados.
+2.  **Controles ($Y=0$):** Pares construidos artificialmente emparejando encuestados al azar dentro del mismo año. Esto aproxima una "mezcla aleatoria" (*chance mixing*) bajo las marginales demográficas observadas.
+
+> **Nota Metodológica:** En esta implementación pedagógica, utilizamos una aproximación simple de *random pairing*. Una replicación robusta requeriría ponderación poblacional (*population weights*) y un bootstrap a nivel de encuestado para corregir la dependencia de observaciones (*non-independence*).
 
 ## 1. Cargar Datos Limpios
 
@@ -24,7 +47,7 @@ Cargamos los datos procesados en el paso de [Limpieza GSS](gss-cleaning.qmd).
 library(dplyr)
 library(tidyr)
 library(broom)
-library(stargazer) # Opcional, para tablas bonitas
+library(stargazer)
 
 # Rutas de datos intermedios
 FILE_1985 <- "data/clean_gss_1985.rds"
@@ -33,12 +56,7 @@ FILE_2004 <- "data/clean_gss_2004.rds"
 # Cargar si existen (Placeholder logic)
 if (file.exists(FILE_1985)) {
     egos_1985 <- readRDS(FILE_1985)
-    # Nota: En gss-cleaning, guardamos directamente los DYADS (casos), no la lista completa.
-    # Ajustaremos gss-cleaning para que guarde los Egos también si es necesario,
-    # pero para construcción de controles necesitamos el pool de Egos.
-    # REVISIÓN: gss-cleaning devuelve 'dyads' que tiene info de Ego y Alter.
-    # Podemos recuperar el set de Egos únicos desde ahí.
-    cases_1985 <- egos_1985 # Renombramos para claridad, esto son los casos observados.
+    cases_1985 <- egos_1985
     egos_unique_1985 <- cases_1985 %>%
         select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %>%
         distinct()
@@ -57,21 +75,19 @@ if (file.exists(FILE_2004)) {
     egos_unique_2004 <- NULL
 }
 
-# Combinar años (si ambos existen)
+# Combinar años
 if (!is.null(cases_1985) & !is.null(cases_2004)) {
     all_cases <- bind_rows(cases_1985, cases_2004)
     all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
 } else {
-    # Fallback a lo que haya (o error controlado)
     all_cases <- bind_rows(cases_1985, cases_2004)
     all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
 }
 ```
 
-## 2. Construcción de Casos y Controles
+## 2. Generación de Controles
 
-Para cada "caso" (lazo observado Ego-Alter), generamos "controles" (lazos no existentes Ego-Random).
-Metodología: emparejar cada encuestado con otro encuestado elegido al azar.
+Implementamos la construcción de no-lazos plausibles. Para cada encuestado, seleccionamos $k$ otros encuestados al azar para formar díadas de control.
 
 ```{r}
 #| label: generate-controls
@@ -82,12 +98,12 @@ generate_controls <- function(ego_df, n_controls_per_case = 1) {
     }
 
     n_egos <- nrow(ego_df)
-    target_n <- n_egos * n_controls_per_case
 
-    # Expandir egos
+    # Expandir egos para generar múltiples controles
     controls <- ego_df[rep(1:n_egos, each = n_controls_per_case), ]
 
     # Samplear alters (otros egos)
+    # Sampling with replacement as per matched sample strategy
     alter_indices <- sample(1:n_egos, nrow(controls), replace = TRUE)
     sampled_alters <- ego_df[alter_indices, ]
 
@@ -97,33 +113,33 @@ generate_controls <- function(ego_df, n_controls_per_case = 1) {
     controls$alter_sex <- sampled_alters$ego_sex
     controls$alter_race <- sampled_alters$ego_race
     controls$alter_relig <- sampled_alters$ego_relig
-    controls$alter_educ <- sampled_alters$ego_educ # Ya está en años
+    controls$alter_educ <- sampled_alters$ego_educ
 
     # Eliminar auto-lazos accidentales
     controls <- controls %>% filter(ego_id != alter_id)
 
-    # Marcas
+    # Marcas: Y=0 (Control), is_kin=0 (Asumido no pariente)
     controls$tie <- 0
     controls$is_kin <- 0
 
     return(controls)
 }
 
-# Generar controles (usando el pool completo o por año? Lo correcto es por año para no mezclar tiempos)
-# Generamos controles por separado para 1985 y 2004
-controls_1985 <- if (!is.null(egos_unique_1985)) generate_controls(egos_unique_1985, n_controls_per_case = 20) else NULL
-# NOTA: Usamos ratio alto (ej. 20) para acercarnos a la N reportada en paper, o 1 para test rápido.
-# Table 3 Model 1 N = 1,139,161. Casos reales ~3000 * 3 alters = 9000.
-# Implica muchísimos controles o un set expandido. Usaremos 10 para demostración rápida.
-
-controls_2004 <- if (!is.null(egos_unique_2004)) generate_controls(egos_unique_2004, n_controls_per_case = 20) else NULL
+# Generamos controles por separado para mantener estructura temporal
+controls_1985 <- if (!is.null(egos_unique_1985)) generate_controls(egos_unique_1985, n_controls_per_case = 10) else NULL
+controls_2004 <- if (!is.null(egos_unique_2004)) generate_controls(egos_unique_2004, n_controls_per_case = 10) else NULL
 
 all_controls <- bind_rows(controls_1985, controls_2004)
 ```
 
-## 3. Calcular Predictores (Distancia Social)
+## 3. Distancia Sociodemográfica (*Sociodemographic Distance*)
 
-Calculamos las diferencias en dimensiones clave entre Ego y Alter.
+Calculamos el vector de distancias $\mathbf{d}_{ij}$ para cada díada.
+
+*   **Dimensiones Categóricas** (Sexo, Raza, Religión): Indicador de diferencia (*mismatch*).
+    $$ d^{cat}_{ij} = \mathbb{I}(x^{cat}_i \neq x^{cat}_j) $$
+*   **Dimensiones Continuas** (Edad, Educación): Diferencia absoluta.
+    $$ d^{age}_{ij} = |age_i - age_j| $$
 
 ```{r}
 #| label: calc-predictors
@@ -131,23 +147,22 @@ Calculamos las diferencias en dimensiones clave entre Ego y Alter.
 calculate_predictors <- function(dyad_df) {
     dyad_df %>%
         mutate(
-            # Binarias (1 = Diferente, 0 = Igual)
+            # Mismatch Indicators
             diff_sex = if_else(ego_sex != alter_sex, 1, 0),
             diff_race = if_else(ego_race != alter_race, 1, 0),
             diff_relig = if_else(ego_relig != alter_relig, 1, 0),
 
-            # Continuas (Distancia Absoluta)
+            # Absolute Differences
             age_diff = abs(ego_age - alter_age),
             edu_diff = abs(ego_educ - alter_educ)
         )
 }
 
-# Preparar dataset final
-# Asegurar columna 'tie' en casos
+# Preparar dataset analítico
 if (!is.null(all_cases)) all_cases$tie <- 1
-if (!is.null(all_cases)) all_cases$is_kin <- 0 # Asumimos 0 si falta, o usamos variable real si existe
+if (!is.null(all_cases)) all_cases$is_kin <- 0
 
-# Unir y calcular
+# Unir Casos y Controles
 analysis_data <- bind_rows(
     all_cases %>% select(any_of(names(all_controls))),
     all_controls
@@ -158,13 +173,30 @@ if (nrow(analysis_data) > 0) {
 }
 ```
 
-## 4. Modelos de Regresión (Tabla 3)
+## 4. Modelos de Regresión Logística
 
-Ajustamos modelos logísticos para estimar la probabilidad de lazo ($tie=1$).
+Estimamos la probabilidad de lazo usando modelos logísticos.
 
-$$ \log \left( \frac{P(tie=1)}{P(tie=0)} \right) = \beta_0 + \beta_1(DiffSex) + \beta_2(DiffRace) + ... $$
+### Modelo Base (*Main Effects*)
 
-Los coeficientes negativos indican homofilia (mayor diferencia -> menor probabilidad de lazo).
+$$
+\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)
+$$
+
+Donde los coeficientes $\beta_k$ representan la **fuerza de homofilia**:
+*   $\beta_k < 0$: Mayor distancia reduce la probabilidad de lazo (Homofilia).
+*   La magnitud indica cuán "costoso" es cruzar barreras sociales en esa dimensión.
+
+### Modelo de Cambio Temporal (*Interaction Model*)
+
+Para evaluar cambios entre 1985 y 2004, introducimos interacciones:
+
+$$
+\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \boldsymbol{\gamma}^\top (\mathbf{d}_{ij} \cdot \mathbb{I}_{2004}) + \dots
+$$
+
+*   $\gamma_k < 0$: La homofilia se intensificó (*stronger homophily*) en 2004.
+*   $\gamma_k > 0$: La homofilia se debilitó (*weaker homophily*).
 
 ```{r}
 #| label: models
@@ -186,15 +218,22 @@ if (exists("analysis_data") && nrow(analysis_data) > 0) {
     stargazer(m1, m2,
         type = "html",
         title = "Replicación Tabla 3: Modelos Logísticos de Homofilia",
-        column.labels = c("Modelo 1", "Modelo 2"),
-        covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ"),
-        dep.var.labels = "Probabilidad de Lazo"
+        column.labels = c("Modelo Base", "Interacción Temporal"),
+        covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ", "Año 2004"),
+        dep.var.labels = "Probabilidad de Lazo",
+        notes = "Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado."
     )
 } else {
     print("No hay datos suficientes para correr los modelos.")
 }
 ```
 
-## Conclusión
+## Interpretación
 
-Los coeficientes obtenidos representan la "fuerza de selección" impuesta por la estructura social. Estos parámetros serán utilizados en el siguiente módulo para imputar redes en encuestas donde no observamos los lazos directamente.
+Los coeficientes obtenidos ($\beta$) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto $\alpha$ no refleja la densidad real de la red y requeriría una calibración (*intercept calibration*) basada en modelos de grado para simulaciones realistas.
+
+## Referencias
+
+- Smith, J. A., McPherson, M., & Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456.
+- McPherson, M., Smith-Lovin, L., & Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. *American Sociological Review*, 71(3), 353-375.
+- Handcock, M. S., Hunter, D. R., Butts, C. T., Goodreau, S. M., & Morris, M. (2008). *statnet: Software tools for the representation, visualization, analysis and simulation of network data*.

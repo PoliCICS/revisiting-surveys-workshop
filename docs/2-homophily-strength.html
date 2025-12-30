@@ -4082,11 +4082,21 @@ window.Quarto = {
    
   <ul>
   <li><a href="#objetivo" id="toc-objetivo" class="nav-link active" data-scroll-target="#objetivo">Objetivo</a></li>
+  <li><a href="#datos-y-diseño" id="toc-datos-y-diseño" class="nav-link" data-scroll-target="#datos-y-diseño">Datos y Diseño</a>
+  <ul class="collapse">
+  <li><a href="#unidad-de-análisis-díadas" id="toc-unidad-de-análisis-díadas" class="nav-link" data-scroll-target="#unidad-de-análisis-díadas">Unidad de Análisis: Díadas</a></li>
+  <li><a href="#diseño-de-cases-y-controles-case-control-design" id="toc-diseño-de-cases-y-controles-case-control-design" class="nav-link" data-scroll-target="#diseño-de-cases-y-controles-case-control-design">Diseño de Cases y Controles (<em>Case-Control Design</em>)</a></li>
+  </ul></li>
   <li><a href="#cargar-datos-limpios" id="toc-cargar-datos-limpios" class="nav-link" data-scroll-target="#cargar-datos-limpios">1. Cargar Datos Limpios</a></li>
-  <li><a href="#construcción-de-casos-y-controles" id="toc-construcción-de-casos-y-controles" class="nav-link" data-scroll-target="#construcción-de-casos-y-controles">2. Construcción de Casos y Controles</a></li>
-  <li><a href="#calcular-predictores-distancia-social" id="toc-calcular-predictores-distancia-social" class="nav-link" data-scroll-target="#calcular-predictores-distancia-social">3. Calcular Predictores (Distancia Social)</a></li>
-  <li><a href="#modelos-de-regresión-tabla-3" id="toc-modelos-de-regresión-tabla-3" class="nav-link" data-scroll-target="#modelos-de-regresión-tabla-3">4. Modelos de Regresión (Tabla 3)</a></li>
-  <li><a href="#conclusión" id="toc-conclusión" class="nav-link" data-scroll-target="#conclusión">Conclusión</a></li>
+  <li><a href="#generación-de-controles" id="toc-generación-de-controles" class="nav-link" data-scroll-target="#generación-de-controles">2. Generación de Controles</a></li>
+  <li><a href="#distancia-sociodemográfica-sociodemographic-distance" id="toc-distancia-sociodemográfica-sociodemographic-distance" class="nav-link" data-scroll-target="#distancia-sociodemográfica-sociodemographic-distance">3. Distancia Sociodemográfica (<em>Sociodemographic Distance</em>)</a></li>
+  <li><a href="#modelos-de-regresión-logística" id="toc-modelos-de-regresión-logística" class="nav-link" data-scroll-target="#modelos-de-regresión-logística">4. Modelos de Regresión Logística</a>
+  <ul class="collapse">
+  <li><a href="#modelo-base-main-effects" id="toc-modelo-base-main-effects" class="nav-link" data-scroll-target="#modelo-base-main-effects">Modelo Base (<em>Main Effects</em>)</a></li>
+  <li><a href="#modelo-de-cambio-temporal-interaction-model" id="toc-modelo-de-cambio-temporal-interaction-model" class="nav-link" data-scroll-target="#modelo-de-cambio-temporal-interaction-model">Modelo de Cambio Temporal (<em>Interaction Model</em>)</a></li>
+  </ul></li>
+  <li><a href="#interpretación" id="toc-interpretación" class="nav-link" data-scroll-target="#interpretación">Interpretación</a></li>
+  <li><a href="#referencias" id="toc-referencias" class="nav-link" data-scroll-target="#referencias">Referencias</a></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/2-homophily-strength.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/2-homophily-strength.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
 </nav>
@@ -4130,8 +4140,34 @@ window.Quarto = {
 
 <section id="objetivo" class="level2">
 <h2 class="anchored" data-anchor-id="objetivo">Objetivo</h2>
-<p>Este módulo tiene como objetivo replicar la <strong>Tabla 3</strong> del paper: <strong>Smith, McPherson &amp; Smith-Lovin (2014), “Social Distance in the United States…”</strong> [<a href="https://doi.org/10.1177/0003122414531776">DOI: 10.1177/0003122414531776</a>]</p>
-<p>Estimaremos parámetros de “fuerza de homofilia” (<span class="math inline">\(u, v, w, ...\)</span>) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios).</p>
+<p>Este módulo tiene como objetivo replicar la metodología de estimación de <strong>“fuerza de homofilia”</strong> (<em>homophily strength</em>) presentada en <strong>Smith, McPherson &amp; Smith-Lovin (2014)</strong> [<a href="https://doi.org/10.1177/0003122414531776">DOI: 10.1177/0003122414531776</a>].</p>
+<p>El objetivo inferencial es estimar la <strong>homofilia relativa al azar</strong> (<em>homophily relative to chance</em>), es decir, el excedente de coincidencia entre ego y alter una vez controlada la estructura de oportunidades demográficas (<em>net of opportunity structure</em>).</p>
+</section>
+<section id="datos-y-diseño" class="level2">
+<h2 class="anchored" data-anchor-id="datos-y-diseño">Datos y Diseño</h2>
+<p>Utilizamos datos de la <strong>General Social Survey (GSS)</strong> (1985 y 2004), específicamente el módulo de redes de discusión (<em>core discussion network</em>).</p>
+<section id="unidad-de-análisis-díadas" class="level3">
+<h3 class="anchored" data-anchor-id="unidad-de-análisis-díadas">Unidad de Análisis: Díadas</h3>
+<p>Definimos nuestra variable respuesta <span class="math inline">\(Y_{ij}\)</span> para un par de individuos <span class="math inline">\((i, j)\)</span>:</p>
+<p><span class="math display">\[
+Y_{ij} =
+\begin{cases}
+1 &amp; \text{si } i \text{ nomina a } j \text{ como confidente (caso)} \\
+0 &amp; \text{si } (i, j) \text{ es un par aleatorio (control)}
+\end{cases}
+\]</span></p>
+</section>
+<section id="diseño-de-cases-y-controles-case-control-design" class="level3">
+<h3 class="anchored" data-anchor-id="diseño-de-cases-y-controles-case-control-design">Diseño de Cases y Controles (<em>Case-Control Design</em>)</h3>
+<p>Dado que el espacio de díadas potenciales es enorme (<span class="math inline">\(N(N-1)/2 \approx 10^6\)</span>), utilizamos una estrategia de <strong>muestreo de controles</strong> (<em>matched sample strategy</em>):</p>
+<ol type="1">
+<li><strong>Casos (<span class="math inline">\(Y=1\)</span>):</strong> Lazos observados reportados por los encuestados.</li>
+<li><strong>Controles (<span class="math inline">\(Y=0\)</span>):</strong> Pares construidos artificialmente emparejando encuestados al azar dentro del mismo año. Esto aproxima una “mezcla aleatoria” (<em>chance mixing</em>) bajo las marginales demográficas observadas.</li>
+</ol>
+<blockquote class="blockquote">
+<p><strong>Nota Metodológica:</strong> En esta implementación pedagógica, utilizamos una aproximación simple de <em>random pairing</em>. Una replicación robusta requeriría ponderación poblacional (<em>population weights</em>) y un bootstrap a nivel de encuestado para corregir la dependencia de observaciones (<em>non-independence</em>).</p>
+</blockquote>
+</section>
 </section>
 <section id="cargar-datos-limpios" class="level2">
 <h2 class="anchored" data-anchor-id="cargar-datos-limpios">1. Cargar Datos Limpios</h2>
@@ -4142,7 +4178,7 @@ window.Quarto = {
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer) <span class="co"># Opcional, para tablas bonitas</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Rutas de datos intermedios</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>FILE_1985 <span class="ot">&lt;-</span> <span class="st">&quot;data/clean_gss_1985.rds&quot;</span></span>
@@ -4151,45 +4187,39 @@ window.Quarto = {
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar si existen (Placeholder logic)</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_1985)) {</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    egos_1985 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_1985)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Nota: En gss-cleaning, guardamos directamente los DYADS (casos), no la lista completa.</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajustaremos gss-cleaning para que guarde los Egos también si es necesario,</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># pero para construcción de controles necesitamos el pool de Egos.</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># REVISIÓN: gss-cleaning devuelve &#39;dyads&#39; que tiene info de Ego y Alter.</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Podemos recuperar el set de Egos únicos desde ahí.</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> egos_1985 <span class="co"># Renombramos para claridad, esto son los casos observados.</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> cases_1985 <span class="sc">%&gt;%</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_2004)) {</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_2004)</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> cases_2004 <span class="sc">%&gt;%</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="co"># Combinar años (si ambos existen)</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(cases_1985) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(cases_2004)) {</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fallback a lo que haya (o error controlado)</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> egos_1985</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> cases_1985 <span class="sc">%&gt;%</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_2004)) {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_2004)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> cases_2004 <span class="sc">%&gt;%</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Combinar años</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(cases_1985) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(cases_2004)) {</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="construcción-de-casos-y-controles" class="level2">
-<h2 class="anchored" data-anchor-id="construcción-de-casos-y-controles">2. Construcción de Casos y Controles</h2>
-<p>Para cada “caso” (lazo observado Ego-Alter), generamos “controles” (lazos no existentes Ego-Random). Metodología: emparejar cada encuestado con otro encuestado elegido al azar.</p>
+<section id="generación-de-controles" class="level2">
+<h2 class="anchored" data-anchor-id="generación-de-controles">2. Generación de Controles</h2>
+<p>Implementamos la construcción de no-lazos plausibles. Para cada encuestado, seleccionamos <span class="math inline">\(k\)</span> otros encuestados al azar para formar díadas de control.</p>
 <div class="cell">
 <details open class="code-fold">
 <summary>Código</summary>
@@ -4199,12 +4229,12 @@ window.Quarto = {
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    n_egos <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ego_df)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    target_n <span class="ot">&lt;-</span> n_egos <span class="sc">*</span> n_controls_per_case</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Expandir egos</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> ego_df[<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="at">each =</span> n_controls_per_case), ]</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Samplear alters (otros egos)</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Expandir egos para generar múltiples controles</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> ego_df[<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="at">each =</span> n_controls_per_case), ]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Samplear alters (otros egos)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sampling with replacement as per matched sample strategy</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    alter_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="fu">nrow</span>(controls), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    sampled_alters <span class="ot">&lt;-</span> ego_df[alter_indices, ]</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
@@ -4214,73 +4244,86 @@ window.Quarto = {
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_sex <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_sex</span>
 <span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_race <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_race</span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_relig <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_relig</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_educ <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_educ <span class="co"># Ya está en años</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_educ <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_educ</span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Eliminar auto-lazos accidentales</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> controls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ego_id <span class="sc">!=</span> alter_id)</span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Marcas</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Marcas: Y=0 (Control), is_kin=0 (Asumido no pariente)</span></span>
 <span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(controls)</span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar controles (usando el pool completo o por año? Lo correcto es por año para no mezclar tiempos)</span></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Generamos controles por separado para 1985 y 2004</span></span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>controls_1985 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_1985)) <span class="fu">generate_controls</span>(egos_unique_1985, <span class="at">n_controls_per_case =</span> <span class="dv">20</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="co"># NOTA: Usamos ratio alto (ej. 20) para acercarnos a la N reportada en paper, o 1 para test rápido.</span></span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="co"># Table 3 Model 1 N = 1,139,161. Casos reales ~3000 * 3 alters = 9000.</span></span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Implica muchísimos controles o un set expandido. Usaremos 10 para demostración rápida.</span></span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>controls_2004 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_2004)) <span class="fu">generate_controls</span>(egos_unique_2004, <span class="at">n_controls_per_case =</span> <span class="dv">20</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>all_controls <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(controls_1985, controls_2004)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a><span class="co"># Generamos controles por separado para mantener estructura temporal</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>controls_1985 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_1985)) <span class="fu">generate_controls</span>(egos_unique_1985, <span class="at">n_controls_per_case =</span> <span class="dv">10</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>controls_2004 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_2004)) <span class="fu">generate_controls</span>(egos_unique_2004, <span class="at">n_controls_per_case =</span> <span class="dv">10</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>all_controls <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(controls_1985, controls_2004)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="calcular-predictores-distancia-social" class="level2">
-<h2 class="anchored" data-anchor-id="calcular-predictores-distancia-social">3. Calcular Predictores (Distancia Social)</h2>
-<p>Calculamos las diferencias en dimensiones clave entre Ego y Alter.</p>
+<section id="distancia-sociodemográfica-sociodemographic-distance" class="level2">
+<h2 class="anchored" data-anchor-id="distancia-sociodemográfica-sociodemographic-distance">3. Distancia Sociodemográfica (<em>Sociodemographic Distance</em>)</h2>
+<p>Calculamos el vector de distancias <span class="math inline">\(\mathbf{d}_{ij}\)</span> para cada díada.</p>
+<ul>
+<li><strong>Dimensiones Categóricas</strong> (Sexo, Raza, Religión): Indicador de diferencia (<em>mismatch</em>). <span class="math display">\[ d^{cat}_{ij} = \mathbb{I}(x^{cat}_i \neq x^{cat}_j) \]</span></li>
+<li><strong>Dimensiones Continuas</strong> (Edad, Educación): Diferencia absoluta. <span class="math display">\[ d^{age}_{ij} = |age_i - age_j| \]</span></li>
+</ul>
 <div class="cell">
 <details open class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>calculate_predictors <span class="ot">&lt;-</span> <span class="cf">function</span>(dyad_df) {</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    dyad_df <span class="sc">%&gt;%</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Binarias (1 = Diferente, 0 = Igual)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Mismatch Indicators</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_sex =</span> <span class="fu">if_else</span>(ego_sex <span class="sc">!=</span> alter_sex, <span class="dv">1</span>, <span class="dv">0</span>),</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_race =</span> <span class="fu">if_else</span>(ego_race <span class="sc">!=</span> alter_race, <span class="dv">1</span>, <span class="dv">0</span>),</span>
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_relig =</span> <span class="fu">if_else</span>(ego_relig <span class="sc">!=</span> alter_relig, <span class="dv">1</span>, <span class="dv">0</span>),</span>
 <span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Continuas (Distancia Absoluta)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Absolute Differences</span></span>
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">age_diff =</span> <span class="fu">abs</span>(ego_age <span class="sc">-</span> alter_age),</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">edu_diff =</span> <span class="fu">abs</span>(ego_educ <span class="sc">-</span> alter_educ)</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparar dataset final</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Asegurar columna &#39;tie&#39; en casos</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># Asumimos 0 si falta, o usamos variable real si existe</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Unir y calcular</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">names</span>(all_controls))),</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    all_controls</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    analysis_data <span class="ot">&lt;-</span> <span class="fu">calculate_predictors</span>(analysis_data)</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparar dataset analítico</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Unir Casos y Controles</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">names</span>(all_controls))),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    all_controls</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    analysis_data <span class="ot">&lt;-</span> <span class="fu">calculate_predictors</span>(analysis_data)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 </section>
-<section id="modelos-de-regresión-tabla-3" class="level2">
-<h2 class="anchored" data-anchor-id="modelos-de-regresión-tabla-3">4. Modelos de Regresión (Tabla 3)</h2>
-<p>Ajustamos modelos logísticos para estimar la probabilidad de lazo (<span class="math inline">\(tie=1\)</span>).</p>
-<p><span class="math display">\[ \log \left( \frac{P(tie=1)}{P(tie=0)} \right) = \beta_0 + \beta_1(DiffSex) + \beta_2(DiffRace) + ... \]</span></p>
-<p>Los coeficientes negativos indican homofilia (mayor diferencia -&gt; menor probabilidad de lazo).</p>
+<section id="modelos-de-regresión-logística" class="level2">
+<h2 class="anchored" data-anchor-id="modelos-de-regresión-logística">4. Modelos de Regresión Logística</h2>
+<p>Estimamos la probabilidad de lazo usando modelos logísticos.</p>
+<section id="modelo-base-main-effects" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-base-main-effects">Modelo Base (<em>Main Effects</em>)</h3>
+<p><span class="math display">\[
+\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)
+\]</span></p>
+<p>Donde los coeficientes <span class="math inline">\(\beta_k\)</span> representan la <strong>fuerza de homofilia</strong>: * <span class="math inline">\(\beta_k &lt; 0\)</span>: Mayor distancia reduce la probabilidad de lazo (Homofilia). * La magnitud indica cuán “costoso” es cruzar barreras sociales en esa dimensión.</p>
+</section>
+<section id="modelo-de-cambio-temporal-interaction-model" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-de-cambio-temporal-interaction-model">Modelo de Cambio Temporal (<em>Interaction Model</em>)</h3>
+<p>Para evaluar cambios entre 1985 y 2004, introducimos interacciones:</p>
+<p><span class="math display">\[
+\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \boldsymbol{\gamma}^\top (\mathbf{d}_{ij} \cdot \mathbb{I}_{2004}) + \dots
+\]</span></p>
+<ul>
+<li><span class="math inline">\(\gamma_k &lt; 0\)</span>: La homofilia se intensificó (<em>stronger homophily</em>) en 2004.</li>
+<li><span class="math inline">\(\gamma_k &gt; 0\)</span>: La homofilia se debilitó (<em>weaker homophily</em>).</li>
+</ul>
 <details open class="code-fold">
 <summary>Código</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;analysis_data&quot;</span>) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
@@ -4299,13 +4342,14 @@ window.Quarto = {
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stargazer</span>(m1, m2,</span>
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">&quot;Replicación Tabla 3: Modelos Logísticos de Homofilia&quot;</span>,</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo 1&quot;</span>, <span class="st">&quot;Modelo 2&quot;</span>),</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Diff Raza&quot;</span>, <span class="st">&quot;Diff Relig&quot;</span>, <span class="st">&quot;Diff Sexo&quot;</span>, <span class="st">&quot;Diff Edad&quot;</span>, <span class="st">&quot;Diff Educ&quot;</span>),</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">dep.var.labels =</span> <span class="st">&quot;Probabilidad de Lazo&quot;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">&quot;No hay datos suficientes para correr los modelos.&quot;</span>)</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo Base&quot;</span>, <span class="st">&quot;Interacción Temporal&quot;</span>),</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Diff Raza&quot;</span>, <span class="st">&quot;Diff Relig&quot;</span>, <span class="st">&quot;Diff Sexo&quot;</span>, <span class="st">&quot;Diff Edad&quot;</span>, <span class="st">&quot;Diff Educ&quot;</span>, <span class="st">&quot;Año 2004&quot;</span>),</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">dep.var.labels =</span> <span class="st">&quot;Probabilidad de Lazo&quot;</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">notes =</span> <span class="st">&quot;Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado.&quot;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">&quot;No hay datos suficientes para correr los modelos.&quot;</span>)</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <table style="text-align:center">
 <caption>
@@ -4339,10 +4383,10 @@ Probabilidad de Lazo
 <td style="text-align:left">
 </td>
 <td>
-Modelo 1
+Modelo Base
 </td>
 <td>
-Modelo 2
+Interacción Temporal
 </td>
 </tr>
 <tr>
@@ -4364,20 +4408,20 @@ Modelo 2
 Diff Raza
 </td>
 <td>
--1.446<sup>***</sup>
+-1.444<sup>***</sup>
 </td>
 <td>
--1.531<sup>***</sup>
+-1.548<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.052)
+(0.054)
 </td>
 <td>
-(0.076)
+(0.079)
 </td>
 </tr>
 <tr>
@@ -4393,20 +4437,20 @@ Diff Raza
 Diff Relig
 </td>
 <td>
--1.331<sup>***</sup>
+-1.329<sup>***</sup>
 </td>
 <td>
--1.326<sup>***</sup>
+-1.336<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.030)
+(0.033)
 </td>
 <td>
-(0.040)
+(0.043)
 </td>
 </tr>
 <tr>
@@ -4422,20 +4466,20 @@ Diff Relig
 Diff Sexo
 </td>
 <td>
--0.339<sup>***</sup>
+-0.351<sup>***</sup>
 </td>
 <td>
--0.359<sup>***</sup>
+-0.409<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.029)
+(0.031)
 </td>
 <td>
-(0.037)
+(0.040)
 </td>
 </tr>
 <tr>
@@ -4480,10 +4524,10 @@ Diff Edad
 Diff Educ
 </td>
 <td>
--0.166<sup>***</sup>
+-0.158<sup>***</sup>
 </td>
 <td>
--0.145<sup>***</sup>
+-0.138<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4493,7 +4537,7 @@ Diff Educ
 (0.007)
 </td>
 <td>
-(0.008)
+(0.009)
 </td>
 </tr>
 <tr>
@@ -4506,23 +4550,23 @@ Diff Educ
 </tr>
 <tr>
 <td style="text-align:left">
-factor(year)2004
+Año 2004
 </td>
 <td>
-0.001
+-0.011
 </td>
 <td>
-0.141<sup>**</sup>
+0.040
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.029)
+(0.032)
 </td>
 <td>
-(0.065)
+(0.072)
 </td>
 </tr>
 <tr>
@@ -4540,7 +4584,7 @@ diff_race:factor(year)2004
 <td>
 </td>
 <td>
-0.159
+0.198<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -4549,7 +4593,7 @@ diff_race:factor(year)2004
 <td>
 </td>
 <td>
-(0.104)
+(0.108)
 </td>
 </tr>
 <tr>
@@ -4567,7 +4611,7 @@ diff_relig:factor(year)2004
 <td>
 </td>
 <td>
--0.014
+0.013
 </td>
 </tr>
 <tr>
@@ -4576,7 +4620,7 @@ diff_relig:factor(year)2004
 <td>
 </td>
 <td>
-(0.062)
+(0.066)
 </td>
 </tr>
 <tr>
@@ -4594,7 +4638,7 @@ diff_sex:factor(year)2004
 <td>
 </td>
 <td>
-0.048
+0.144<sup>**</sup>
 </td>
 </tr>
 <tr>
@@ -4603,7 +4647,7 @@ diff_sex:factor(year)2004
 <td>
 </td>
 <td>
-(0.059)
+(0.064)
 </td>
 </tr>
 <tr>
@@ -4621,7 +4665,7 @@ age_diff:factor(year)2004
 <td>
 </td>
 <td>
--0.003
+-0.001
 </td>
 </tr>
 <tr>
@@ -4648,7 +4692,7 @@ edu_diff:factor(year)2004
 <td>
 </td>
 <td>
--0.061<sup>***</sup>
+-0.053<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4657,7 +4701,7 @@ edu_diff:factor(year)2004
 <td>
 </td>
 <td>
-(0.014)
+(0.015)
 </td>
 </tr>
 <tr>
@@ -4673,20 +4717,20 @@ edu_diff:factor(year)2004
 Constant
 </td>
 <td>
-0.064<sup>*</sup>
+0.747<sup>***</sup>
 </td>
 <td>
-0.016
+0.733<sup>***</sup>
 </td>
 </tr>
 <tr>
 <td style="text-align:left">
 </td>
 <td>
-(0.032)
+(0.037)
 </td>
 <td>
-(0.038)
+(0.044)
 </td>
 </tr>
 <tr>
@@ -4706,10 +4750,10 @@ Constant
 Observations
 </td>
 <td>
-54,505
+30,508
 </td>
 <td>
-54,505
+30,508
 </td>
 </tr>
 <tr>
@@ -4717,10 +4761,10 @@ Observations
 Log Likelihood
 </td>
 <td>
--16,842.800
+-13,080.070
 </td>
 <td>
--16,831.300
+-13,069.460
 </td>
 </tr>
 <tr>
@@ -4728,10 +4772,10 @@ Log Likelihood
 Akaike Inf. Crit.
 </td>
 <td>
-33,699.600
+26,174.150
 </td>
 <td>
-33,686.610
+26,162.910
 </td>
 </tr>
 <tr>
@@ -4746,11 +4790,27 @@ Akaike Inf. Crit.
 <sup><em></em></sup><em>p&lt;0.1; <sup><strong></strong></sup><strong>p&lt;0.05; <sup></sup></strong></em>p&lt;0.01
 </td>
 </tr>
+<tr>
+<td style="text-align:left">
+</td>
+<td colspan="2" style="text-align:right">
+Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado.
+</td>
+</tr>
 </tbody></table>
 </section>
-<section id="conclusión" class="level2">
-<h2 class="anchored" data-anchor-id="conclusión">Conclusión</h2>
-<p>Los coeficientes obtenidos representan la “fuerza de selección” impuesta por la estructura social. Estos parámetros serán utilizados en el siguiente módulo para imputar redes en encuestas donde no observamos los lazos directamente.</p>
+</section>
+<section id="interpretación" class="level2">
+<h2 class="anchored" data-anchor-id="interpretación">Interpretación</h2>
+<p>Los coeficientes obtenidos (<span class="math inline">\(\beta\)</span>) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto <span class="math inline">\(\alpha\)</span> no refleja la densidad real de la red y requeriría una calibración (<em>intercept calibration</em>) basada en modelos de grado para simulaciones realistas.</p>
+</section>
+<section id="referencias" class="level2">
+<h2 class="anchored" data-anchor-id="referencias">Referencias</h2>
+<ul>
+<li>Smith, J. A., McPherson, M., &amp; Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. <em>American Sociological Review</em>, 79(3), 432–456.</li>
+<li>McPherson, M., Smith-Lovin, L., &amp; Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. <em>American Sociological Review</em>, 71(3), 353-375.</li>
+<li>Handcock, M. S., Hunter, D. R., Butts, C. T., Goodreau, S. M., &amp; Morris, M. (2008). <em>statnet: Software tools for the representation, visualization, analysis and simulation of network data</em>.</li>
+</ul>
 
 
 <!-- -->
@@ -5217,198 +5277,237 @@ Akaike Inf. Crit.
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Objetivo</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Este módulo tiene como objetivo replicar la **Tabla 3** del paper:</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>**Smith, McPherson &amp; Smith-Lovin (2014), &quot;Social Distance in the United States...&quot;**</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>[<span class="co">[</span><span class="ot">DOI: 10.1177/0003122414531776</span><span class="co">](https://doi.org/10.1177/0003122414531776)</span>]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Este módulo tiene como objetivo replicar la metodología de estimación de **&quot;fuerza de homofilia&quot;** (*homophily strength*) presentada en **Smith, McPherson &amp; Smith-Lovin (2014)** [<span class="co">[</span><span class="ot">DOI: 10.1177/0003122414531776</span><span class="co">](https://doi.org/10.1177/0003122414531776)</span>].</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>El objetivo inferencial es estimar la **homofilia relativa al azar** (*homophily relative to chance*), es decir, el excedente de coincidencia entre ego y alter una vez controlada la estructura de oportunidades demográficas (*net of opportunity structure*).</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>Estimaremos parámetros de &quot;fuerza de homofilia&quot; ($u, v, w, ...$) utilizando un diseño de casos y controles y regresión logística condicional (o aproximación vía logística regular con controles aleatorios).</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Datos y Diseño</span></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. Cargar Datos Limpios</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>Utilizamos datos de la **General Social Survey (GSS)** (1985 y 2004), específicamente el módulo de redes de discusión (*core discussion network*).</span>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>Cargamos los datos procesados en el paso de <span class="co">[</span><span class="ot">Limpieza GSS</span><span class="co">](gss-cleaning.qmd)</span>.</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="fu">### Unidad de Análisis: Díadas</span></span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load-clean</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer) <span class="co"># Opcional, para tablas bonitas</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>Definimos nuestra variable respuesta $Y_{ij}$ para un par de individuos $(i, j)$:</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>Y_{ij} =</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>\begin{cases}</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>1 &amp; \text{si } i \text{ nomina a } j \text{ como confidente (caso)} <span class="sc">\\</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>0 &amp; \text{si } (i, j) \text{ es un par aleatorio (control)}</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>\end{cases}</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="fu">### Diseño de Cases y Controles (*Case-Control Design*)</span></span>
 <span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Rutas de datos intermedios</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>FILE_1985 <span class="ot">&lt;-</span> <span class="st">&quot;data/clean_gss_1985.rds&quot;</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>FILE_2004 <span class="ot">&lt;-</span> <span class="st">&quot;data/clean_gss_2004.rds&quot;</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar si existen (Placeholder logic)</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_1985)) {</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    egos_1985 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_1985)</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Nota: En gss-cleaning, guardamos directamente los DYADS (casos), no la lista completa.</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajustaremos gss-cleaning para que guarde los Egos también si es necesario,</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># pero para construcción de controles necesitamos el pool de Egos.</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># REVISIÓN: gss-cleaning devuelve &#39;dyads&#39; que tiene info de Ego y Alter.</span></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Podemos recuperar el set de Egos únicos desde ahí.</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> egos_1985 <span class="co"># Renombramos para claridad, esto son los casos observados.</span></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> cases_1985 <span class="sc">%&gt;%</span></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_2004)) {</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_2004)</span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> cases_2004 <span class="sc">%&gt;%</span></span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="co"># Combinar años (si ambos existen)</span></span>
-<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(cases_1985) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(cases_2004)) {</span>
-<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
-<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
-<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fallback a lo que haya (o error controlado)</span></span>
-<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
-<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
-<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Construcción de Casos y Controles</span></span>
-<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>Para cada &quot;caso&quot; (lazo observado Ego-Alter), generamos &quot;controles&quot; (lazos no existentes Ego-Random).</span>
-<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>Metodología: emparejar cada encuestado con otro encuestado elegido al azar.</span>
-<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: generate-controls</span></span>
-<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>generate_controls <span class="ot">&lt;-</span> <span class="cf">function</span>(ego_df, <span class="at">n_controls_per_case =</span> <span class="dv">1</span>) {</span>
-<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(ego_df) <span class="sc">||</span> <span class="fu">nrow</span>(ego_df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
-<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
-<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a>    n_egos <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ego_df)</span>
-<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a>    target_n <span class="ot">&lt;-</span> n_egos <span class="sc">*</span> n_controls_per_case</span>
-<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Expandir egos</span></span>
-<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> ego_df[<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="at">each =</span> n_controls_per_case), ]</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>Dado que el espacio de díadas potenciales es enorme ($N(N-1)/2 \approx 10^6$), utilizamos una estrategia de **muestreo de controles** (*matched sample strategy*):</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Casos ($Y=1$):** Lazos observados reportados por los encuestados.</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Controles ($Y=0$):** Pares construidos artificialmente emparejando encuestados al azar dentro del mismo año. Esto aproxima una &quot;mezcla aleatoria&quot; (*chance mixing*) bajo las marginales demográficas observadas.</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **Nota Metodológica:** En esta implementación pedagógica, utilizamos una aproximación simple de *random pairing*. Una replicación robusta requeriría ponderación poblacional (*population weights*) y un bootstrap a nivel de encuestado para corregir la dependencia de observaciones (*non-independence*).</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. Cargar Datos Limpios</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>Cargamos los datos procesados en el paso de <span class="co">[</span><span class="ot">Limpieza GSS</span><span class="co">](gss-cleaning.qmd)</span>.</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load-clean</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(broom)</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a><span class="co"># Rutas de datos intermedios</span></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>FILE_1985 <span class="ot">&lt;-</span> <span class="st">&quot;data/clean_gss_1985.rds&quot;</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>FILE_2004 <span class="ot">&lt;-</span> <span class="st">&quot;data/clean_gss_2004.rds&quot;</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar si existen (Placeholder logic)</span></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_1985)) {</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>    egos_1985 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_1985)</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> egos_1985</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> cases_1985 <span class="sc">%&gt;%</span></span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a>    cases_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a>    egos_unique_1985 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(FILE_2004)) {</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(FILE_2004)</span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> cases_2004 <span class="sc">%&gt;%</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) <span class="sc">%&gt;%</span></span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a>        <span class="fu">distinct</span>()</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a>    cases_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a>    egos_unique_2004 <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-80"><a href="#cb5-80" aria-hidden="true" tabindex="-1"></a><span class="co"># Combinar años</span></span>
+<span id="cb5-81"><a href="#cb5-81" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(cases_1985) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.null</span>(cases_2004)) {</span>
+<span id="cb5-82"><a href="#cb5-82" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
+<span id="cb5-83"><a href="#cb5-83" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
+<span id="cb5-84"><a href="#cb5-84" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-85"><a href="#cb5-85" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(cases_1985, cases_2004)</span>
+<span id="cb5-86"><a href="#cb5-86" aria-hidden="true" tabindex="-1"></a>    all_egos <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(egos_unique_1985, egos_unique_2004)</span>
+<span id="cb5-87"><a href="#cb5-87" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-88"><a href="#cb5-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-89"><a href="#cb5-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-90"><a href="#cb5-90" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Generación de Controles</span></span>
+<span id="cb5-91"><a href="#cb5-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-92"><a href="#cb5-92" aria-hidden="true" tabindex="-1"></a>Implementamos la construcción de no-lazos plausibles. Para cada encuestado, seleccionamos $k$ otros encuestados al azar para formar díadas de control.</span>
 <span id="cb5-93"><a href="#cb5-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-94"><a href="#cb5-94" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Samplear alters (otros egos)</span></span>
-<span id="cb5-95"><a href="#cb5-95" aria-hidden="true" tabindex="-1"></a>    alter_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="fu">nrow</span>(controls), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a>    sampled_alters <span class="ot">&lt;-</span> ego_df[alter_indices, ]</span>
-<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Asignar atributos del alter ficticio</span></span>
-<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_id <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_id</span>
-<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_age <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_age</span>
-<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_sex <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_sex</span>
-<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_race <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_race</span>
-<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_relig <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_relig</span>
-<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_educ <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_educ <span class="co"># Ya está en años</span></span>
+<span id="cb5-96"><a href="#cb5-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-97"><a href="#cb5-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: generate-controls</span></span>
+<span id="cb5-98"><a href="#cb5-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-99"><a href="#cb5-99" aria-hidden="true" tabindex="-1"></a>generate_controls <span class="ot">&lt;-</span> <span class="cf">function</span>(ego_df, <span class="at">n_controls_per_case =</span> <span class="dv">1</span>) {</span>
+<span id="cb5-100"><a href="#cb5-100" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(ego_df) <span class="sc">||</span> <span class="fu">nrow</span>(ego_df) <span class="sc">==</span> <span class="dv">0</span>) {</span>
+<span id="cb5-101"><a href="#cb5-101" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb5-102"><a href="#cb5-102" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-103"><a href="#cb5-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-104"><a href="#cb5-104" aria-hidden="true" tabindex="-1"></a>    n_egos <span class="ot">&lt;-</span> <span class="fu">nrow</span>(ego_df)</span>
 <span id="cb5-105"><a href="#cb5-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Eliminar auto-lazos accidentales</span></span>
-<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> controls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ego_id <span class="sc">!=</span> alter_id)</span>
+<span id="cb5-106"><a href="#cb5-106" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Expandir egos para generar múltiples controles</span></span>
+<span id="cb5-107"><a href="#cb5-107" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> ego_df[<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="at">each =</span> n_controls_per_case), ]</span>
 <span id="cb5-108"><a href="#cb5-108" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Marcas</span></span>
-<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(controls)</span>
-<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a><span class="co"># Generar controles (usando el pool completo o por año? Lo correcto es por año para no mezclar tiempos)</span></span>
-<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a><span class="co"># Generamos controles por separado para 1985 y 2004</span></span>
-<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>controls_1985 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_1985)) <span class="fu">generate_controls</span>(egos_unique_1985, <span class="at">n_controls_per_case =</span> <span class="dv">20</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
-<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a><span class="co"># NOTA: Usamos ratio alto (ej. 20) para acercarnos a la N reportada en paper, o 1 para test rápido.</span></span>
-<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a><span class="co"># Table 3 Model 1 N = 1,139,161. Casos reales ~3000 * 3 alters = 9000.</span></span>
-<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a><span class="co"># Implica muchísimos controles o un set expandido. Usaremos 10 para demostración rápida.</span></span>
-<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>controls_2004 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_2004)) <span class="fu">generate_controls</span>(egos_unique_2004, <span class="at">n_controls_per_case =</span> <span class="dv">20</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb5-109"><a href="#cb5-109" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Samplear alters (otros egos)</span></span>
+<span id="cb5-110"><a href="#cb5-110" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sampling with replacement as per matched sample strategy</span></span>
+<span id="cb5-111"><a href="#cb5-111" aria-hidden="true" tabindex="-1"></a>    alter_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n_egos, <span class="fu">nrow</span>(controls), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-112"><a href="#cb5-112" aria-hidden="true" tabindex="-1"></a>    sampled_alters <span class="ot">&lt;-</span> ego_df[alter_indices, ]</span>
+<span id="cb5-113"><a href="#cb5-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-114"><a href="#cb5-114" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Asignar atributos del alter ficticio</span></span>
+<span id="cb5-115"><a href="#cb5-115" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_id <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_id</span>
+<span id="cb5-116"><a href="#cb5-116" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_age <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_age</span>
+<span id="cb5-117"><a href="#cb5-117" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_sex <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_sex</span>
+<span id="cb5-118"><a href="#cb5-118" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_race <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_race</span>
+<span id="cb5-119"><a href="#cb5-119" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_relig <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_relig</span>
+<span id="cb5-120"><a href="#cb5-120" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>alter_educ <span class="ot">&lt;-</span> sampled_alters<span class="sc">$</span>ego_educ</span>
+<span id="cb5-121"><a href="#cb5-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-122"><a href="#cb5-122" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Eliminar auto-lazos accidentales</span></span>
+<span id="cb5-123"><a href="#cb5-123" aria-hidden="true" tabindex="-1"></a>    controls <span class="ot">&lt;-</span> controls <span class="sc">%&gt;%</span> <span class="fu">filter</span>(ego_id <span class="sc">!=</span> alter_id)</span>
 <span id="cb5-124"><a href="#cb5-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>all_controls <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(controls_1985, controls_2004)</span>
-<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Calcular Predictores (Distancia Social)</span></span>
-<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>Calculamos las diferencias en dimensiones clave entre Ego y Alter.</span>
+<span id="cb5-125"><a href="#cb5-125" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Marcas: Y=0 (Control), is_kin=0 (Asumido no pariente)</span></span>
+<span id="cb5-126"><a href="#cb5-126" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-127"><a href="#cb5-127" aria-hidden="true" tabindex="-1"></a>    controls<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb5-128"><a href="#cb5-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-129"><a href="#cb5-129" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(controls)</span>
+<span id="cb5-130"><a href="#cb5-130" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-131"><a href="#cb5-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: calc-predictors</span></span>
-<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a>calculate_predictors <span class="ot">&lt;-</span> <span class="cf">function</span>(dyad_df) {</span>
-<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a>    dyad_df <span class="sc">%&gt;%</span></span>
-<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(</span>
-<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Binarias (1 = Diferente, 0 = Igual)</span></span>
-<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_sex =</span> <span class="fu">if_else</span>(ego_sex <span class="sc">!=</span> alter_sex, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_race =</span> <span class="fu">if_else</span>(ego_race <span class="sc">!=</span> alter_race, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_relig =</span> <span class="fu">if_else</span>(ego_relig <span class="sc">!=</span> alter_relig, <span class="dv">1</span>, <span class="dv">0</span>),</span>
-<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Continuas (Distancia Absoluta)</span></span>
-<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>            <span class="at">age_diff =</span> <span class="fu">abs</span>(ego_age <span class="sc">-</span> alter_age),</span>
-<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a>            <span class="at">edu_diff =</span> <span class="fu">abs</span>(ego_educ <span class="sc">-</span> alter_educ)</span>
-<span id="cb5-148"><a href="#cb5-148" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb5-149"><a href="#cb5-149" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparar dataset final</span></span>
-<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a><span class="co"># Asegurar columna &#39;tie&#39; en casos</span></span>
-<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">1</span></span>
-<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span> <span class="co"># Asumimos 0 si falta, o usamos variable real si existe</span></span>
-<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a><span class="co"># Unir y calcular</span></span>
-<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">names</span>(all_controls))),</span>
-<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>    all_controls</span>
-<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>    analysis_data <span class="ot">&lt;-</span> <span class="fu">calculate_predictors</span>(analysis_data)</span>
-<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-132"><a href="#cb5-132" aria-hidden="true" tabindex="-1"></a><span class="co"># Generamos controles por separado para mantener estructura temporal</span></span>
+<span id="cb5-133"><a href="#cb5-133" aria-hidden="true" tabindex="-1"></a>controls_1985 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_1985)) <span class="fu">generate_controls</span>(egos_unique_1985, <span class="at">n_controls_per_case =</span> <span class="dv">10</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb5-134"><a href="#cb5-134" aria-hidden="true" tabindex="-1"></a>controls_2004 <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(egos_unique_2004)) <span class="fu">generate_controls</span>(egos_unique_2004, <span class="at">n_controls_per_case =</span> <span class="dv">10</span>) <span class="cf">else</span> <span class="cn">NULL</span></span>
+<span id="cb5-135"><a href="#cb5-135" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-136"><a href="#cb5-136" aria-hidden="true" tabindex="-1"></a>all_controls <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(controls_1985, controls_2004)</span>
+<span id="cb5-137"><a href="#cb5-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-138"><a href="#cb5-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-139"><a href="#cb5-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Distancia Sociodemográfica (*Sociodemographic Distance*)</span></span>
+<span id="cb5-140"><a href="#cb5-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-141"><a href="#cb5-141" aria-hidden="true" tabindex="-1"></a>Calculamos el vector de distancias $\mathbf{d}_{ij}$ para cada díada.</span>
+<span id="cb5-142"><a href="#cb5-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-143"><a href="#cb5-143" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Dimensiones Categóricas** (Sexo, Raza, Religión): Indicador de diferencia (*mismatch*).</span>
+<span id="cb5-144"><a href="#cb5-144" aria-hidden="true" tabindex="-1"></a>    $$ d^{cat}_{ij} = \mathbb{I}(x^{cat}_i \neq x^{cat}_j) $$</span>
+<span id="cb5-145"><a href="#cb5-145" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Dimensiones Continuas** (Edad, Educación): Diferencia absoluta.</span>
+<span id="cb5-146"><a href="#cb5-146" aria-hidden="true" tabindex="-1"></a>    $$ d^{age}_{ij} = |age_i - age_j| $$</span>
+<span id="cb5-147"><a href="#cb5-147" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-150"><a href="#cb5-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-151"><a href="#cb5-151" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: calc-predictors</span></span>
+<span id="cb5-152"><a href="#cb5-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-153"><a href="#cb5-153" aria-hidden="true" tabindex="-1"></a>calculate_predictors <span class="ot">&lt;-</span> <span class="cf">function</span>(dyad_df) {</span>
+<span id="cb5-154"><a href="#cb5-154" aria-hidden="true" tabindex="-1"></a>    dyad_df <span class="sc">%&gt;%</span></span>
+<span id="cb5-155"><a href="#cb5-155" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(</span>
+<span id="cb5-156"><a href="#cb5-156" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Mismatch Indicators</span></span>
+<span id="cb5-157"><a href="#cb5-157" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_sex =</span> <span class="fu">if_else</span>(ego_sex <span class="sc">!=</span> alter_sex, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb5-158"><a href="#cb5-158" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_race =</span> <span class="fu">if_else</span>(ego_race <span class="sc">!=</span> alter_race, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb5-159"><a href="#cb5-159" aria-hidden="true" tabindex="-1"></a>            <span class="at">diff_relig =</span> <span class="fu">if_else</span>(ego_relig <span class="sc">!=</span> alter_relig, <span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb5-160"><a href="#cb5-160" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-161"><a href="#cb5-161" aria-hidden="true" tabindex="-1"></a>            <span class="co"># Absolute Differences</span></span>
+<span id="cb5-162"><a href="#cb5-162" aria-hidden="true" tabindex="-1"></a>            <span class="at">age_diff =</span> <span class="fu">abs</span>(ego_age <span class="sc">-</span> alter_age),</span>
+<span id="cb5-163"><a href="#cb5-163" aria-hidden="true" tabindex="-1"></a>            <span class="at">edu_diff =</span> <span class="fu">abs</span>(ego_educ <span class="sc">-</span> alter_educ)</span>
+<span id="cb5-164"><a href="#cb5-164" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb5-165"><a href="#cb5-165" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb5-166"><a href="#cb5-166" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Modelos de Regresión (Tabla 3)</span></span>
-<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a>Ajustamos modelos logísticos para estimar la probabilidad de lazo ($tie=1$).</span>
+<span id="cb5-167"><a href="#cb5-167" aria-hidden="true" tabindex="-1"></a><span class="co"># Preparar dataset analítico</span></span>
+<span id="cb5-168"><a href="#cb5-168" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>tie <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb5-169"><a href="#cb5-169" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(all_cases)) all_cases<span class="sc">$</span>is_kin <span class="ot">&lt;-</span> <span class="dv">0</span></span>
 <span id="cb5-170"><a href="#cb5-170" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a>$$ \log \left( \frac{P(tie=1)}{P(tie=0)} \right) = \beta_0 + \beta_1(DiffSex) + \beta_2(DiffRace) + ... $$</span>
-<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>Los coeficientes negativos indican homofilia (mayor diferencia -&gt; menor probabilidad de lazo).</span>
-<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: models</span></span>
-<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: asis</span></span>
-<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;analysis_data&quot;</span>) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
-<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Modelo 1: Efectos principales (Main Effects)</span></span>
-<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a>    m1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(tie <span class="sc">~</span> diff_race <span class="sc">+</span> diff_relig <span class="sc">+</span> diff_sex <span class="sc">+</span> age_diff <span class="sc">+</span> edu_diff <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
-<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> analysis_data,</span>
-<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a>        <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>)</span>
-<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-171"><a href="#cb5-171" aria-hidden="true" tabindex="-1"></a><span class="co"># Unir Casos y Controles</span></span>
+<span id="cb5-172"><a href="#cb5-172" aria-hidden="true" tabindex="-1"></a>analysis_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb5-173"><a href="#cb5-173" aria-hidden="true" tabindex="-1"></a>    all_cases <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">names</span>(all_controls))),</span>
+<span id="cb5-174"><a href="#cb5-174" aria-hidden="true" tabindex="-1"></a>    all_controls</span>
+<span id="cb5-175"><a href="#cb5-175" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-176"><a href="#cb5-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-177"><a href="#cb5-177" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb5-178"><a href="#cb5-178" aria-hidden="true" tabindex="-1"></a>    analysis_data <span class="ot">&lt;-</span> <span class="fu">calculate_predictors</span>(analysis_data)</span>
+<span id="cb5-179"><a href="#cb5-179" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-180"><a href="#cb5-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-181"><a href="#cb5-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-182"><a href="#cb5-182" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Modelos de Regresión Logística</span></span>
+<span id="cb5-183"><a href="#cb5-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-184"><a href="#cb5-184" aria-hidden="true" tabindex="-1"></a>Estimamos la probabilidad de lazo usando modelos logísticos.</span>
+<span id="cb5-185"><a href="#cb5-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-186"><a href="#cb5-186" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modelo Base (*Main Effects*)</span></span>
 <span id="cb5-187"><a href="#cb5-187" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Modelo 2: Interacciones con Año (Cambio en homofilia)</span></span>
-<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a>    m2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(tie <span class="sc">~</span> (diff_race <span class="sc">+</span> diff_relig <span class="sc">+</span> diff_sex <span class="sc">+</span> age_diff <span class="sc">+</span> edu_diff) <span class="sc">*</span> <span class="fu">factor</span>(year),</span>
-<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> analysis_data,</span>
-<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a>        <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>)</span>
-<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stargazer</span>(m1, m2,</span>
-<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
-<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">&quot;Replicación Tabla 3: Modelos Logísticos de Homofilia&quot;</span>,</span>
-<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a>        <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo 1&quot;</span>, <span class="st">&quot;Modelo 2&quot;</span>),</span>
-<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a>        <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Diff Raza&quot;</span>, <span class="st">&quot;Diff Relig&quot;</span>, <span class="st">&quot;Diff Sexo&quot;</span>, <span class="st">&quot;Diff Edad&quot;</span>, <span class="st">&quot;Diff Educ&quot;</span>),</span>
-<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a>        <span class="at">dep.var.labels =</span> <span class="st">&quot;Probabilidad de Lazo&quot;</span></span>
-<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">&quot;No hay datos suficientes para correr los modelos.&quot;</span>)</span>
-<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a><span class="fu">## Conclusión</span></span>
-<span id="cb5-207"><a href="#cb5-207" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-208"><a href="#cb5-208" aria-hidden="true" tabindex="-1"></a>Los coeficientes obtenidos representan la &quot;fuerza de selección&quot; impuesta por la estructura social. Estos parámetros serán utilizados en el siguiente módulo para imputar redes en encuestas donde no observamos los lazos directamente.</span>
+<span id="cb5-188"><a href="#cb5-188" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-189"><a href="#cb5-189" aria-hidden="true" tabindex="-1"></a>\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)</span>
+<span id="cb5-190"><a href="#cb5-190" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-191"><a href="#cb5-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-192"><a href="#cb5-192" aria-hidden="true" tabindex="-1"></a>Donde los coeficientes $\beta_k$ representan la **fuerza de homofilia**:</span>
+<span id="cb5-193"><a href="#cb5-193" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>$\beta_k &lt; 0$: Mayor distancia reduce la probabilidad de lazo (Homofilia).</span>
+<span id="cb5-194"><a href="#cb5-194" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>La magnitud indica cuán &quot;costoso&quot; es cruzar barreras sociales en esa dimensión.</span>
+<span id="cb5-195"><a href="#cb5-195" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-196"><a href="#cb5-196" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modelo de Cambio Temporal (*Interaction Model*)</span></span>
+<span id="cb5-197"><a href="#cb5-197" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-198"><a href="#cb5-198" aria-hidden="true" tabindex="-1"></a>Para evaluar cambios entre 1985 y 2004, introducimos interacciones:</span>
+<span id="cb5-199"><a href="#cb5-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-200"><a href="#cb5-200" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-201"><a href="#cb5-201" aria-hidden="true" tabindex="-1"></a>\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \boldsymbol{\gamma}^\top (\mathbf{d}_{ij} \cdot \mathbb{I}_{2004}) + \dots</span>
+<span id="cb5-202"><a href="#cb5-202" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb5-203"><a href="#cb5-203" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-204"><a href="#cb5-204" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>$\gamma_k &lt; 0$: La homofilia se intensificó (*stronger homophily*) en 2004.</span>
+<span id="cb5-205"><a href="#cb5-205" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>$\gamma_k &gt; 0$: La homofilia se debilitó (*weaker homophily*).</span>
+<span id="cb5-206"><a href="#cb5-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-209"><a href="#cb5-209" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb5-210"><a href="#cb5-210" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: models</span></span>
+<span id="cb5-211"><a href="#cb5-211" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: asis</span></span>
+<span id="cb5-212"><a href="#cb5-212" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-213"><a href="#cb5-213" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;analysis_data&quot;</span>) <span class="sc">&amp;&amp;</span> <span class="fu">nrow</span>(analysis_data) <span class="sc">&gt;</span> <span class="dv">0</span>) {</span>
+<span id="cb5-214"><a href="#cb5-214" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Modelo 1: Efectos principales (Main Effects)</span></span>
+<span id="cb5-215"><a href="#cb5-215" aria-hidden="true" tabindex="-1"></a>    m1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(tie <span class="sc">~</span> diff_race <span class="sc">+</span> diff_relig <span class="sc">+</span> diff_sex <span class="sc">+</span> age_diff <span class="sc">+</span> edu_diff <span class="sc">+</span> <span class="fu">factor</span>(year),</span>
+<span id="cb5-216"><a href="#cb5-216" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> analysis_data,</span>
+<span id="cb5-217"><a href="#cb5-217" aria-hidden="true" tabindex="-1"></a>        <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>)</span>
+<span id="cb5-218"><a href="#cb5-218" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-219"><a href="#cb5-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-220"><a href="#cb5-220" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Modelo 2: Interacciones con Año (Cambio en homofilia)</span></span>
+<span id="cb5-221"><a href="#cb5-221" aria-hidden="true" tabindex="-1"></a>    m2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(tie <span class="sc">~</span> (diff_race <span class="sc">+</span> diff_relig <span class="sc">+</span> diff_sex <span class="sc">+</span> age_diff <span class="sc">+</span> edu_diff) <span class="sc">*</span> <span class="fu">factor</span>(year),</span>
+<span id="cb5-222"><a href="#cb5-222" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> analysis_data,</span>
+<span id="cb5-223"><a href="#cb5-223" aria-hidden="true" tabindex="-1"></a>        <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">&quot;logit&quot;</span>)</span>
+<span id="cb5-224"><a href="#cb5-224" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-225"><a href="#cb5-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-226"><a href="#cb5-226" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stargazer</span>(m1, m2,</span>
+<span id="cb5-227"><a href="#cb5-227" aria-hidden="true" tabindex="-1"></a>        <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
+<span id="cb5-228"><a href="#cb5-228" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">&quot;Replicación Tabla 3: Modelos Logísticos de Homofilia&quot;</span>,</span>
+<span id="cb5-229"><a href="#cb5-229" aria-hidden="true" tabindex="-1"></a>        <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo Base&quot;</span>, <span class="st">&quot;Interacción Temporal&quot;</span>),</span>
+<span id="cb5-230"><a href="#cb5-230" aria-hidden="true" tabindex="-1"></a>        <span class="at">covariate.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Diff Raza&quot;</span>, <span class="st">&quot;Diff Relig&quot;</span>, <span class="st">&quot;Diff Sexo&quot;</span>, <span class="st">&quot;Diff Edad&quot;</span>, <span class="st">&quot;Diff Educ&quot;</span>, <span class="st">&quot;Año 2004&quot;</span>),</span>
+<span id="cb5-231"><a href="#cb5-231" aria-hidden="true" tabindex="-1"></a>        <span class="at">dep.var.labels =</span> <span class="st">&quot;Probabilidad de Lazo&quot;</span>,</span>
+<span id="cb5-232"><a href="#cb5-232" aria-hidden="true" tabindex="-1"></a>        <span class="at">notes =</span> <span class="st">&quot;Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado.&quot;</span></span>
+<span id="cb5-233"><a href="#cb5-233" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-234"><a href="#cb5-234" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb5-235"><a href="#cb5-235" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(<span class="st">&quot;No hay datos suficientes para correr los modelos.&quot;</span>)</span>
+<span id="cb5-236"><a href="#cb5-236" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-237"><a href="#cb5-237" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb5-238"><a href="#cb5-238" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-239"><a href="#cb5-239" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interpretación</span></span>
+<span id="cb5-240"><a href="#cb5-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-241"><a href="#cb5-241" aria-hidden="true" tabindex="-1"></a>Los coeficientes obtenidos ($\beta$) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto $\alpha$ no refleja la densidad real de la red y requeriría una calibración (*intercept calibration*) basada en modelos de grado para simulaciones realistas.</span>
+<span id="cb5-242"><a href="#cb5-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-243"><a href="#cb5-243" aria-hidden="true" tabindex="-1"></a><span class="fu">## Referencias</span></span>
+<span id="cb5-244"><a href="#cb5-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-245"><a href="#cb5-245" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Smith, J. A., McPherson, M., &amp; Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456.</span>
+<span id="cb5-246"><a href="#cb5-246" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>McPherson, M., Smith-Lovin, L., &amp; Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. *American Sociological Review*, 71(3), 353-375.</span>
+<span id="cb5-247"><a href="#cb5-247" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Handcock, M. S., Hunter, D. R., Butts, C. T., Goodreau, S. M., &amp; Morris, M. (2008). *statnet: Software tools for the representation, visualization, analysis and simulation of network data*.</span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
