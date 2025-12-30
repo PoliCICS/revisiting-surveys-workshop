@@ -4,11 +4,11 @@ author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
 
-## Introducción
+## 1. Introducción
 
 Este módulo tiene como objetivo replicar la metodología de estimación de fuerza homofílica (*homophily strength*) presentada en el paper:
 
-Smith, J. A., McPherson, M., & Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456. [[DOI: 10.1177/0003122414531776](https://doi.org/10.1177/0003122414531776)].
+Smith, J. A., McPherson, M., & Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456. [[10.1177/0003122414531776](https://doi.org/10.1177/0003122414531776)].
 
 El objetivo inferencial es estimar la homofilia relativa al azar: el efecto de la **distancia sociodemográfica** sobre la probabilidad de un lazo, una vez controlada la **estructura de oportunidades** inducida por las distribuciones marginales de atributos en la población.
 
@@ -50,30 +50,33 @@ lo que produce un desbalance extremo entre $Y=1$ y $Y=0$ si se trabajara con el 
 
 Finalmente, incluso si se pudiera enumerar el universo, las observaciones a nivel de díada no son independientes: un mismo encuestado aparece en muchas filas. Esto viola el supuesto de observaciones **i.i.d.** (*independent and identically distributed*): En este problema, lo que más afecta la inferencia naïve es la **no-independencia**: muchas díadas comparten el mismo ego (y/o el mismo alter), lo que induce correlación entre filas y tiende a producir errores estándar artificialmente pequeños si se ajusta una logística como si cada díada fuera una observación independiente.
 
-Por estas razones, Smith et al. (2014) utilizan un **diseño de casos y controles** (*case-control design*), que hace explícito el paso de construcción de no-lazos plausibles mediante un mecanismo de muestreo definido:
+Por estas razones, utilizamos un *case-control design* para la construcción de no-lazos plausibles mediante un mecanismo de muestreo definido:
 
-1. **Casos (*cases*, $Y=1$):** díadas observadas (lazos reportados por los encuestados).
-2. **Controles (*controls*, $Y=0$):** díadas construidas artificialmente mediante emparejamiento aleatorio (*random pairing*) de encuestados dentro del mismo año. Bajo el supuesto de rareza del lazo, estos pares aleatorios aproximan “no-lazos” y representan un contrafactual de **mezcla al azar** (*chance mixing*) dado el perfil demográfico observado.
+1. **Casos** ($Y=1$): díadas observadas.
+2. **Controles** ($Y=0$): díadas construidas artificialmente mediante emparejamiento aleatorio (*random pairing*) de encuestados dentro del mismo año dado el perfil demográfico observado.
 
-En este esquema, la variable respuesta en el dataset analítico (casos + controles) puede describirse como:
+En este esquema, la variable respuesta puede describirse como:
 
 $$
 Y_{ij} =
 \begin{cases}
-1 & \text{si } (i,j) \text{ es un lazo observado (caso)} \\
-0 & \text{si } (i,j) \text{ proviene del muestreo de controles (par aleatorio)}
+1 & \text{si } (i,j) \text{ es un lazo observado } \\
+0 & \text{si } (i,j) \text{ proviene del muestreo de controles }
 \end{cases}
 $$
 
-> **Nota metodológica (implementación pedagógica vs. replicación robusta):**  
-> En esta implementación del workshop utilizamos una versión simplificada de *random pairing* para construir controles. Una replicación estricta del enfoque del paper requiere, al menos:  
+> **Implementación pedagógica vs. replicación robusta**  
+> En esta implementación pedagófica utilizamos una versión simplificada de *random pairing* para construir controles. Una replicación estricta del enfoque del paper requiere:  
 > (i) ponderación con **pesos poblacionales** (*population weights*) en el muestreo/ensamble de pares, y  
-> (ii) un **bootstrap a nivel de encuestado** (*respondent-level bootstrap*) para obtener errores estándar que reflejen la dependencia inducida por observaciones díadicas (*non-independence*).  
+> (ii) un **bootstrap a nivel de encuestado** (*respondent-level bootstrap*) para obtener errores estándar que reflejen la dependencia inducida por observaciones díadicas.  
 
 Además, existe una asimetría estructural: los **casos** (ego–confidant) están naturalmente “anidados” en el ego, mientras que los **controles** quedan “cruzados” entre muchos respondentes. Esa estructura dificulta imponer una sola jerarquía clara de anidamiento para un modelo multinivel estándar, y por ello el paper recurre a una estrategia de inferencia basada en **bootstrap a nivel de encuestado**: re-muestrean respondentes, reconstruyen casos y controles dentro de cada iteración (incluyendo *random matching with replacement* para controles), re-estiman el modelo y obtienen errores estándar desde la variabilidad de los coeficientes a través de iteraciones
 
+## 2. Implementación
 
-## 1. Cargar Datos Limpios
+En esta sección implementamos la construcción de controles plausibles y la estimación de los modelos propuestos en el paper.
+
+### 2.1. Cargar Datos Limpios
 
 Cargamos los datos procesados en el paso de [Limpieza GSS](gss-cleaning.qmd).
 
@@ -91,57 +94,44 @@ library(stargazer)
 FILE_1985 <- "data/clean_gss_1985.rds"
 FILE_2004 <- "data/clean_gss_2004.rds"
 
-# Cargar si existen (Placeholder logic)
-if (file.exists(FILE_1985)) {
-    egos_1985 <- readRDS(FILE_1985)
-    cases_1985 <- egos_1985
-    egos_unique_1985 <- cases_1985 %>%
-        select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %>%
-        distinct()
-} else {
-    cases_1985 <- NULL
-    egos_unique_1985 <- NULL
-}
+# Cargamos
+egos_1985 <- readRDS(FILE_1985)
+cases_1985 <- egos_1985
+egos_unique_1985 <- cases_1985 %>%
+    select(
+        ego_id, ego_age, ego_sex, ego_race,
+        ego_relig, ego_educ, year
+    ) %>%
+    distinct()
 
-if (file.exists(FILE_2004)) {
-    cases_2004 <- readRDS(FILE_2004)
-    egos_unique_2004 <- cases_2004 %>%
-        select(ego_id, ego_age, ego_sex, ego_race, ego_relig, ego_educ, year) %>%
-        distinct()
-} else {
-    cases_2004 <- NULL
-    egos_unique_2004 <- NULL
-}
+egos_2004 <- readRDS(FILE_2004)
+cases_2004 <- egos_2004
+egos_unique_2004 <- cases_2004 %>%
+    select(
+        ego_id, ego_age, ego_sex, ego_race,
+        ego_relig, ego_educ, year
+    ) %>%
+    distinct()
 
 # Combinar años
-if (!is.null(cases_1985) & !is.null(cases_2004)) {
-    all_cases <- bind_rows(cases_1985, cases_2004)
-    all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
-} else {
-    all_cases <- bind_rows(cases_1985, cases_2004)
-    all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
-}
+all_cases <- bind_rows(cases_1985, cases_2004)
+all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
 ```
 
-## 2. Generación de Controles
+### 2.2. Generación de Controles
 
 Implementamos la construcción de no-lazos plausibles. Para cada encuestado, seleccionamos $k$ otros encuestados al azar para formar díadas de control.
 
 ```{r}
 #| label: generate-controls
 
-generate_controls <- function(ego_df, n_controls_per_case = 1) {
-    if (is.null(ego_df) || nrow(ego_df) == 0) {
-        return(NULL)
-    }
-
+generate_controls <- function(ego_df, n_controls_per_case) {
     n_egos <- nrow(ego_df)
 
     # Expandir egos para generar múltiples controles
     controls <- ego_df[rep(1:n_egos, each = n_controls_per_case), ]
 
-    # Samplear alters (otros egos)
-    # Sampling with replacement as per matched sample strategy
+    # Samplear alters (otros egos) con reemplazo
     alter_indices <- sample(1:n_egos, nrow(controls), replace = TRUE)
     sampled_alters <- ego_df[alter_indices, ]
 
@@ -164,20 +154,20 @@ generate_controls <- function(ego_df, n_controls_per_case = 1) {
 }
 
 # Generamos controles por separado para mantener estructura temporal
-controls_1985 <- if (!is.null(egos_unique_1985)) generate_controls(egos_unique_1985, n_controls_per_case = 10) else NULL
-controls_2004 <- if (!is.null(egos_unique_2004)) generate_controls(egos_unique_2004, n_controls_per_case = 10) else NULL
+controls_1985 <- generate_controls(egos_unique_1985, n_controls_per_case = 10)
+controls_2004 <- generate_controls(egos_unique_2004, n_controls_per_case = 10)
 
 all_controls <- bind_rows(controls_1985, controls_2004)
 ```
 
-## 3. Distancia Sociodemográfica (*Sociodemographic Distance*)
+### 2.3. Distancia Social
 
 Calculamos el vector de distancias $\mathbf{d}_{ij}$ para cada díada.
 
 *   **Dimensiones Categóricas** (Sexo, Raza, Religión): Indicador de diferencia (*mismatch*).
-    $$ d^{cat}_{ij} = \mathbb{I}(x^{cat}_i \neq x^{cat}_j) $$
+    $$ d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j) $$
 *   **Dimensiones Continuas** (Edad, Educación): Diferencia absoluta.
-    $$ d^{age}_{ij} = |age_i - age_j| $$
+    $$ d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j| $$
 
 ```{r}
 #| label: calc-predictors
@@ -211,7 +201,7 @@ if (nrow(analysis_data) > 0) {
 }
 ```
 
-## 4. Modelos de Regresión Logística
+### 2.4. Modelos de Regresión Logística
 
 Estimamos la probabilidad de lazo usando modelos logísticos.
 
@@ -266,11 +256,11 @@ if (exists("analysis_data") && nrow(analysis_data) > 0) {
 }
 ```
 
-## Interpretación
+## 3. Interpretación
 
 Los coeficientes obtenidos ($\beta$) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto $\alpha$ no refleja la densidad real de la red y requeriría una calibración (*intercept calibration*) basada en modelos de grado para simulaciones realistas.
 
-## Referencias
+## 4. Referencias
 
 - Smith, J. A., McPherson, M., & Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456.
 - McPherson, M., Smith-Lovin, L., & Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. *American Sociological Review*, 71(3), 353-375.
