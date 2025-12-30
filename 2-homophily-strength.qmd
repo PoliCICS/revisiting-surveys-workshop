@@ -74,11 +74,13 @@ Además, existe una asimetría estructural: los **casos** (ego–confidant) est�
 
 ## 2. Implementación
 
-En esta sección implementamos la construcción de controles plausibles y la estimación de los modelos propuestos en el paper.
+En esta sección implementamos (i) la construcción de controles plausibles (*non-ties*) y (ii) la estimación de modelos logísticos. El foco inferencial está en los coeficientes de pendiente $\boldsymbol{\beta}$, que cuantifican “cuánto cae” la probabilidad (en log-odds) de un lazo al aumentar la distancia social.
 
 ### 2.1. Cargar Datos Limpios
 
-Cargamos los datos procesados en el paso de [Limpieza GSS](gss-cleaning.qmd).
+Cargamos los datos procesados en el paso de [Limpieza GSS](gss-cleaning.qmd) y construimos los objetos `cases_1985` y `cases_2004` que contienen díadas ego–alter observadas (casos). 
+
+A partir de ellas construimos un “pool” de egos únicos `egos_unique_*` que sirve como base para muestrear controles.
 
 ```{r}
 #| label: load-clean
@@ -118,9 +120,28 @@ all_cases <- bind_rows(cases_1985, cases_2004)
 all_egos <- bind_rows(egos_unique_1985, egos_unique_2004)
 ```
 
+Exploración rápida:
+
+```{r}
+#| label: peek-loaded-objects
+#| echo: false
+
+cat("Dyads (cases) 1985:", nrow(cases_1985), "\n")
+cat("Dyads (cases) 2004:", nrow(cases_2004), "\n")
+cat("Dyads (cases) total:", nrow(all_cases), "\n\n")
+
+cat("Unique egos 1985:", nrow(egos_unique_1985), "\n")
+cat("Unique egos 2004:", nrow(egos_unique_2004), "\n")
+cat("Unique egos total:", nrow(all_egos), "\n\n")
+```
+
 ### 2.2. Generación de Controles
 
-Implementamos la construcción de no-lazos plausibles. Para cada encuestado, seleccionamos $k$ otros encuestados al azar para formar díadas de control.
+En el diseño de casos y controles, los controles se interpretan como “no-lazos plausibles” obtenidos mediante emparejamiento aleatorio dentro del mismo año. Aquí implementamos una aproximación pedagógica:
+
+- Para cada ego del pool, generamos $k$ controles seleccionando $k$ alters al azar desde el mismo pool (con reemplazo).
+- Eliminamos auto-lazos accidentales ($i=j$).
+- Marcamos estas díadas como `tie = 0`.
 
 ```{r}
 #| label: generate-controls
@@ -160,14 +181,29 @@ controls_2004 <- generate_controls(egos_unique_2004, n_controls_per_case = 10)
 all_controls <- bind_rows(controls_1985, controls_2004)
 ```
 
+Exploración rápida:
+
+```{r}
+#| label: peek-controls
+#| echo: false
+
+cat("Controls 1985:", nrow(controls_1985), "\n")
+cat("Controls 2004:", nrow(controls_2004), "\n")
+cat("Controls total:", nrow(all_controls), "\n\n")
+```
+
+**Nota metodológica sobre $k$.** El valor de $k$ controla el tamaño del control set. Esto afecta el intercepto (prevalencia) pero no debería afectar sustantivamente los $\boldsymbol{\beta}$ en case–control ideal.
+
 ### 2.3. Distancia Social
 
-Calculamos el vector de distancias $\mathbf{d}_{ij}$ para cada díada.
+Definimos el vector de distancias $\mathbf{d}_{ij}$ para cada díada. Siguiendo la lógica del paper:
 
-*   **Dimensiones Categóricas** (Sexo, Raza, Religión): Interpretamos distancia como *mismatch* entre valores.
-    $$ d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j) $$
-*   **Dimensiones Continuas** (Edad, Educación): Interpretamos distancia como diferencia absoluta.
-    $$ d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j| $$
+- Para dimensiones categóricas usamos indicadores de *mismatch*:
+  $$ d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j) $$
+- Para dimensiones continuas usamos distancia absoluta:
+  $$ d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j| $$
+
+Así, los coeficientes se interpretarán como penalizaciones (en log-odds) por “cruzar” una frontera categórica (sexo/raza/religión) o por aumentar una unidad de distancia (edad/educación).
 
 ```{r}
 #| label: calc-predictors
@@ -199,9 +235,28 @@ analysis_data <- bind_rows(
 analysis_data <- social_difference(analysis_data)
 ```
 
+**Exploración rápida (dataset analítico y distancias).** Antes de modelar, conviene inspeccionar: tamaño final, tasa de `tie=1`, y rangos plausibles de distancias.
+
+```{r}
+#| label: peek-analysis-data
+#| echo: false
+
+cat("Analysis dataset rows:", nrow(analysis_data), "\n")
+cat("Tie counts:\n")
+print(table(analysis_data$tie))
+
+cat(
+    "\nTie rate (P[Y=1] in analysis sample):",
+    mean(analysis_data$tie == 1, na.rm = TRUE), "\n\n"
+)
+
+cat("Summary of distance predictors:\n")
+print(summary(analysis_data[, c("diff_race", "diff_relig", "diff_sex", "age_diff", "edu_diff")]))
+```
+
 ### 2.4. Modelos de Regresión Logística
 
-Estimamos la probabilidad de lazo usando modelos logísticos.
+Estimamos la probabilidad de lazo usando modelos logísticos. Manteniendo la notación del módulo:
 
 ### Modelo Base
 
@@ -210,9 +265,7 @@ $$
 \text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)
 $$
 
-Donde los coeficientes $\beta_k$ representan la **fuerza de homofilia**:
-*   $\beta_k < 0$: Mayor distancia reduce la probabilidad de lazo (Homofilia).
-*   La magnitud indica cuán "costoso" es cruzar barreras sociales en esa dimensión.
+Donde los coeficientes $\beta_k$ representan la **fuerza homofílica**. Un $\beta_k < 0$ indica que mayor distancia reduce la probabilidad de lazo (es decir, hay homofilia).
 
 ### Modelo de Cambio Temporal
 
@@ -245,15 +298,59 @@ stargazer(m1, m2,
     type = "html",
     title = "Replicación Tabla 3: Modelos Logísticos de Homofilia",
     column.labels = c("Modelo Base", "Interacción Temporal"),
-    covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ", "Año 2004"),
-    dep.var.labels = "Probabilidad de Lazo",
-    notes = "Nota: Errores estándar i.i.d. reportados. Una replicación robusta requeriría bootstrap ponderado."
+    covariate.labels = c("Diff Raza", "Diff Relig", "Diff Sexo", "Diff Edad", "Diff Educ", "Año", "Diff Raza x Año", "Diff Relig x Año", "Diff Sexo x Año", "Diff Edad x Año", "Diff Educ x Año"),
+    dep.var.labels = "Probabilidad de Lazo"
 )
+```
+
+**Exploración rápida (coeficientes y odds ratios).** Para interpretar “fuerza homofílica” de manera más tangible, suele ser útil reportar $\exp(\hat\beta)$ como odds ratios (*odds ratios*). Esto no reemplaza la tabla, pero facilita lectura (especialmente para predictores binarios de diferencia).
+
+```{r}
+#| label: peek-coefs-or
+#| echo: false
+
+coef_table_m1 <- broom::tidy(m1) %>%
+    mutate(OR = exp(estimate)) %>%
+    select(term, estimate, std.error, statistic, p.value, OR)
+
+coef_table_m2 <- broom::tidy(m2) %>%
+    mutate(OR = exp(estimate)) %>%
+    select(term, estimate, std.error, statistic, p.value, OR)
+
+cat("Top coefficients (m1):\n")
+print(head(coef_table_m1, 10))
+
+cat("\nTop coefficients (m2):\n")
+print(head(coef_table_m2, 12))
 ```
 
 ## 3. Interpretación
 
-Los coeficientes obtenidos ($\beta$) son parámetros de selección que utilizaremos para imputar redes. Dado el diseño de casos y controles, el intercepto $\alpha$ no refleja la densidad real de la red y requeriría una calibración. 
+Los coeficientes estimados describen la *selección por similitud*: los parámetros $\hat\beta$ y $\hat\gamma$ cuantifican cómo varían las odds de un lazo al aumentar la distancia social, manteniendo constantes las otras dimensiones.
+
+1) **Significado $\hat\beta$.**  
+- Si $\hat\beta_k < 0$, hay evidencia de homofilia (*homophily*).  
+- Para predictores categóricos (p. ej., `diff_race`), $\exp(\hat\beta)$ se interpreta como el factor multiplicativo en las odds de un lazo cuando ego y alter son distintos, condicional a las demás covariables.  
+- Para distancias continuas (p. ej., `age_diff`, `edu_diff`), $\exp(\hat\beta)$ es el factor en odds por cada unidad adicional de distancia.
+
+2) **Significado $\hat\gamma$.**  
+- Si $\hat\gamma_k < 0$, la penalización por distancia se vuelve más fuerte en 2004 (homofilia se intensifica).  
+- Si $\hat\gamma_k > 0$, la penalización por distancia se vuelve menos fuerte en 2004 (homofilia se debilita).  
+
+3) **Inferencia y no-independencia (advertencia).**  
+La tabla producida por `glm()` y `stargazer()` reporta errores estándar bajo el supuesto i.i.d. (independientes e idénticamente distribuidas). En case–control ese supuesto falla por no-independencia. Por eso, una replicación metodológicamente fiel debe reemplazar estos errores estándar por inferencia robusta, típicamente mediante:
+- **bootstrap a nivel de encuestado** (*respondent-level bootstrap*) con reconstrucción de casos/controles en cada iteración, y, idealmente,
+- **ponderación poblacional** (*population weights*) para alinear el control sample con la estructura de oportunidades del año.
+
+4) **Conexión con imputación de redes.**  
+En el contexto del workshop, los coeficientes $\hat{\boldsymbol{\beta}}$ (y, si se usa, $\hat{\boldsymbol{\gamma}}$) pueden reinterpretarse como parámetros para generar probabilidades relativas de lazo o pesos de afinidad entre pares, en función de la distancia social. 
+
+Bajo una parametrización logística, un esquema natural para imputación es:
+$$
+\Pr(Y_{ij}=1 \mid \mathbf{d}_{ij}) = \text{logit}^{-1}\Big(\alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)\Big),
+$$
+
+con la salvedad central: para pasar de “preferencias relativas” a una red con densidad realista, se necesita calibrar $\alpha$ (o imponer restricciones de densidad de red).
 
 ## 4. Referencias
 
