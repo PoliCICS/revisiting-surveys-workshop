@@ -70,60 +70,53 @@
     "text": "4. Referencias\n\nSmith, J. A., McPherson, M., & Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. American Sociological Review, 79(3), 432–456.\nMcPherson, M., Smith-Lovin, L., & Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. American Sociological Review, 71(3), 353-375.\nHandcock, M. S., Hunter, D. R., Butts, C. T., Goodreau, S. M., & Morris, M. (2008). statnet: Software tools for the representation, visualization, analysis and simulation of network data."
   },
   {
-    "objectID": "3-ising.html",
-    "href": "3-ising.html",
-    "title": "Modelo de Ising y Psicometría",
+    "objectID": "2-network-from-surveys.html",
+    "href": "2-network-from-surveys.html",
+    "title": "Imputando Redes desde Encuestas",
     "section": "",
-    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
+    "text": "Una limitación frecuente en ciencias sociales es que muchas encuestas miden atributos individuales (actitudes, demografía) pero no recopilan información sobre las redes personales de los encuestados. Sin embargo, sabemos que el contexto social (social context) —la composición de la red personal— es crucial para explicar comportamientos, opiniones y difusión de información.\nEste módulo implementa la metodología de McPherson & Smith (2019) para imputar contextos sociales basándose en el principio de homofilia en el Blau Space. Replicamos parcialmente su análisis utilizando la ANES 2016."
   },
   {
-    "objectID": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
-    "href": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "",
-    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
+    "objectID": "2-network-from-surveys.html#carga-de-datos",
+    "href": "2-network-from-surveys.html#carga-de-datos",
+    "title": "Imputando Redes desde Encuestas",
+    "section": "3.1 4.1. Carga de Datos",
+    "text": "3.1 4.1. Carga de Datos\nCargamos datos limpios de la ANES 2016 (preparados en anes-cleaning.qmd).\n\n\nCódigo\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(spdep)\nlibrary(spatialreg)\n\n# Cargar datos limpios\nDATA_PATH &lt;- \"data/anes_2016_derived/anes_clean.rds\"\n\nif (file.exists(DATA_PATH)) {\n  final_df &lt;- readRDS(DATA_PATH)\n  cat(\"Datos ANES cargados. N =\", nrow(final_df), \"\\n\")\n} else {\n  stop(\"Ejecuta primero anes-cleaning.qmd para generar los datos.\")\n}\n\n\nDatos ANES cargados. N = 4045"
   },
   {
-    "objectID": "3-ising.html#conceptos-básicos",
-    "href": "3-ising.html#conceptos-básicos",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "Conceptos Básicos",
-    "text": "Conceptos Básicos\n\nNodos: Ítems de una encuesta (ej. síntomas de depresión).\nEnlaces: Interacciones parciales entre ítems.\nEstados: Binarios (0/1 o -1/1)."
+    "objectID": "2-network-from-surveys.html#construcción-de-pesos-w",
+    "href": "2-network-from-surveys.html#construcción-de-pesos-w",
+    "title": "Imputando Redes desde Encuestas",
+    "section": "3.2 4.2. Construcción de Pesos (W)",
+    "text": "3.2 4.2. Construcción de Pesos (W)\nConstruimos una matriz de pesos espaciales \\(W\\) basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación k-nearest (k=50) en probabilidad.\n\n\nCódigo\n# Betas de Homofilia (Smith & McPherson 2014-like)\nbetas &lt;- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)\n\n# Matrices de Distancia\nX_age &lt;- final_df$age\nX_educ &lt;- final_df$educ\nX_sex &lt;- final_df$female\nX_race &lt;- as.integer(final_df$race_raw) \nX_relig &lt;- as.integer(final_df$relig_raw)\n\ncat(\"Calculando distancias en Blau Space...\\n\")\n\n\nCalculando distancias en Blau Space...\n\n\nCódigo\n# Distancias Vectorizadas\nD_age &lt;- abs(outer(X_age, X_age, \"-\"))\nD_educ &lt;- abs(outer(X_educ, X_educ, \"-\"))\nD_sex &lt;- abs(outer(X_sex, X_sex, \"-\"))\nD_race &lt;- outer(X_race, X_race, function(x,y) ifelse(x!=y, 1, 0))\nD_relig &lt;- outer(X_relig, X_relig, function(x,y) ifelse(x!=y, 1, 0)) # Mismatch\n\n# Predictor Lineal (Log-odds)\neta &lt;- betas[\"age\"]*D_age + betas[\"educ\"]*D_educ + betas[\"sex\"]*D_sex +\n       betas[\"race\"]*D_race + betas[\"relig\"]*D_relig\n\n# Pesos (Probabilidad relativa)\nS &lt;- exp(eta)\ndiag(S) &lt;- 0\n\n# Sparsify: Top K=50 vecinos\nN &lt;- nrow(final_df)\nk &lt;- 50\nneighbors &lt;- vector(\"list\", N)\n\n# Estrategia matriz densa para selección (viable para N=4000)\nfor(i in 1:N) {\n   row_vals &lt;- S[i, ]\n   neighbors[[i]] &lt;- order(row_vals, decreasing=TRUE)[1:k]\n}\n\nclass(neighbors) &lt;- \"nb\"\nattr(neighbors, \"region.id\") &lt;- as.character(1:N)\nattr(neighbors, \"call\") &lt;- match.call()\n# Hacemos lista de pesos row-standardized\nW_listw &lt;- nb2listw(neighbors, style=\"W\")\n\ncat(\"Matriz W construida (k=50).\\n\")\n\n\nMatriz W construida (k=50)."
   },
   {
-    "objectID": "3-ising.html#ejemplo-simulado",
-    "href": "3-ising.html#ejemplo-simulado",
-    "title": "Modelo de Ising y Psicometría",
-    "section": "Ejemplo Simulado",
-    "text": "Ejemplo Simulado\n(Placeholder: Aquí implementaremos un ejemplo simple usando el paquete IsingSampler o IsingFit durante el workshop).\n\n\nCódigo\n# Simulación conceptual\nn_nodos &lt;- 5\nmatriz_interaccion &lt;- matrix(0.5, n_nodos, n_nodos)\ndiag(matriz_interaccion) &lt;- 0\nprint(\"Matriz de Interacción Teórica:\")\n\n\n[1] \"Matriz de Interacción Teórica:\"\n\n\nCódigo\nprint(matriz_interaccion)\n\n\n     [,1] [,2] [,3] [,4] [,5]\n[1,]  0.0  0.5  0.5  0.5  0.5\n[2,]  0.5  0.0  0.5  0.5  0.5\n[3,]  0.5  0.5  0.0  0.5  0.5\n[4,]  0.5  0.5  0.5  0.0  0.5\n[5,]  0.5  0.5  0.5  0.5  0.0"
+    "objectID": "2-network-from-surveys.html#modelos-de-regresión",
+    "href": "2-network-from-surveys.html#modelos-de-regresión",
+    "title": "Imputando Redes desde Encuestas",
+    "section": "3.3 4.3. Modelos de Regresión",
+    "text": "3.3 4.3. Modelos de Regresión\nEstimamos dos modelos para explicar la simpatía por el Partido Demócrata (\\(Y\\)):\n\nModelo 1 (Base): Solo predictores demográficos (\\(X\\)).\nModelo 2 (Contexto): Demografía + Lag Espacial (\\(W y\\)).\n\n\\[ y = \\rho W y + X \\beta + \\epsilon \\]\n\n\nCódigo\n# Fórmula Base\n# Usamos dummies explícitas creadas en limpieza\nfmla_base &lt;- y ~ age + educ + female + \n             race_black + race_hispanic + race_asian + race_native + race_other +\n             relig_catholic + relig_jewish + relig_none + relig_other\n\n# Modelo 1: OLS\nm1 &lt;- lm(fmla_base, data = final_df)\n\n# Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)\n# Nota: Usamos aproximación OLS (y ~ Wy + X) para estabilidad en el workshop.\nWy &lt;- lag.listw(W_listw, final_df$y)\nfinal_df$Wy &lt;- Wy\nfmla_lag &lt;- update(fmla_base, ~ . + Wy)\nm2_ols &lt;- lm(fmla_lag, data = final_df)\n\n# Resultados\nsummary(m1)\n\n\n\nCall:\nlm(formula = fmla_base, data = final_df)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-85.000 -20.761   1.897  20.666  65.078 \n\nCoefficients:\n                Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    35.739400   1.810034  19.745  &lt; 2e-16 ***\nage            -0.006502   0.025827  -0.252 0.801248    \neduc            0.024753   0.061829   0.400 0.688922    \nfemale          6.587597   0.882813   7.462 1.04e-13 ***\nrace_black     32.643853   1.539571  21.203  &lt; 2e-16 ***\nrace_hispanic  16.222011   1.513617  10.717  &lt; 2e-16 ***\nrace_asian     10.047439   2.471704   4.065 4.90e-05 ***\nrace_native    14.081689   5.980219   2.355 0.018585 *  \nrace_other      7.894551   2.265897   3.484 0.000499 ***\nrelig_catholic  5.810602   1.243040   4.675 3.04e-06 ***\nrelig_jewish   16.287076   3.240568   5.026 5.23e-07 ***\nrelig_none      9.995975   1.261507   7.924 2.96e-15 ***\nrelig_other    -0.357396   1.232988  -0.290 0.771937    \n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 27.91 on 4032 degrees of freedom\nMultiple R-squared:  0.1417,    Adjusted R-squared:  0.1391 \nF-statistic: 55.45 on 12 and 4032 DF,  p-value: &lt; 2.2e-16\n\n\nCódigo\nsummary(m2_ols)\n\n\n\nCall:\nlm(formula = fmla_lag, data = final_df)\n\nResiduals:\n    Min      1Q  Median      3Q     Max \n-79.433 -21.267   1.719  20.687  70.506 \n\nCoefficients:\n                Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    13.946972   3.425508   4.072 4.76e-05 ***\nage             0.007267   0.025719   0.283 0.777545    \neduc           -0.012127   0.061611  -0.197 0.843971    \nfemale          4.743969   0.910903   5.208 2.00e-07 ***\nrace_black     13.458909   2.987897   4.504 6.84e-06 ***\nrace_hispanic   6.874701   1.955614   3.515 0.000444 ***\nrace_asian      4.779255   2.554244   1.871 0.061403 .  \nrace_native     9.773424   5.967851   1.638 0.101567    \nrace_other      3.901731   2.313174   1.687 0.091730 .  \nrelig_catholic  2.710593   1.302477   2.081 0.037487 *  \nrelig_jewish    7.209567   3.440272   2.096 0.036176 *  \nrelig_none      3.804578   1.502093   2.533 0.011352 *  \nrelig_other    -0.496540   1.224826  -0.405 0.685208    \nWy              0.581414   0.077792   7.474 9.49e-14 ***\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\nResidual standard error: 27.73 on 4031 degrees of freedom\nMultiple R-squared:  0.1534,    Adjusted R-squared:  0.1507 \nF-statistic: 56.18 on 13 and 4031 DF,  p-value: &lt; 2.2e-16"
   },
   {
-    "objectID": "1-introduction.html",
-    "href": "1-introduction.html",
-    "title": "Introducción",
-    "section": "",
-    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
+    "objectID": "2-network-from-surveys.html#discusión-de-resultados",
+    "href": "2-network-from-surveys.html#discusión-de-resultados",
+    "title": "Imputando Redes desde Encuestas",
+    "section": "3.4 4.4. Discusión de Resultados",
+    "text": "3.4 4.4. Discusión de Resultados\nComparación de Coeficientes:\n\n\n--- Comparación de Efectos ---\n\n\nSpatial Rho (Contexto): 0.581\n\n\n               Variable Model1 Model2 Reduction\nrace_black        Black  32.64  13.46     19.18\nrace_hispanic  Hispanic  16.22   6.87      9.35\nrelig_catholic Catholic   5.81   2.71      3.10\nfemale           Female   6.59   4.74      1.84\n\n\nEl patrón general es que, al pasar del Modelo 1 (solo demografía) al Modelo 2 (demografía + término espacial de “contexto social” imputado), muchos coeficientes demográficos se reducen en magnitud. La lectura sustantiva que proponen es directa: parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos (en el sentido de qué tipo de opiniones políticas es más probable que los rodeen dadas sus ubicaciones en el espacio de Blau).\nEl paper ilustra esto con ejemplos numéricos. Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes. En términos de raza/etnicidad, enfatizan que el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. También observan que el coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. La conclusión interpretativa es que una fracción apreciable de las brechas demográficas en simpatía por el Partido Demócrata puede entenderse como diferencias en el “mundo social” probable en que se ubican los encuestados, más que como un efecto puramente individual/demográfico.\nLuego viene el punto central: el término espacial (el contexto social imputado) es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía. Además, subrayan que el tamaño del efecto es grande: dan un ejemplo comparando dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.\nFinalmente, rematan con una idea sociológica fuerte: individuos que viven en mundos sociales muy distintos pueden terminar con alineamientos políticos muy diferentes, y ese mecanismo contextual puede “superar” (en magnitud sustantiva) algunas diferencias estrictamente demográficas cuando se intenta explicar simpatías partidarias."
   },
   {
-    "objectID": "1-introduction.html#las-encuestas-como-sistemas",
-    "href": "1-introduction.html#las-encuestas-como-sistemas",
-    "title": "Introducción",
-    "section": "",
-    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
+    "objectID": "2-network-from-surveys.html#ejecución-script-ergm",
+    "href": "2-network-from-surveys.html#ejecución-script-ergm",
+    "title": "Imputando Redes desde Encuestas",
+    "section": "4.1 5.1. Ejecución Script ERGM",
+    "text": "4.1 5.1. Ejecución Script ERGM\nUtilizamos un script dedicado (02_ATP_network_ergm.R) que calibra la densidad de la red ajustando el parámetro edges mientras mantiene fijos los coeficientes de homofilia derivados de Smith & McPherson (2014).\n\n\nCódigo\n# Este bloque ejecuta la simulación\nsource(\"02_ATP_network_ergm.R\")"
   },
   {
-    "objectID": "1-introduction.html#ideas-clave",
-    "href": "1-introduction.html#ideas-clave",
-    "title": "Introducción",
-    "section": "Ideas Clave",
-    "text": "Ideas Clave\n\nContexto Social: Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).\nPropiedades Emergentes: Patrones macroscópicos que surgen de interacciones microscópicas no triviales.\nRecuperación de Estructura: ¿Podemos “reconstruir” la red social subyacente a partir de datos de encuestas transversal?"
-  },
-  {
-    "objectID": "1-introduction.html#motivación",
-    "href": "1-introduction.html#motivación",
-    "title": "Introducción",
-    "section": "Motivación",
-    "text": "Motivación\nEn este workshop, desafiaremos la visión atomista de las encuestas y propondremos métodos para reincorporar la estructura relacional en el análisis estadística."
+    "objectID": "2-network-from-surveys.html#análisis-de-red-simulada",
+    "href": "2-network-from-surveys.html#análisis-de-red-simulada",
+    "title": "Imputando Redes desde Encuestas",
+    "section": "4.2 5.2. Análisis de Red Simulada",
+    "text": "4.2 5.2. Análisis de Red Simulada\n\n\nCódigo\nlibrary(network)\nlibrary(sna)\n# Cargar red simulada (ejemplo)\nsim_net &lt;- readRDS(\"data/02_ATP_network_ergm/ATP_net_sim_1000_001.rds\")\nhist(degree(sim_net, gmode=\"graph\"), main=\"Distribución de Grado (Simulada)\", col=\"tomato\")\ncat(\"Densidad:\", network.density(sim_net), \"\\n\")"
   },
   {
     "objectID": "0-index.html",
@@ -154,67 +147,67 @@
     "text": "Requisitos Previos\n\nR y RStudio instalados.\nQuarto instalado.\nConocimientos básicos de R.\n\nPara comenzar, por favor visita la sección Empezar."
   },
   {
-    "objectID": "2-network-from-surveys.html",
-    "href": "2-network-from-surveys.html",
-    "title": "Imputando Redes desde Encuestas",
+    "objectID": "1-introduction.html",
+    "href": "1-introduction.html",
+    "title": "Introducción",
     "section": "",
-    "text": "Una limitación frecuente en ciencias sociales es que muchas encuestas miden atributos individuales (actitudes, demografía) pero no recopilan información sobre las redes personales de los encuestados. Sin embargo, sabemos que el contexto social (social context) —la composición de la red personal— es crucial para explicar comportamientos, opiniones y difusión de información.\nEste módulo implementa la metodología de McPherson & Smith (2019) para imputar contextos sociales interpersonales en encuestas que no midieron redes. La idea central es utilizar los parámetros de homofilia estimados previamente (en 2-homophily-strength.qmd) para reconstruir probabilísticamente el “entorno social” de cada encuestado.\nEl módulo se divide en dos partes: 1. Parte A (Metodológica): Imputación de ego-redes para calcular variables de exposición social (contexto) a nivel individual. 2. Parte B (Extensión Pedagógica): Simulación de redes completas (\\(N=1000\\)) utilizando modelos ERGM calibrados, útil para experimentos de difusión."
+    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
   },
   {
-    "objectID": "2-network-from-surveys.html#datos-de-entrada-inputs",
-    "href": "2-network-from-surveys.html#datos-de-entrada-inputs",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "4.1 4.1. Datos de Entrada (Inputs)",
-    "text": "4.1 4.1. Datos de Entrada (Inputs)\nNecesitamos dos insumos: 1. Survey Data: La encuesta objetivo con atributos demográficos (\\(X\\)) y variables de resultado (\\(Y\\)). 2. Betas de Homofilia: Vector de coeficientes \\(\\boldsymbol{\\beta}\\) estimados desde el GSS.\n\n\nCódigo\nlibrary(dplyr)\nlibrary(tidyr)\nlibrary(ggplot2)\n\n# --- 1. Definir Betas (Placeholder basado en Smith & McPherson 2014, Modelo 2) ---\n# En una aplicación real, cargaríamos readRDS(\"data/betas_smith2014.rds\")\n# Aquí usamos valores aproximados de la Tabla 3 para demostración.\n# Nota: Signo negativo -&gt; homofilia (menor prob de lazo con distancia)\n\nbetas_homophily &lt;- c(\n  diff_race = -1.695,  # Efecto neto aproximado para 2004\n  diff_relig = -1.485,\n  diff_sex = -0.229,\n  age_diff = -0.052,\n  edu_diff = -0.201\n)\n\n# --- 2. Cargar Survey Data (Placeholder o Simulación) ---\n# TODO: Reemplazar con carga real: survey_df &lt;- readRDS(\"data/target_survey.rds\")\n\n# Generamos un survey sintético pequeño para demostración (N=200)\nset.seed(123)\nsurvey_df &lt;- data.frame(\n  id = 1:200,\n  age = sample(18:80, 200, replace = TRUE),\n  sex = sample(c(\"Male\", \"Female\"), 200, replace = TRUE),\n  race = sample(c(\"White\", \"Black\", \"Other\"), 200, replace = TRUE, prob = c(0.7, 0.15, 0.15)),\n  relig = sample(c(\"Protestant\", \"Catholic\", \"None\"), 200, replace = TRUE),\n  educ = sample(8:20, 200, replace = TRUE), # Años de educación\n  # Variable de \"Outcome\" (ej. Ideología, 1=Conservador, 0=Liberal)\n  ideology = sample(0:1, 200, replace = TRUE) \n)\n\ncat(\"Dimensiones Survey Target:\", dim(survey_df), \"\\n\")\n\n\nDimensiones Survey Target: 200 7 \n\n\nCódigo\nhead(survey_df)\n\n\n  id age    sex  race      relig educ ideology\n1  1  48 Female Black Protestant   15        1\n2  2  32   Male White       None   19        1\n3  3  68 Female White       None    9        0\n4  4  31 Female White       None   13        0\n5  5  20 Female Other   Catholic    9        0\n6  6  59   Male White Protestant   11        0"
+    "objectID": "1-introduction.html#las-encuestas-como-sistemas",
+    "href": "1-introduction.html#las-encuestas-como-sistemas",
+    "title": "Introducción",
+    "section": "",
+    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
   },
   {
-    "objectID": "2-network-from-surveys.html#algoritmo-de-imputación",
-    "href": "2-network-from-surveys.html#algoritmo-de-imputación",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "4.2 4.2. Algoritmo de Imputación",
-    "text": "4.2 4.2. Algoritmo de Imputación\nPara cada Ego \\(i\\): 1. Calculamos la distancia \\(\\mathbf{d}_{ij}\\) con todos los otros \\(j\\) en el pool (o una muestra grande). 2. Calculamos el peso de muestreo \\(w_{ij} = \\exp(\\sum \\beta_k d_{ijk})\\). 3. Seleccionamos \\(k\\) alteri (ej. \\(k=5\\)) usando muestreo ponderado sin reemplazo. 4. Calculamos estadísticas resumen de los alteri seleccionados -&gt; Contexto \\(C_i\\).\n\n\nCódigo\n# Función de distancia social\ncalc_social_distance &lt;- function(ego, pool_df) {\n  # Calcula distancias vectorizadas\n  d_race  &lt;- ifelse(ego$race != pool_df$race, 1, 0)\n  d_relig &lt;- ifelse(ego$relig != pool_df$relig, 1, 0)\n  d_sex   &lt;- ifelse(ego$sex != pool_df$sex, 1, 0)\n  d_age   &lt;- abs(ego$age - pool_df$age)\n  d_educ  &lt;- abs(ego$educ - pool_df$educ)\n  \n  # Retorna matriz o dataframe de distancias\n  data.frame(diff_race = d_race, diff_relig = d_relig, diff_sex = d_sex, \n             age_diff = d_age, edu_diff = d_educ)\n}\n\n# Algoritmo de imputación para un solo Ego\nimpute_ego_net &lt;- function(ego_idx, df, betas, k_alters = 3) {\n  ego &lt;- df[ego_idx, ]\n  pool &lt;- df[-ego_idx, ] # Excluir al mismo ego\n  \n  # 1. Calcular distancias\n  dists &lt;- calc_social_distance(ego, pool)\n  \n  # 2. Calcular puntaje lineal (logits)\n  # Suma ponderada: beta1*d1 + beta2*d2 ...\n  # Asegurar que los nombres coincidan con betas\n  linear_pred &lt;- \n    betas[\"diff_race\"] * dists$diff_race +\n    betas[\"diff_relig\"] * dists$diff_relig +\n    betas[\"diff_sex\"] * dists$diff_sex +\n    betas[\"age_diff\"] * dists$age_diff +\n    betas[\"edu_diff\"] * dists$edu_diff\n  \n  # 3. Calcular pesos (no normalizados es suficiente para 'sample')\n  weights &lt;- exp(linear_pred)\n  \n  # 4. Muestrear alteri\n  alter_indices &lt;- sample(seq_len(nrow(pool)), size = k_alters, replace = FALSE, prob = weights)\n  sampled_alters &lt;- pool[alter_indices, ]\n  \n  return(sampled_alters)\n}\n\n# Ejecutar sobre una muestra (Pedagógico)\n# En producción, usar loops optimizados o paralelización (foreach)\nresults_context &lt;- list()\n\n# Corremos para los primeros 50 casos como demo\nids_to_run &lt;- 1:50 \n\nfor (i in ids_to_run) {\n  alters &lt;- impute_ego_net(i, survey_df, betas_homophily, k_alters = 5)\n  \n  # Calcular variables de contexto\n  # Ej: % de alters con Ideología=1 (Conservador)\n  # Ej: % de alters de diferente raza\n  \n  ctx_ideology_mean &lt;- mean(alters$ideology, na.rm=TRUE)\n  ctx_diff_race_prop &lt;- mean(alters$race != survey_df$race[i])\n  \n  results_context[[i]] &lt;- data.frame(\n    id = survey_df$id[i],\n    ctx_ideology = ctx_ideology_mean,\n    ctx_diff_race = ctx_diff_race_prop\n  )\n}\n\ncontext_df &lt;- bind_rows(results_context)\ncat(\"Contexto imputado (primeros casos):\\n\")\n\n\nContexto imputado (primeros casos):\n\n\nCódigo\nhead(context_df)\n\n\n  id ctx_ideology ctx_diff_race\n1  1          0.4           0.4\n2  2          0.4           0.0\n3  3          0.6           0.0\n4  4          0.6           0.0\n5  5          0.6           0.4\n6  6          1.0           0.0"
+    "objectID": "1-introduction.html#ideas-clave",
+    "href": "1-introduction.html#ideas-clave",
+    "title": "Introducción",
+    "section": "Ideas Clave",
+    "text": "Ideas Clave\n\nContexto Social: Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).\nPropiedades Emergentes: Patrones macroscópicos que surgen de interacciones microscópicas no triviales.\nRecuperación de Estructura: ¿Podemos “reconstruir” la red social subyacente a partir de datos de encuestas transversal?"
   },
   {
-    "objectID": "2-network-from-surveys.html#exploración-de-resultados",
-    "href": "2-network-from-surveys.html#exploración-de-resultados",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "4.3 4.3. Exploración de Resultados",
-    "text": "4.3 4.3. Exploración de Resultados\nVerificamos que la imputación tiene sentido. Por ejemplo, la proporción de amigos de diferente raza debería ser baja (homofilia racial), o al menos menor que el azar puro.\n\n\nCódigo\nif (nrow(context_df) &gt; 0) {\n  summary(context_df$ctx_diff_race)\n  \n  # Graficar distribución de exposición ideológica\n  ggplot(context_df, aes(x = ctx_ideology)) +\n    geom_histogram(bins = 10, fill = \"steelblue\", color = \"white\") +\n    labs(title = \"Distribución del Contexto Ideológico Imputado\",\n         xlab = \"Prop. Alters Conservadores\", ylab = \"Frecuencia\") +\n    theme_minimal()\n}\n\n\nIgnoring unknown labels:\n• xlab : \"Prop. Alters Conservadores\"\n• ylab : \"Frecuencia\""
+    "objectID": "1-introduction.html#motivación",
+    "href": "1-introduction.html#motivación",
+    "title": "Introducción",
+    "section": "Motivación",
+    "text": "Motivación\nEn este workshop, desafiaremos la visión atomista de las encuestas y propondremos métodos para reincorporar la estructura relacional en el análisis estadística."
   },
   {
-    "objectID": "2-network-from-surveys.html#modelo-de-resultados-outcome-model",
-    "href": "2-network-from-surveys.html#modelo-de-resultados-outcome-model",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "4.4 4.4. Modelo de Resultados (Outcome Model)",
-    "text": "4.4 4.4. Modelo de Resultados (Outcome Model)\nUna vez imputado el contexto, podemos estimar modelos de “efectos de red”. Advertencia: esto no corrige endogeneidad, solo transporta la estructura de homofilia.\n\n\nCódigo\n# Ejemplo conceptual\n# Unir contexto al survey original\nfull_data &lt;- left_join(survey_df, context_df, by = \"id\")\n\n# Modelo: Ideología propia ~ Edad + Educ + Ideología_Amigos\nglm(ideology ~ age + educ + ctx_ideology, data = full_data, family = binomial)"
+    "objectID": "3-ising.html",
+    "href": "3-ising.html",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "",
+    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
   },
   {
-    "objectID": "2-network-from-surveys.html#transformación-de-coeficientes",
-    "href": "2-network-from-surveys.html#transformación-de-coeficientes",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "5.1 5.1. Transformación de Coeficientes",
-    "text": "5.1 5.1. Transformación de Coeficientes\nEn ERGM, el término nodematch(\"race\") cuenta el número de lazos entre personas de la misma raza. Nuestros betas de Smith (2014) son para diff_race (diferente raza). Por tanto: * \\(\\beta_{diff} &lt; 0\\) (homofilia). * \\(\\theta_{match} \\approx - \\beta_{diff} &gt; 0\\) (preferencia por similitud)."
+    "objectID": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
+    "href": "3-ising.html#de-las-redes-sociales-a-las-redes-psicológicas",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "",
+    "text": "El modelo de Ising, originado en la física estadística para explicar el ferromagnetismo, ha encontrado una aplicación sorprendente en psicometría: modelar redes de síntomas o actitudes."
   },
   {
-    "objectID": "2-network-from-surveys.html#calibración-de-densidad",
-    "href": "2-network-from-surveys.html#calibración-de-densidad",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "5.2 5.2. Calibración de Densidad",
-    "text": "5.2 5.2. Calibración de Densidad\nEl intercepto \\(\\alpha\\) original del diseño casos-controles no es válido para la red completa. Debemos calibrar el parámetro \\(\\theta_{edges}\\) para que la red simulada tenga una densidad realista (ej. grado promedio ~ 3 o 10, o densidad ~ 0.03 para N=1000).\nEl script adjunto 02_ATP_network_ergm.R realiza exactamente este proceso: 1. Define una red vacía con atributos de encuesta (ATP). 2. Fija los coeficientes de homofilia (transformando signos). 3. Optimiza iterativamente el coeficiente edges hasta alcanzar la densidad objetivo. 4. Simula \\(M\\) redes."
+    "objectID": "3-ising.html#conceptos-básicos",
+    "href": "3-ising.html#conceptos-básicos",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "Conceptos Básicos",
+    "text": "Conceptos Básicos\n\nNodos: Ítems de una encuesta (ej. síntomas de depresión).\nEnlaces: Interacciones parciales entre ítems.\nEstados: Binarios (0/1 o -1/1)."
   },
   {
-    "objectID": "2-network-from-surveys.html#ejecución-del-script-ergm",
-    "href": "2-network-from-surveys.html#ejecución-del-script-ergm",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "5.3 5.3. Ejecución del Script ERGM",
-    "text": "5.3 5.3. Ejecución del Script ERGM\nA continuación, mostramos cómo ejecutar la simulación utilizando el script proporcionado.\n\n\nCódigo\n# El script '02_ATP_network_ergm.R' contiene la lógica completa.\n# Requiere los archivos de datos en 'data/01_ATP_GSS_imputation/' (verificar rutas).\n\nsource(\"02_ATP_network_ergm.R\")\n\n# Esto generará archivos RDS en 'data/02_ATP_network_ergm/'\n# con nombres como 'ATP_net_sim_1000_001.rds'"
+    "objectID": "3-ising.html#ejemplo-simulado",
+    "href": "3-ising.html#ejemplo-simulado",
+    "title": "Modelo de Ising y Psicometría",
+    "section": "Ejemplo Simulado",
+    "text": "Ejemplo Simulado\n(Placeholder: Aquí implementaremos un ejemplo simple usando el paquete IsingSampler o IsingFit durante el workshop).\n\n\nCódigo\n# Simulación conceptual\nn_nodos &lt;- 5\nmatriz_interaccion &lt;- matrix(0.5, n_nodos, n_nodos)\ndiag(matriz_interaccion) &lt;- 0\nprint(\"Matriz de Interacción Teórica:\")\n\n\n[1] \"Matriz de Interacción Teórica:\"\n\n\nCódigo\nprint(matriz_interaccion)\n\n\n     [,1] [,2] [,3] [,4] [,5]\n[1,]  0.0  0.5  0.5  0.5  0.5\n[2,]  0.5  0.0  0.5  0.5  0.5\n[3,]  0.5  0.5  0.0  0.5  0.5\n[4,]  0.5  0.5  0.5  0.0  0.5\n[5,]  0.5  0.5  0.5  0.5  0.0"
   },
   {
-    "objectID": "2-network-from-surveys.html#análisis-de-red-simulada",
-    "href": "2-network-from-surveys.html#análisis-de-red-simulada",
-    "title": "Imputando Redes desde Encuestas",
-    "section": "5.4 5.4. Análisis de Red Simulada",
-    "text": "5.4 5.4. Análisis de Red Simulada\nCargamos una de las redes simuladas para verificar sus propiedades estructurales.\n\n\nCódigo\nlibrary(network)\nlibrary(sna)\n\n# Placeholder: Ruta a un archivo generado\nsim_net_path &lt;- \"data/02_ATP_network_ergm/ATP_net_sim_1000_001.rds\"\n\nif (file.exists(sim_net_path)) {\n  sim_net &lt;- readRDS(sim_net_path)\n  \n  cat(\"Tamaño de red:\", network.size(sim_net), \"\\n\")\n  cat(\"Densidad:\", network.density(sim_net), \"\\n\")\n  \n  # Distribución de Grado\n  deg &lt;- degree(sim_net, gmode=\"graph\")\n  summary(deg)\n  \n  hist(deg, main=\"Distribución de Grado (Red Simulada)\", col=\"tomato\")\n} else {\n  cat(\"Archivo de red simulada no encontrado. Ejecuta el script ERGM primero.\\n\")\n}\n\n\nArchivo de red simulada no encontrado. Ejecuta el script ERGM primero."
+    "objectID": "anes-cleaning.html",
+    "href": "anes-cleaning.html",
+    "title": "Limpieza de Datos ANES 2016",
+    "section": "",
+    "text": "Introducción\nEste módulo prepara los datos de la American National Election Studies (ANES) 2016 para replicar el análisis de McPherson & Smith (2019). Nuestro objetivo es construir un dataset analítico que contenga: 1. Outcome: Escala de afinidad hacia el Partido Demócrata (Democrat Scale). 2. Demográficos: Edad, Educación, Género, Raza/Etnicidad, Religión.\nUtilizaremos el archivo original anes_timeseries_2016.dta.\n\n\nCarga de Datos\n\n\nCódigo\nlibrary(haven)\nlibrary(dplyr)\nlibrary(stringr)\n\n# Ruta al archivo original\nDATA_PATH &lt;- \"data/anes_timeseries_2016.dta\"\n\nif (file.exists(DATA_PATH)) {\n  anes_raw &lt;- read_dta(DATA_PATH)\n  cat(\"Dataset cargado. Dimensiones:\", dim(anes_raw), \"\\n\")\n} else {\n  stop(\"Archivo ANES no encontrado.\")\n}\n\n\nDataset cargado. Dimensiones: 4270 1842 \n\n\n\n\nSelección y Transformación\nSeleccionamos las variables basándonos en los códigos del codebook (inspeccionados previamente).\nMapeo de Variables: * V161095: Democrat Thermometer (0-100) * V161267: Edad * V161270: Educación * V161342: Género * V161310x: Raza (Resumen) * V161265x: Religión (Resumen) * V160101: Peso Pre-electoral\n\n\nCódigo\nanes_subset &lt;- anes_raw %&gt;%\n  select(\n    case_id = V160001,\n    weight = V160101,\n    dem_therm = V161095,\n    age = V161267,\n    educ_raw = V161270,\n    gender_raw = V161342,\n    race_raw = V161310x,\n    relig_raw = V161265x\n  ) %&gt;%\n  # Filtrar casos con peso válido y outcome válido (0-100)\n  filter(weight &gt; 0, dem_therm &gt;= 0, dem_therm &lt;= 100)\n\nclean_df &lt;- anes_subset %&gt;%\n  mutate(\n    # Outcome: Asegurar numérico para análisis espacial\n    y = as.numeric(dem_therm),\n    \n    # Age: Códigos negativos son missing\n    age = if_else(age &lt; 0, NA_real_, as.numeric(age)),\n    \n    # Gender: 1=Male, 2=Female\n    female = case_when(\n      gender_raw == 2 ~ 1,\n      gender_raw == 1 ~ 0,\n      TRUE ~ NA_real_\n    ),\n    \n    # Education: Tratamos como escala numérica simple\n    educ = if_else(educ_raw &lt; 0, NA_real_, as.numeric(educ_raw)),\n    \n    # Variables Categóricas (Dummies para Tabla 2)\n    # Race Ref: White (1)\n    race_white_dummy = if_else(race_raw == 1, 1, 0),\n    race_black = if_else(race_raw == 2, 1, 0),\n    race_asian = if_else(race_raw == 3, 1, 0), # Asian/Pac Islr\n    race_native = if_else(race_raw == 4, 1, 0),\n    race_hispanic = if_else(race_raw == 5, 1, 0),\n    race_other = if_else(race_raw == 6, 1, 0),\n    \n    # Religion Ref: Protestant (1, 2, 3)\n    # 1=Mainline, 2=Evangelical, 3=Black Prot\n    relig_protestant_dummy = if_else(relig_raw %in% c(1, 2, 3), 1, 0),\n    relig_catholic = if_else(relig_raw == 4, 1, 0),\n    relig_jewish = if_else(relig_raw == 6, 1, 0),\n    relig_none = if_else(relig_raw == 8, 1, 0), # Not religious\n    relig_other = if_else(relig_raw %in% c(5, 7), 1, 0)\n  )\n\n# Filtrar casos completos\nfinal_df &lt;- clean_df %&gt;%\n  haven::zap_labels() %&gt;% # Eliminar etiquetas para evitar problemas de tipo (haven_labelled)\n  filter(\n    !is.na(y), !is.na(age), !is.na(educ), !is.na(female),\n    !is.na(race_raw), !is.na(relig_raw)\n  ) %&gt;%\n  as.data.frame() # Importante para compatibilidad con spdep\n\ncat(\"N Final analítico:\", nrow(final_df), \"\\n\")\n\n\nN Final analítico: 4045 \n\n\n\n\nGuardar Datos Derivados\nGuardamos el dataset limpio para su uso en el módulo de imputación de redes.\n\n\nCódigo\ndir.create(\"data/anes_2016_derived\", showWarnings = FALSE)\nsaveRDS(final_df, \"data/anes_2016_derived/anes_clean.rds\")"
   },
   {
     "objectID": "gss-cleaning.html",

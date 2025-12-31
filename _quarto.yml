@@ -25,8 +25,10 @@ website:
         menu:
           - text: Empezar
             href: getstarted.qmd
-          - text: Limpieza GSS
+          - text: Limpieza GSS (Referencia)
             href: gss-cleaning.qmd
+          - text: Limpieza ANES 2016
+            href: anes-cleaning.qmd
 
 format:
   html:

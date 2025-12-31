@@ -1,0 +1,127 @@
+---
+title: "Limpieza de Datos ANES 2016"
+author: "Aníbal Olivera"
+date: "2025-01-08"
+format: html
+---
+
+# Introducción
+
+Este módulo prepara los datos de la **American National Election Studies (ANES) 2016** para replicar el análisis de McPherson & Smith (2019).
+Nuestro objetivo es construir un dataset analítico que contenga:
+1.  **Outcome:** Escala de afinidad hacia el Partido Demócrata (*Democrat Scale*).
+2.  **Demográficos:** Edad, Educación, Género, Raza/Etnicidad, Religión.
+
+Utilizaremos el archivo original `anes_timeseries_2016.dta`.
+
+# Carga de Datos
+
+```{r}
+#| label: load-data
+#| warning: false
+#| message: false
+
+library(haven)
+library(dplyr)
+library(stringr)
+
+# Ruta al archivo original
+DATA_PATH <- "data/anes_timeseries_2016.dta"
+
+if (file.exists(DATA_PATH)) {
+  anes_raw <- read_dta(DATA_PATH)
+  cat("Dataset cargado. Dimensiones:", dim(anes_raw), "\n")
+} else {
+  stop("Archivo ANES no encontrado.")
+}
+```
+
+# Selección y Transformación
+
+Seleccionamos las variables basándonos en los códigos del codebook (inspeccionados previamente).
+
+**Mapeo de Variables:**
+*   `V161095`: Democrat Thermometer (0-100)
+*   `V161267`: Edad
+*   `V161270`: Educación
+*   `V161342`: Género
+*   `V161310x`: Raza (Resumen)
+*   `V161265x`: Religión (Resumen)
+*   `V160101`: Peso Pre-electoral
+
+```{r}
+#| label: cleaning
+#| message: false
+
+anes_subset <- anes_raw %>%
+  select(
+    case_id = V160001,
+    weight = V160101,
+    dem_therm = V161095,
+    age = V161267,
+    educ_raw = V161270,
+    gender_raw = V161342,
+    race_raw = V161310x,
+    relig_raw = V161265x
+  ) %>%
+  # Filtrar casos con peso válido y outcome válido (0-100)
+  filter(weight > 0, dem_therm >= 0, dem_therm <= 100)
+
+clean_df <- anes_subset %>%
+  mutate(
+    # Outcome: Asegurar numérico para análisis espacial
+    y = as.numeric(dem_therm),
+    
+    # Age: Códigos negativos son missing
+    age = if_else(age < 0, NA_real_, as.numeric(age)),
+    
+    # Gender: 1=Male, 2=Female
+    female = case_when(
+      gender_raw == 2 ~ 1,
+      gender_raw == 1 ~ 0,
+      TRUE ~ NA_real_
+    ),
+    
+    # Education: Tratamos como escala numérica simple
+    educ = if_else(educ_raw < 0, NA_real_, as.numeric(educ_raw)),
+    
+    # Variables Categóricas (Dummies para Tabla 2)
+    # Race Ref: White (1)
+    race_white_dummy = if_else(race_raw == 1, 1, 0),
+    race_black = if_else(race_raw == 2, 1, 0),
+    race_asian = if_else(race_raw == 3, 1, 0), # Asian/Pac Islr
+    race_native = if_else(race_raw == 4, 1, 0),
+    race_hispanic = if_else(race_raw == 5, 1, 0),
+    race_other = if_else(race_raw == 6, 1, 0),
+    
+    # Religion Ref: Protestant (1, 2, 3)
+    # 1=Mainline, 2=Evangelical, 3=Black Prot
+    relig_protestant_dummy = if_else(relig_raw %in% c(1, 2, 3), 1, 0),
+    relig_catholic = if_else(relig_raw == 4, 1, 0),
+    relig_jewish = if_else(relig_raw == 6, 1, 0),
+    relig_none = if_else(relig_raw == 8, 1, 0), # Not religious
+    relig_other = if_else(relig_raw %in% c(5, 7), 1, 0)
+  )
+
+# Filtrar casos completos
+final_df <- clean_df %>%
+  haven::zap_labels() %>% # Eliminar etiquetas para evitar problemas de tipo (haven_labelled)
+  filter(
+    !is.na(y), !is.na(age), !is.na(educ), !is.na(female),
+    !is.na(race_raw), !is.na(relig_raw)
+  ) %>%
+  as.data.frame() # Importante para compatibilidad con spdep
+
+cat("N Final analítico:", nrow(final_df), "\n")
+```
+
+# Guardar Datos Derivados
+
+Guardamos el dataset limpio para su uso en el módulo de imputación de redes.
+
+```{r}
+#| label: save-data
+
+dir.create("data/anes_2016_derived", showWarnings = FALSE)
+saveRDS(final_df, "data/anes_2016_derived/anes_clean.rds")
+```

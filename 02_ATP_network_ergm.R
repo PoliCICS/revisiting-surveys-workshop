@@ -16,10 +16,6 @@ library(doParallel)
 ATP_W3_W4 <- readRDS("data/01_ATP_GSS_imputation/ATP_W3_W4_input.rds")
 N_atp <- nrow(ATP_W3_W4)
 
-gss_egor <- readRDS("data/01_ATP_GSS_imputation/gss_egor.rds")
-gss_egos <- gss_egor$ego
-gss_alters <- gss_egor$alter
-
 # Nos aseguramos que las categorías sean factores
 if (!is.factor(ATP_W3_W4$sex)) ATP_W3_W4$sex <- factor(ATP_W3_W4$sex, labels = c("Male", "Female")) # Ajusta si es necesario
 if (!is.factor(ATP_W3_W4$race)) ATP_W3_W4$race <- factor(ATP_W3_W4$race)
