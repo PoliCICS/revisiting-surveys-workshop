@@ -8,7 +8,7 @@ format:
     number-sections: true
 ---
 
-# Introducción
+## 1. Introducción
 
 Una limitación frecuente en ciencias sociales es que muchas encuestas miden atributos individuales (actitudes, demografía) pero no recopilan información sobre las redes personales de los encuestados. Sin embargo, sabemos que el **contexto social** (*social context*) —la composición de la red personal— es crucial para explicar comportamientos, opiniones y difusión de información.
 
@@ -18,7 +18,7 @@ El módulo se divide en dos partes:
 1.  **Parte A (Metodológica):** Imputación de ego-redes para calcular variables de exposición social (contexto) a nivel individual.
 2.  **Parte B (Extensión Pedagógica):** Simulación de redes completas ($N=1000$) utilizando modelos ERGM calibrados, útil para experimentos de difusión.
 
-# Marco Conceptual: Blau Space y Estructura de Oportunidades
+### 1.1. Marco Conceptual: Blau Space y Estructura de Oportunidades
 
 La imputación se basa en la teoría del **Blau Space** (*espacio de Blau*), donde los individuos se posicionan en un espacio multidimensional definido por sus atributos sociodemográficos (edad, educación, raza, religión, etc.).
 
@@ -33,7 +33,7 @@ Definimos la distancia de Blau $\mathbf{d}_{ij}$ vectorialmente, tal como en el 
 
 El modelo de McPherson & Smith (2019) postula que los coeficientes $\beta$ (betas) estimados en una encuesta de ego-redes (como el GSS) capturan la **fuerza de la homofilia** inherente a la sociedad, y por tanto son "transportables" a otras encuestas para reconstruir quiénes formarían el entorno social probable de un individuo.
 
-# De Betas a Probabilidades Relativas
+### 1.2. De Betas a Probabilidades Relativas
 
 Recordemos el modelo logístico estimado previamente:
 
@@ -48,13 +48,13 @@ En el diseño de casos y controles, el intercepto $\alpha$ es artificial. Sin em
 *   Para **imputar ego-redes (Contexto)**: Usamos estos pesos $w_{ij}$ para muestrear alteri del pool de encuestados.
 *   Para **simular redes completas (ERGM)**: Necesitamos calibrar un término estructural (como `edges`) que reemplace al intercepto $\alpha$, ajustando la densidad global de la red.
 
-# Parte A: Imputación de Contexto Social (Ego-Redes)
+## 2. Parte A: Imputación de Contexto Social (Ego-Redes)
 
 El objetivo es calcular, para cada encuestado $i$ en una encuesta objetivo (*target survey*), un vector de contexto $C_i$. Por ejemplo:
 *   Proporción de amigos de diferente raza.
 *   Opinión política promedio de sus amigos.
 
-## 4.1. Datos de Entrada (Inputs)
+### 2.1. Datos de Entrada (Inputs)
 
 Necesitamos dos insumos:
 1.  **Survey Data:** La encuesta objetivo con atributos demográficos ($X$) y variables de resultado ($Y$).
@@ -75,11 +75,11 @@ library(ggplot2)
 # Nota: Signo negativo -> homofilia (menor prob de lazo con distancia)
 
 betas_homophily <- c(
-  diff_race = -1.695,  # Efecto neto aproximado para 2004
-  diff_relig = -1.485,
-  diff_sex = -0.229,
-  age_diff = -0.052,
-  edu_diff = -0.201
+    diff_race = -1.695, # Efecto neto aproximado para 2004
+    diff_relig = -1.485,
+    diff_sex = -0.229,
+    age_diff = -0.052,
+    edu_diff = -0.201
 )
 
 # --- 2. Cargar Survey Data (Placeholder o Simulación) ---
@@ -88,21 +88,21 @@ betas_homophily <- c(
 # Generamos un survey sintético pequeño para demostración (N=200)
 set.seed(123)
 survey_df <- data.frame(
-  id = 1:200,
-  age = sample(18:80, 200, replace = TRUE),
-  sex = sample(c("Male", "Female"), 200, replace = TRUE),
-  race = sample(c("White", "Black", "Other"), 200, replace = TRUE, prob = c(0.7, 0.15, 0.15)),
-  relig = sample(c("Protestant", "Catholic", "None"), 200, replace = TRUE),
-  educ = sample(8:20, 200, replace = TRUE), # Años de educación
-  # Variable de "Outcome" (ej. Ideología, 1=Conservador, 0=Liberal)
-  ideology = sample(0:1, 200, replace = TRUE) 
+    id = 1:200,
+    age = sample(18:80, 200, replace = TRUE),
+    sex = sample(c("Male", "Female"), 200, replace = TRUE),
+    race = sample(c("White", "Black", "Other"), 200, replace = TRUE, prob = c(0.7, 0.15, 0.15)),
+    relig = sample(c("Protestant", "Catholic", "None"), 200, replace = TRUE),
+    educ = sample(8:20, 200, replace = TRUE), # Años de educación
+    # Variable de "Outcome" (ej. Ideología, 1=Conservador, 0=Liberal)
+    ideology = sample(0:1, 200, replace = TRUE)
 )
 
 cat("Dimensiones Survey Target:", dim(survey_df), "\n")
 head(survey_df)
 ```
 
-## 4.2. Algoritmo de Imputación
+### 2.2. Algoritmo de Imputación
 
 Para cada Ego $i$:
 1.  Calculamos la distancia $\mathbf{d}_{ij}$ con todos los otros $j$ en el pool (o una muestra grande).
@@ -115,44 +115,46 @@ Para cada Ego $i$:
 
 # Función de distancia social
 calc_social_distance <- function(ego, pool_df) {
-  # Calcula distancias vectorizadas
-  d_race  <- ifelse(ego$race != pool_df$race, 1, 0)
-  d_relig <- ifelse(ego$relig != pool_df$relig, 1, 0)
-  d_sex   <- ifelse(ego$sex != pool_df$sex, 1, 0)
-  d_age   <- abs(ego$age - pool_df$age)
-  d_educ  <- abs(ego$educ - pool_df$educ)
-  
-  # Retorna matriz o dataframe de distancias
-  data.frame(diff_race = d_race, diff_relig = d_relig, diff_sex = d_sex, 
-             age_diff = d_age, edu_diff = d_educ)
+    # Calcula distancias vectorizadas
+    d_race <- ifelse(ego$race != pool_df$race, 1, 0)
+    d_relig <- ifelse(ego$relig != pool_df$relig, 1, 0)
+    d_sex <- ifelse(ego$sex != pool_df$sex, 1, 0)
+    d_age <- abs(ego$age - pool_df$age)
+    d_educ <- abs(ego$educ - pool_df$educ)
+
+    # Retorna matriz o dataframe de distancias
+    data.frame(
+        diff_race = d_race, diff_relig = d_relig, diff_sex = d_sex,
+        age_diff = d_age, edu_diff = d_educ
+    )
 }
 
 # Algoritmo de imputación para un solo Ego
 impute_ego_net <- function(ego_idx, df, betas, k_alters = 3) {
-  ego <- df[ego_idx, ]
-  pool <- df[-ego_idx, ] # Excluir al mismo ego
-  
-  # 1. Calcular distancias
-  dists <- calc_social_distance(ego, pool)
-  
-  # 2. Calcular puntaje lineal (logits)
-  # Suma ponderada: beta1*d1 + beta2*d2 ...
-  # Asegurar que los nombres coincidan con betas
-  linear_pred <- 
-    betas["diff_race"] * dists$diff_race +
-    betas["diff_relig"] * dists$diff_relig +
-    betas["diff_sex"] * dists$diff_sex +
-    betas["age_diff"] * dists$age_diff +
-    betas["edu_diff"] * dists$edu_diff
-  
-  # 3. Calcular pesos (no normalizados es suficiente para 'sample')
-  weights <- exp(linear_pred)
-  
-  # 4. Muestrear alteri
-  alter_indices <- sample(seq_len(nrow(pool)), size = k_alters, replace = FALSE, prob = weights)
-  sampled_alters <- pool[alter_indices, ]
-  
-  return(sampled_alters)
+    ego <- df[ego_idx, ]
+    pool <- df[-ego_idx, ] # Excluir al mismo ego
+
+    # 1. Calcular distancias
+    dists <- calc_social_distance(ego, pool)
+
+    # 2. Calcular puntaje lineal (logits)
+    # Suma ponderada: beta1*d1 + beta2*d2 ...
+    # Asegurar que los nombres coincidan con betas
+    linear_pred <-
+        betas["diff_race"] * dists$diff_race +
+        betas["diff_relig"] * dists$diff_relig +
+        betas["diff_sex"] * dists$diff_sex +
+        betas["age_diff"] * dists$age_diff +
+        betas["edu_diff"] * dists$edu_diff
+
+    # 3. Calcular pesos (no normalizados es suficiente para 'sample')
+    weights <- exp(linear_pred)
+
+    # 4. Muestrear alteri
+    alter_indices <- sample(seq_len(nrow(pool)), size = k_alters, replace = FALSE, prob = weights)
+    sampled_alters <- pool[alter_indices, ]
+
+    return(sampled_alters)
 }
 
 # Ejecutar sobre una muestra (Pedagógico)
@@ -160,23 +162,23 @@ impute_ego_net <- function(ego_idx, df, betas, k_alters = 3) {
 results_context <- list()
 
 # Corremos para los primeros 50 casos como demo
-ids_to_run <- 1:50 
+ids_to_run <- 1:50
 
 for (i in ids_to_run) {
-  alters <- impute_ego_net(i, survey_df, betas_homophily, k_alters = 5)
-  
-  # Calcular variables de contexto
-  # Ej: % de alters con Ideología=1 (Conservador)
-  # Ej: % de alters de diferente raza
-  
-  ctx_ideology_mean <- mean(alters$ideology, na.rm=TRUE)
-  ctx_diff_race_prop <- mean(alters$race != survey_df$race[i])
-  
-  results_context[[i]] <- data.frame(
-    id = survey_df$id[i],
-    ctx_ideology = ctx_ideology_mean,
-    ctx_diff_race = ctx_diff_race_prop
-  )
+    alters <- impute_ego_net(i, survey_df, betas_homophily, k_alters = 5)
+
+    # Calcular variables de contexto
+    # Ej: % de alters con Ideología=1 (Conservador)
+    # Ej: % de alters de diferente raza
+
+    ctx_ideology_mean <- mean(alters$ideology, na.rm = TRUE)
+    ctx_diff_race_prop <- mean(alters$race != survey_df$race[i])
+
+    results_context[[i]] <- data.frame(
+        id = survey_df$id[i],
+        ctx_ideology = ctx_ideology_mean,
+        ctx_diff_race = ctx_diff_race_prop
+    )
 }
 
 context_df <- bind_rows(results_context)
@@ -184,7 +186,7 @@ cat("Contexto imputado (primeros casos):\n")
 head(context_df)
 ```
 
-## 4.3. Exploración de Resultados
+### 2.3. Exploración de Resultados
 
 Verificamos que la imputación tiene sentido. Por ejemplo, la proporción de amigos de diferente raza debería ser baja (homofilia racial), o al menos menor que el azar puro.
 
@@ -192,18 +194,20 @@ Verificamos que la imputación tiene sentido. Por ejemplo, la proporción de ami
 #| label: exploration-part-a
 
 if (nrow(context_df) > 0) {
-  summary(context_df$ctx_diff_race)
-  
-  # Graficar distribución de exposición ideológica
-  ggplot(context_df, aes(x = ctx_ideology)) +
-    geom_histogram(bins = 10, fill = "steelblue", color = "white") +
-    labs(title = "Distribución del Contexto Ideológico Imputado",
-         xlab = "Prop. Alters Conservadores", ylab = "Frecuencia") +
-    theme_minimal()
+    summary(context_df$ctx_diff_race)
+
+    # Graficar distribución de exposición ideológica
+    ggplot(context_df, aes(x = ctx_ideology)) +
+        geom_histogram(bins = 10, fill = "steelblue", color = "white") +
+        labs(
+            title = "Distribución del Contexto Ideológico Imputado",
+            xlab = "Prop. Alters Conservadores", ylab = "Frecuencia"
+        ) +
+        theme_minimal()
 }
 ```
 
-## 4.4. Modelo de Resultados (Outcome Model)
+### 2.4. Modelo de Resultados (Outcome Model)
 
 Una vez imputado el contexto, podemos estimar modelos de "efectos de red". Advertencia: esto no corrige endogeneidad, solo transporta la estructura de homofilia.
 
@@ -219,7 +223,7 @@ full_data <- left_join(survey_df, context_df, by = "id")
 glm(ideology ~ age + educ + ctx_ideology, data = full_data, family = binomial)
 ```
 
-# Parte B: Simulación de Redes Completas (ERGM)
+## 3. Parte B: Simulación de Redes Completas (ERGM)
 
 Para experimentos de difusión (Agent-Based Models), a veces necesitamos no solo ego-redes aisladas, sino una **topología de red completa** ($N \times N$).
 
@@ -229,7 +233,7 @@ $$ P(X=x) \propto \exp( \theta_{edges} \cdot L(x) + \theta_{homophily} \cdot H(x
 
 Donde la parte de homofilia ($\theta_{homophily}$) proviene de nuestros betas transformados.
 
-## 5.1. Transformación de Coeficientes
+### 3.1. Transformación de Coeficientes
 
 En ERGM, el término `nodematch("race")` cuenta el número de lazos entre personas de la **misma** raza.
 Nuestros betas de Smith (2014) son para `diff_race` (diferente raza).
@@ -237,7 +241,7 @@ Por tanto:
 *   $\beta_{diff} < 0$ (homofilia).
 *   $\theta_{match} \approx - \beta_{diff} > 0$ (preferencia por similitud).
 
-## 5.2. Calibración de Densidad
+### 3.2. Calibración de Densidad
 
 El intercepto $\alpha$ original del diseño casos-controles no es válido para la red completa. Debemos calibrar el parámetro $\theta_{edges}$ para que la red simulada tenga una densidad realista (ej. grado promedio ~ 3 o 10, o densidad ~ 0.03 para N=1000).
 
@@ -247,7 +251,7 @@ El script adjunto `02_ATP_network_ergm.R` realiza exactamente este proceso:
 3.  Optimiza iterativamente el coeficiente `edges` hasta alcanzar la densidad objetivo.
 4.  Simula $M$ redes.
 
-## 5.3. Ejecución del Script ERGM
+### 3.3. Ejecución del Script ERGM
 
 A continuación, mostramos cómo ejecutar la simulación utilizando el script proporcionado.
 
@@ -264,7 +268,7 @@ source("02_ATP_network_ergm.R")
 # con nombres como 'ATP_net_sim_1000_001.rds'
 ```
 
-## 5.4. Análisis de Red Simulada
+### 3.4. Análisis de Red Simulada
 
 Cargamos una de las redes simuladas para verificar sus propiedades estructurales.
 
@@ -280,22 +284,22 @@ library(sna)
 sim_net_path <- "data/02_ATP_network_ergm/ATP_net_sim_1000_001.rds"
 
 if (file.exists(sim_net_path)) {
-  sim_net <- readRDS(sim_net_path)
-  
-  cat("Tamaño de red:", network.size(sim_net), "\n")
-  cat("Densidad:", network.density(sim_net), "\n")
-  
-  # Distribución de Grado
-  deg <- degree(sim_net, gmode="graph")
-  summary(deg)
-  
-  hist(deg, main="Distribución de Grado (Red Simulada)", col="tomato")
+    sim_net <- readRDS(sim_net_path)
+
+    cat("Tamaño de red:", network.size(sim_net), "\n")
+    cat("Densidad:", network.density(sim_net), "\n")
+
+    # Distribución de Grado
+    deg <- degree(sim_net, gmode = "graph")
+    summary(deg)
+
+    hist(deg, main = "Distribución de Grado (Red Simulada)", col = "tomato")
 } else {
-  cat("Archivo de red simulada no encontrado. Ejecuta el script ERGM primero.\n")
+    cat("Archivo de red simulada no encontrado. Ejecuta el script ERGM primero.\n")
 }
 ```
 
-# Conclusión
+## 4. Conclusión
 
 Hemos demostrado dos formas de usar encuestas para análisis de redes:
 1.  **Imputación de Contexto (Ego):** Flexible, permite estimar exposición social para cada individuo en cualquier encuesta con demográficos. Útil para regresiones.
