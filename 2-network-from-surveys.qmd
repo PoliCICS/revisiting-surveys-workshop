@@ -93,36 +93,22 @@ Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfi
 #| label: construct-w
 #| message: false
 
-# Betas de Homofilia (Smith & McPherson 2014-like)
-betas <- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)
-
-# --- Explicación Esquemática del Proceso ---
-# 1. Matriz de Distancia (d_ij): Medimos cuán diferente es cada alter j del ego i.
-# 2. Puntaje de Similitud (S_ij): Convertimos distancia a probabilidad no-normalizada.
-#    S_ij = exp(beta * d_ij). Si beta < 0, mayor distancia -> menor puntaje.
-# 3. Selección Top-K (K=50): 
-#    - ¿Por qué recortar? Sociológicamente, las personas tienen límites cognitivos 
-#      y de tiempo para mantener vínculos (Número de Dunbar). No interactuamos 
-#      con los 4000 encuestados, sino con un subconjunto.
-#    - K=50 representa un "círculo social activo" razonable para influencias políticas.
-#    - Técnicamente: Hace la matriz W "sparsa" (llena de ceros), facilitando el cálculo.
-# 4. Normalización: Los pesos de los 50 vecinos suman 1 para cada ego.
-
-# Matrices de Distancia
+# Demográficos
 X_age <- final_df$age
 X_educ <- final_df$educ
 X_sex <- final_df$female
 X_race <- as.integer(final_df$race_raw)
 X_relig <- as.integer(final_df$relig_raw)
 
-cat("Calculando distancias en Blau Space...\n")
-
-# Distancias Vectorizadas
+# Calculamos distancias
 D_age <- abs(outer(X_age, X_age, "-"))
 D_educ <- abs(outer(X_educ, X_educ, "-"))
 D_sex <- abs(outer(X_sex, X_sex, "-"))
 D_race <- outer(X_race, X_race, function(x, y) ifelse(x != y, 1, 0))
 D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0)) # Mismatch
+
+# Betas de Homofilia (Smith & McPherson 2014-like)
+betas <- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)
 
 # Predictor Lineal (Log-odds)
 eta <- betas["age"] * D_age + betas["educ"] * D_educ + betas["sex"] * D_sex +
@@ -186,13 +172,14 @@ m2_ols <- lm(fmla_lag, data = final_df)
 
 # Resultados con Stargazer
 stargazer(m1, m2_ols,
-          type = "html",
-          title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
-          column.labels = c("Modelo Base", "Modelo Contextual"),
-          dep.var.labels = "Democrat Thermometer (0-100)",
-          star.cutoffs = c(0.05, 0.01, 0.001),
-          keep.stat = c("n", "rsq", "adj.rsq", "f"),
-          no.space = TRUE)
+    type = "html",
+    title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
+    column.labels = c("Modelo Base", "Modelo Contextual"),
+    dep.var.labels = "Democrat Thermometer (0-100)",
+    star.cutoffs = c(0.05, 0.01, 0.001),
+    keep.stat = c("n", "rsq", "adj.rsq", "f"),
+    no.space = TRUE
+)
 ```
 
 ### 2.3. Discusión de Resultados
@@ -220,9 +207,11 @@ df_comp$Diff_Abs <- df_comp$Model1 - df_comp$Model2
 df_comp$Pct_Reduction <- (df_comp$Diff_Abs / df_comp$Model1) * 100
 
 # Mostrar tabla formateada
-knitr::kable(df_comp, digits = 2,
-             col.names = c("Variable", "Coef M1 (Base)", "Coef M2 (Contextual)", "Reducción Abs.", "% Reducción"),
-             caption = "Atenuación de coeficientes demográficos al incluir contexto social.")
+knitr::kable(df_comp,
+    digits = 2,
+    col.names = c("Variable", "Coef M1 (Base)", "Coef M2 (Contextual)", "Reducción Abs.", "% Reducción"),
+    caption = "Atenuación de coeficientes demográficos al incluir contexto social."
+)
 ```
 
 El patrón general es que, al pasar del Modelo 1 (solo demografía) al Modelo 2 (demografía + término espacial de “contexto social” imputado), muchos coeficientes demográficos se reducen en magnitud. La lectura sustantiva que proponen es directa: parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos (en el sentido de qué tipo de opiniones políticas es más probable que los rodeen dadas sus ubicaciones en el espacio de Blau).
