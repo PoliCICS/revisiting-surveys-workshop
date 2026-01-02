@@ -110,32 +110,65 @@ D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0)) # Mismat
 # Betas de Homofilia (Smith & McPherson 2014-like)
 betas <- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)
 
-# Predictor Lineal (Log-odds)
+# --- Formalización Matemática ---
+# Definimos el predictor lineal para el dyad i,j:
+# $\eta_{ij} = \boldsymbol{\beta}^\top \mathbf{d}_{ij}$
+#
+# Y el peso "crudo" (probabilidad relativa no normalizada):
+# $w^{raw}_{ij} = \exp(\eta_{ij})$ (con $w^{raw}_{ii} = 0$)
+#
+# Para la construcción de $W$, seleccionamos los K=100 vecinos con mayor $w^{raw}_{ij}$
+# y normalizamos por fila para obtener una matriz estocástica:
+# $W_{ij} = \frac{w^{raw}_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w^{raw}_{ik}}$
+
+# 1. Calcular Distancias (Blau Space)
+cat("Calculando distancias en Blau Space...\n")
+D_age <- abs(outer(X_age, X_age, "-"))
+D_educ <- abs(outer(X_educ, X_educ, "-"))
+D_sex <- abs(outer(X_sex, X_sex, "-"))
+D_race <- outer(X_race, X_race, function(x, y) ifelse(x != y, 1, 0))
+D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0))
+
+# 2. Predictor Lineal (Log-odds)
 eta <- betas["age"] * D_age + betas["educ"] * D_educ + betas["sex"] * D_sex +
     betas["race"] * D_race + betas["relig"] * D_relig
 
-# Pesos (Probabilidad relativa)
-S <- exp(eta)
-diag(S) <- 0
+# 3. Pesos Crudos (Probabilidad relativa)
+w_raw <- exp(eta)
+diag(w_raw) <- 0
 
-# Sparsify: Top K=50 vecinos
+# 4. Selección Top-K (K=100) con PESOS (No Uniforme)
 N <- nrow(final_df)
-k <- 50
+K <- 100
 neighbors <- vector("list", N)
+weights_list <- vector("list", N)
 
-# Estrategia matriz densa para selección (viable para N=4000)
+cat("Seleccionando Top-K vecinos y extrayendo pesos reales...\n")
 for (i in 1:N) {
-    row_vals <- S[i, ]
-    neighbors[[i]] <- order(row_vals, decreasing = TRUE)[1:k]
+    # Ordenar j por peso descendente (indices)
+    row_w <- w_raw[i, ]
+    ord <- order(row_w, decreasing = TRUE)
+
+    # Excluir self (ya es 0, pero por seguridad)
+    candidates <- setdiff(ord, i)
+
+    # Seleccionar Top K
+    top_k_indices <- candidates[1:K]
+    top_k_weights <- row_w[top_k_indices]
+
+    neighbors[[i]] <- top_k_indices
+    weights_list[[i]] <- top_k_weights
 }
 
 class(neighbors) <- "nb"
 attr(neighbors, "region.id") <- as.character(1:N)
 attr(neighbors, "call") <- match.call()
-# Hacemos lista de pesos row-standardized
-W_listw <- nb2listw(neighbors, style = "W")
 
-cat("Matriz W construida (k=50).\n")
+# 5. Crear Objeto W (Normalizado por fila)
+# nb2listw con style="W" normaliza los pesos en 'glist' automáticament
+W_listw <- nb2listw(neighbors, glist = weights_list, style = "W", zero.policy = TRUE)
+
+cat("Matriz W construida (K=100, Paper-Like weights).\n")
 ```
 
 ### 2.2. Modelos de Regresión
@@ -170,14 +203,16 @@ final_df$Wy <- Wy
 fmla_lag <- update(fmla_base, ~ . + Wy)
 m2_ols <- lm(fmla_lag, data = final_df)
 
-# Resultados con Stargazer
+# Resultados con Stargazer ( Compacto )
 stargazer(m1, m2_ols,
     type = "html",
     title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
     column.labels = c("Modelo Base", "Modelo Contextual"),
     dep.var.labels = "Democrat Thermometer (0-100)",
     star.cutoffs = c(0.05, 0.01, 0.001),
-    keep.stat = c("n", "rsq", "adj.rsq", "f"),
+    keep.stat = c("n", "rsq"),
+    report = "vc*", # Solo coeficientes y estrellas
+    omit.table.layout = "n", # Compacto
     no.space = TRUE
 )
 ```
