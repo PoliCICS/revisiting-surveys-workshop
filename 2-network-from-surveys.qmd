@@ -39,10 +39,15 @@ $$
 Dado que el intercepto $\alpha$ no es interpretable como densidad real bajo *case-control*, trabajamos con **probabilidades relativas** de lazo, definiendo un peso:
 
 $$
-w_{ij} \propto \exp\!\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right).
+w_{ij} \propto \exp\!\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right), \quad (\text{con } w_{ii} = 0),
 $$
 
-que inducen una distribución sobre potenciales alters $j$ que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos $W$ que representa “vecindad social” imputada (no geográfica), y luego calculamos el término contextual:
+que inducen una distribución sobre potenciales alters $j$ que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos $W$ que representa “vecindad social” imputada (no geográfica),
+$$
+W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}},
+$$
+
+y luego calculamos el término contextual:
 
 $$
 (Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,
@@ -87,7 +92,7 @@ final_df <- readRDS("data/anes_2016_derived/anes_clean.rds")
 cat("Datos ANES cargados. N =", nrow(final_df), "\n")
 ```
 
-Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación *k-nearest* (k=50) en probabilidad.
+Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación *k-nearest* (k=100) en probabilidad.
 
 ```{r}
 #| label: construct-w
@@ -110,19 +115,7 @@ D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0)) # Mismat
 # Betas de Homofilia (Smith & McPherson 2014-like)
 betas <- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)
 
-# --- Formalización Matemática ---
-# Definimos el predictor lineal para el dyad i,j:
-# $\eta_{ij} = \boldsymbol{\beta}^\top \mathbf{d}_{ij}$
-#
-# Y el peso "crudo" (probabilidad relativa no normalizada):
-# $w^{raw}_{ij} = \exp(\eta_{ij})$ (con $w^{raw}_{ii} = 0$)
-#
-# Para la construcción de $W$, seleccionamos los K=100 vecinos con mayor $w^{raw}_{ij}$
-# y normalizamos por fila para obtener una matriz estocástica:
-# $W_{ij} = \frac{w^{raw}_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w^{raw}_{ik}}$
-
 # 1. Calcular Distancias (Blau Space)
-cat("Calculando distancias en Blau Space...\n")
 D_age <- abs(outer(X_age, X_age, "-"))
 D_educ <- abs(outer(X_educ, X_educ, "-"))
 D_sex <- abs(outer(X_sex, X_sex, "-"))
@@ -143,13 +136,11 @@ K <- 100
 neighbors <- vector("list", N)
 weights_list <- vector("list", N)
 
-cat("Seleccionando Top-K vecinos y extrayendo pesos reales...\n")
+# Seleccionando Top-K vecinos y extrayendo pesos reales
 for (i in 1:N) {
     # Ordenar j por peso descendente (indices)
     row_w <- w_raw[i, ]
     ord <- order(row_w, decreasing = TRUE)
-
-    # Excluir self (ya es 0, pero por seguridad)
     candidates <- setdiff(ord, i)
 
     # Seleccionar Top K
@@ -165,10 +156,7 @@ attr(neighbors, "region.id") <- as.character(1:N)
 attr(neighbors, "call") <- match.call()
 
 # 5. Crear Objeto W (Normalizado por fila)
-# nb2listw con style="W" normaliza los pesos en 'glist' automáticament
 W_listw <- nb2listw(neighbors, glist = weights_list, style = "W", zero.policy = TRUE)
-
-cat("Matriz W construida (K=100, Paper-Like weights).\n")
 ```
 
 ### 2.2. Modelos de Regresión
@@ -196,17 +184,15 @@ fmla_base <- y ~ age + educ + female +
 # Modelo 1: OLS
 m1 <- lm(fmla_base, data = final_df)
 
-# Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)
-# Nota: Usamos aproximación OLS (y ~ Wy + X) para estabilidad en el workshop.
+# Modelo 2: Lag Espacial (OLS para estabilidad)
 Wy <- lag.listw(W_listw, final_df$y)
 final_df$Wy <- Wy
 fmla_lag <- update(fmla_base, ~ . + Wy)
 m2_ols <- lm(fmla_lag, data = final_df)
 
-# Resultados con Stargazer ( Compacto )
+# Resultados con Stargazer
 stargazer(m1, m2_ols,
     type = "html",
-    title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
     column.labels = c("Modelo Base", "Modelo Contextual"),
     dep.var.labels = "Democrat Thermometer (0-100)",
     star.cutoffs = c(0.05, 0.01, 0.001),
@@ -219,8 +205,6 @@ stargazer(m1, m2_ols,
 
 ### 2.3. Discusión de Resultados
 
-**Comparación de Coeficientes:**
-
 ```{r}
 #| label: compare-coefs
 #| echo: false
@@ -228,8 +212,10 @@ stargazer(m1, m2_ols,
 c1 <- coef(m1)
 c2 <- coef(m2_ols)
 
+cat("--- Término Contextual ---\n")
+cat(sprintf("Spatial Rho (Contexto Social): %.3f\n\n", c2["Wy"]))
+
 cat("--- Comparación de Efectos ---\n")
-cat(sprintf("Spatial Rho (Contexto): %.3f\n\n", c2["Wy"]))
 
 df_comp <- data.frame(
     Variable = c("Black", "Hispanic", "Catholic", "Female"),
@@ -249,13 +235,17 @@ knitr::kable(df_comp,
 )
 ```
 
-El patrón general es que, al pasar del Modelo 1 (solo demografía) al Modelo 2 (demografía + término espacial de “contexto social” imputado), muchos coeficientes demográficos se reducen en magnitud. La lectura sustantiva que proponen es directa: parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos (en el sentido de qué tipo de opiniones políticas es más probable que los rodeen dadas sus ubicaciones en el espacio de Blau).
+Parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos.
 
-El paper ilustra esto con ejemplos numéricos. Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes. En términos de raza/etnicidad, enfatizan que el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. También observan que el coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. La conclusión interpretativa es que una fracción apreciable de las brechas demográficas en simpatía por el Partido Demócrata puede entenderse como diferencias en el “mundo social” probable en que se ubican los encuestados, más que como un efecto puramente individual/demográfico.
+- El término de contexto social es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.
 
-Luego viene el punto central: el término espacial (el contexto social imputado) es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía. Además, subrayan que el tamaño del efecto es grande: dan un ejemplo comparando dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.
+- Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes.
 
-Finalmente, rematan con una idea sociológica fuerte: individuos que viven en mundos sociales muy distintos pueden terminar con alineamientos políticos muy diferentes, y ese mecanismo contextual puede “superar” (en magnitud sustantiva) algunas diferencias estrictamente demográficas cuando se intenta explicar simpatías partidarias.
+- En términos de raza/etnicidad, el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. 
+
+- El coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. 
+
+Podemos comparar dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y ver cómo eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.
 
 ## 3. Parte B: Simulación de Redes Completas (ERGM)
 
