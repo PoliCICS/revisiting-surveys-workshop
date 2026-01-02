@@ -68,7 +68,7 @@ donde $\rho$ captura la asociación entre el outcome individual y el clima actit
 
 El foco interpretativo será (i) si $\rho>0$ y es estadísticamente distinguible de cero, y (ii) si la inclusión de $(Wy)_i$ reduce la magnitud de varios coeficientes demográficos, coherente con la lectura “contextual” discutida para Democrat Scale.
 
-### 2.1. Carga de Datos
+### 2.1. Construcción de Pesos (W)
 
 Cargamos datos limpios de la ANES 2016 (preparados en `anes-cleaning.qmd`).
 
@@ -83,17 +83,9 @@ library(spdep)
 library(spatialreg)
 
 # Cargar datos limpios
-DATA_PATH <- "data/anes_2016_derived/anes_clean.rds"
-
-if (file.exists(DATA_PATH)) {
-    final_df <- readRDS(DATA_PATH)
-    cat("Datos ANES cargados. N =", nrow(final_df), "\n")
-} else {
-    stop("Ejecuta primero anes-cleaning.qmd para generar los datos.")
-}
+final_df <- readRDS("data/anes_2016_derived/anes_clean.rds")
+cat("Datos ANES cargados. N =", nrow(final_df), "\n")
 ```
-
-### 2.2. Construcción de Pesos (W)
 
 Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación *k-nearest* (k=50) en probabilidad.
 
@@ -103,6 +95,18 @@ Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfi
 
 # Betas de Homofilia (Smith & McPherson 2014-like)
 betas <- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)
+
+# --- Explicación Esquemática del Proceso ---
+# 1. Matriz de Distancia (d_ij): Medimos cuán diferente es cada alter j del ego i.
+# 2. Puntaje de Similitud (S_ij): Convertimos distancia a probabilidad no-normalizada.
+#    S_ij = exp(beta * d_ij). Si beta < 0, mayor distancia -> menor puntaje.
+# 3. Selección Top-K (K=50): 
+#    - ¿Por qué recortar? Sociológicamente, las personas tienen límites cognitivos 
+#      y de tiempo para mantener vínculos (Número de Dunbar). No interactuamos 
+#      con los 4000 encuestados, sino con un subconjunto.
+#    - K=50 representa un "círculo social activo" razonable para influencias políticas.
+#    - Técnicamente: Hace la matriz W "sparsa" (llena de ceros), facilitando el cálculo.
+# 4. Normalización: Los pesos de los 50 vecinos suman 1 para cada ego.
 
 # Matrices de Distancia
 X_age <- final_df$age
@@ -148,7 +152,7 @@ W_listw <- nb2listw(neighbors, style = "W")
 cat("Matriz W construida (k=50).\n")
 ```
 
-### 2.3. Modelos de Regresión
+### 2.2. Modelos de Regresión
 
 Estimamos dos modelos para explicar la simpatía por el Partido Demócrata ($Y$):
 
@@ -160,6 +164,9 @@ $$ y = \rho W y + X \beta + \epsilon $$
 ```{r}
 #| label: estimate-models
 #| message: false
+#| results: asis
+
+library(stargazer)
 
 # Fórmula Base
 # Usamos dummies explícitas creadas en limpieza
@@ -177,12 +184,18 @@ final_df$Wy <- Wy
 fmla_lag <- update(fmla_base, ~ . + Wy)
 m2_ols <- lm(fmla_lag, data = final_df)
 
-# Resultados
-summary(m1)
-summary(m2_ols)
+# Resultados con Stargazer
+stargazer(m1, m2_ols,
+          type = "html",
+          title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
+          column.labels = c("Modelo Base", "Modelo Contextual"),
+          dep.var.labels = "Democrat Thermometer (0-100)",
+          star.cutoffs = c(0.05, 0.01, 0.001),
+          keep.stat = c("n", "rsq", "adj.rsq", "f"),
+          no.space = TRUE)
 ```
 
-### 2.4. Discusión de Resultados
+### 2.3. Discusión de Resultados
 
 **Comparación de Coeficientes:**
 
@@ -201,8 +214,15 @@ df_comp <- data.frame(
     Model1 = c(c1["race_black"], c1["race_hispanic"], c1["relig_catholic"], c1["female"]),
     Model2 = c(c2["race_black"], c2["race_hispanic"], c2["relig_catholic"], c2["female"])
 )
-df_comp$Reduction <- df_comp$Model1 - df_comp$Model2
-print(df_comp, digits = 3)
+
+# Calcular reducciones
+df_comp$Diff_Abs <- df_comp$Model1 - df_comp$Model2
+df_comp$Pct_Reduction <- (df_comp$Diff_Abs / df_comp$Model1) * 100
+
+# Mostrar tabla formateada
+knitr::kable(df_comp, digits = 2,
+             col.names = c("Variable", "Coef M1 (Base)", "Coef M2 (Contextual)", "Reducción Abs.", "% Reducción"),
+             caption = "Atenuación de coeficientes demográficos al incluir contexto social.")
 ```
 
 El patrón general es que, al pasar del Modelo 1 (solo demografía) al Modelo 2 (demografía + término espacial de “contexto social” imputado), muchos coeficientes demográficos se reducen en magnitud. La lectura sustantiva que proponen es directa: parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos (en el sentido de qué tipo de opiniones políticas es más probable que los rodeen dadas sus ubicaciones en el espacio de Blau).
