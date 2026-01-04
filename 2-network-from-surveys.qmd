@@ -26,6 +26,8 @@ El **Blau space** es un espacio multidimensional donde cada individuo se represe
 
 (ii) la estructura de oportunidades inducida por las distribuciones marginales de atributos.
 
+(iii) la **fuerza homofílica** de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.
+
 ![](figs/fig1-blau-space.png){fig-cap="Figure 1. Example networks in two-dimensional Blau space."}
 
 ### 1.2. Término Contextual
@@ -113,7 +115,9 @@ D_race <- outer(X_race, X_race, function(x, y) ifelse(x != y, 1, 0))
 D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0)) # Mismatch
 
 # Betas de Homofilia (Smith & McPherson 2014-like)
-betas <- c(race = -1.9, relig = -1.4, sex = -0.3, age = -0.05, educ = -0.15)
+# Betas de Homofilia (Estimación GSS 2004 - Smith & McPherson 2014)
+# Ajustados por interacciones temporales: beta_2004 = beta_base + delta_2004
+betas <- c(race = -1.695, relig = -1.485, sex = -0.229, age = -0.201, educ = -0.052)
 
 # 1. Calcular Distancias (Blau Space)
 D_age <- abs(outer(X_age, X_age, "-"))
@@ -195,7 +199,7 @@ stargazer(m1, m2_ols,
     type = "html",
     column.labels = c("Modelo Base", "Modelo Contextual"),
     dep.var.labels = "Democrat Thermometer (0-100)",
-    star.cutoffs = c(0.05, 0.01, 0.001),
+    star.cutoffs = c(0.10, 0.05, 0.01),
     keep.stat = c("n", "rsq"),
     report = "vc*", # Solo coeficientes y estrellas
     omit.table.layout = "n", # Compacto
@@ -224,13 +228,17 @@ df_comp <- data.frame(
 )
 
 # Calcular reducciones
+# Calcular reducciones
 df_comp$Diff_Abs <- df_comp$Model1 - df_comp$Model2
 df_comp$Pct_Reduction <- (df_comp$Diff_Abs / df_comp$Model1) * 100
 
+# Seleccionar columnas para mostrar
+df_print <- df_comp[, c("Variable", "Model1", "Model2", "Pct_Reduction")]
+
 # Mostrar tabla formateada
-knitr::kable(df_comp,
+knitr::kable(df_print,
     digits = 2,
-    col.names = c("Variable", "Coef M1 (Base)", "Coef M2 (Contextual)", "Reducción Abs.", "% Reducción"),
+    col.names = c("Variable", "Coef M1", "Coef M2", "% Reducción"),
     caption = "Atenuación de coeficientes demográficos al incluir contexto social."
 )
 ```
@@ -245,7 +253,43 @@ Parte de lo que uno atribuiría a “efectos individuales” de raza, religión,
 
 - El coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. 
 
-Podemos comparar dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y ver cómo eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.
+### 2.4. Casos de Ejemplo
+
+Para ilustrar el poder del contexto social, podemos comparar dos individuos hipotéticos con **idénticas características demográficas** pero ubicados en **distintos contextos sociales** (distintos valores de $Wy$).
+
+```{r}
+#| label: case-examples
+#| echo: true
+
+# Definimos un perfil demográfico "Promedio"
+perfil_base <- data.frame(
+    age = mean(final_df$age),
+    educ = mean(final_df$educ),
+    female = 1, # Mujer
+    race_black = 0, race_hispanic = 0, race_asian = 0, race_native = 0, race_other = 0,
+    relig_catholic = 1, relig_jewish = 0, relig_none = 0, relig_other = 0,
+    Wy = 0 # Placeholder
+)
+
+# Creamos dos escenarios de contexto
+# Escenario A: Contexto "Republicano" (Wy bajo, percentil 10)
+# Escenario B: Contexto "Demócrata" (Wy alto, percentil 90)
+Wy_low <- quantile(final_df$Wy, 0.10, na.rm=TRUE)
+Wy_high <- quantile(final_df$Wy, 0.90, na.rm=TRUE)
+
+caso_A <- perfil_base; caso_A$Wy <- Wy_low
+caso_B <- perfil_base; caso_B$Wy <- Wy_high
+
+# Predecimos con Modelo 2
+pred_A <- predict(m2_ols, newdata = caso_A)
+pred_B <- predict(m2_ols, newdata = caso_B)
+
+cat(sprintf("Predicción Caso A (Contexto Bajo): %.2f\n", pred_A))
+cat(sprintf("Predicción Caso B (Contexto Alto): %.2f\n", pred_B))
+cat(sprintf("Diferencia atribuible al contexto: %.2f puntos\n", pred_B - pred_A))
+```
+
+Esta comparación muestra cómo, manteniendo constante la demografía, el entorno social imputado puede desplazar significativamente la predicción actitudinal.
 
 ## 3. Parte B: Simulación de Redes Completas (ERGM)
 
