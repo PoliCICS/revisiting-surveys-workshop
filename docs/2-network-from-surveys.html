@@ -4708,12 +4708,16 @@ Reference categories: Race = White; Religion = Protestant.
 <p>Si bien la imputación en Blau Space nos permite calcular un <span class="math inline">\(Wy\)</span> para cada individuo, no produce una red explícita de “quién es amigo de quién” a nivel global. Para generar una topología de red completa que respete los principios de homofilia estimados, utilizamos un <strong>Exponential Random Graph Model (ERGM)</strong>.</p>
 <section id="por-qué-ergm-y-el-factor-de-densidad" class="level3">
 <h3 class="anchored" data-anchor-id="por-qué-ergm-y-el-factor-de-densidad">3.1. Por qué ERGM y el Factor de Densidad</h3>
-<p>El ERGM nos permite simular grafos donde la probabilidad de un lazo depende de: 1. <strong>Homofilia paramétrica</strong>: Usamos exactamente los mismos coeficientes (<span class="math inline">\(\boldsymbol{\beta}\)</span>) de la Sección 2.1. 2. <strong>Densidad (Edges)</strong>: Un desafío clave es que las fórmulas de distancia de Smith et al. predicen probabilidades relativas. Para fijar la escala absoluta (cuántos lazos existen en total), necesitamos ajustar el parámetro <code>edges</code> (intercepto) hasta alcanzar la densidad observada en encuestas similares.</p>
-<p>En este ejercicio, fijaremos una <strong>densidad objetivo de 0.003</strong> (aprox. 3 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).</p>
+<p>El ERGM nos permite simular grafos donde la probabilidad de un lazo depende de:</p>
+<ol type="1">
+<li><p><strong>Homofilia paramétrica</strong>: Usamos exactamente los mismos coeficientes (<span class="math inline">\(\boldsymbol{\beta}\)</span>) de la Sección 2.1.</p></li>
+<li><p><strong>Densidad (Edges)</strong>: Un desafío clave es que las fórmulas de distancia de Smith et al. predicen probabilidades relativas. Para fijar la escala absoluta (cuántos lazos existen en total), necesitamos ajustar el parámetro <code>edges</code> (intercepto) hasta alcanzar la densidad observada en encuestas similares.</p></li>
+</ol>
+<p>En este ejercicio, fijaremos una densidad objetivo de 0.003 (aprox. 3 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).</p>
 </section>
 <section id="simulación-y-calibración" class="level3">
 <h3 class="anchored" data-anchor-id="simulación-y-calibración">3.2. Simulación y Calibración</h3>
-<p>Usaremos una sub-muestra de <strong>N=200</strong> individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo simple (máximo 5 iteraciones) para encontrar el intercepto que produce la densidad deseada.</p>
+<p>Usaremos una sub-muestra de <strong>N=200</strong> individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.</p>
 <div class="cell">
 <details open class="code-fold">
 <summary>Código</summary>
@@ -4740,21 +4744,21 @@ Reference categories: Race = White; Religion = Protestant.
 <span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Las variables continuas (edad, educ) usan &#39;absdiff&#39;, manteniendo su signo negativo.</span></span>
 <span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>coefs_target <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
 <span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> <span class="sc">-</span><span class="fl">6.5</span>, <span class="co"># Valor inicial (&quot;semilla&quot;)</span></span>
-<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.race =</span> <span class="fl">1.352</span>,   <span class="co"># -(-1.352)</span></span>
-<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.sex =</span> <span class="fl">0.256</span>,    <span class="co"># -(-0.256)</span></span>
-<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.relig =</span> <span class="fl">1.354</span>,  <span class="co"># -(-1.354)</span></span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.race =</span> <span class="fl">1.352</span>, <span class="co"># -(-1.352)</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.sex =</span> <span class="fl">0.256</span>, <span class="co"># -(-0.256)</span></span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.relig =</span> <span class="fl">1.354</span>, <span class="co"># -(-1.354)</span></span>
 <span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.age =</span> <span class="sc">-</span><span class="fl">0.047</span>,</span>
 <span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.edu_num =</span> <span class="sc">-</span><span class="fl">0.189</span></span>
 <span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula del Modelo</span></span>
-<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>ergm_formula <span class="ot">&lt;-</span> net <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;race&quot;</span>) <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;sex&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">nodematch</span>(<span class="st">&quot;relig&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;age&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;edu_num&quot;</span>)</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>ergm_formula <span class="ot">&lt;-</span> net <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;race&quot;</span>) <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;sex&quot;</span>) <span class="sc">+</span></span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nodematch</span>(<span class="st">&quot;relig&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;age&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;edu_num&quot;</span>)</span>
 <span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calibración Rápida de Densidad (Max 5 Iteraciones)</span></span>
 <span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="fl">0.003</span></span>
 <span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>current_edges <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">7.0</span> <span class="co"># Empezamos muy abajo</span></span>
-<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>step_size <span class="ot">&lt;-</span> <span class="fl">0.5</span> </span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>step_size <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
 <span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Calibrando parámetro &#39;edges&#39; para densidad ~0.003...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -4763,17 +4767,17 @@ Reference categories: Race = White; Religion = Protestant.
 </div>
 <details open class="code-fold">
 <summary>Código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    coefs_target[<span class="st">&quot;edges&quot;</span>] <span class="ot">&lt;-</span> current_edges</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simular 1 red</span></span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    sim_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    current_density <span class="ot">&lt;-</span> <span class="fu">network.density</span>(sim_net)</span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Iter %d: Edges Coef = %.2f -&gt; Densidad = %.5f</span><span class="sc">\n</span><span class="st">&quot;</span>, i, current_edges, current_density))</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajuste simple de búsqueda</span></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(current_density <span class="sc">&lt;</span> target_density) {</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_density <span class="sc">&lt;</span> target_density) {</span>
 <span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">+</span> step_size <span class="co"># Subir probabilidad</span></span>
 <span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">-</span> step_size <span class="co"># Bajar probabilidad</span></span>
@@ -4860,19 +4864,22 @@ Attaching package: &#39;igraph&#39;</code></pre>
 <span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustar según datos reales si es necesario</span></span>
 <span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(g_sim)<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
 <span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">~</span> <span class="st">&quot;lightblue&quot;</span>, <span class="co"># White</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;tomato&quot;</span>,    <span class="co"># Black</span></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">~</span> <span class="st">&quot;gold&quot;</span>,      <span class="co"># Hispanic</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;tomato&quot;</span>, <span class="co"># Black</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">~</span> <span class="st">&quot;gold&quot;</span>, <span class="co"># Hispanic</span></span>
 <span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;gray&quot;</span></span>
 <span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_sim, </span>
-<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>     <span class="at">layout =</span> <span class="fu">layout_with_fr</span>(g_sim),</span>
-<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>     <span class="at">vertex.size =</span> <span class="dv">5</span>,</span>
-<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>     <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
-<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.color =</span> <span class="fu">adjustcolor</span>(<span class="st">&quot;black&quot;</span>, <span class="at">alpha.f =</span> <span class="fl">0.3</span>))</span>
-<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="at">legend=</span><span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>), </span>
-<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">pch=</span><span class="dv">19</span>, <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">cex=</span><span class="fl">0.8</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_sim,</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">layout =</span> <span class="fu">layout_with_fr</span>(g_sim),</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.size =</span> <span class="dv">5</span>,</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">edge.color =</span> <span class="fu">adjustcolor</span>(<span class="st">&quot;black&quot;</span>, <span class="at">alpha.f =</span> <span class="fl">0.3</span>)</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>,</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>),</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="at">cex =</span> <span class="fl">0.8</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -5645,119 +5652,124 @@ Attaching package: &#39;igraph&#39;</code></pre>
 <span id="cb34-311"><a href="#cb34-311" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1. Por qué ERGM y el Factor de Densidad</span></span>
 <span id="cb34-312"><a href="#cb34-312" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-313"><a href="#cb34-313" aria-hidden="true" tabindex="-1"></a>El ERGM nos permite simular grafos donde la probabilidad de un lazo depende de:</span>
-<span id="cb34-314"><a href="#cb34-314" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Homofilia paramétrica**: Usamos exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.</span>
-<span id="cb34-315"><a href="#cb34-315" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Densidad (Edges)**: Un desafío clave es que las fórmulas de distancia de Smith et al. predicen probabilidades relativas. Para fijar la escala absoluta (cuántos lazos existen en total), necesitamos ajustar el parámetro <span class="in">`edges`</span> (intercepto) hasta alcanzar la densidad observada en encuestas similares.</span>
+<span id="cb34-314"><a href="#cb34-314" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-315"><a href="#cb34-315" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Homofilia paramétrica**: Usamos exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.</span>
 <span id="cb34-316"><a href="#cb34-316" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-317"><a href="#cb34-317" aria-hidden="true" tabindex="-1"></a>En este ejercicio, fijaremos una **densidad objetivo de 0.003** (aprox. 3 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).</span>
+<span id="cb34-317"><a href="#cb34-317" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Densidad (Edges)**: Un desafío clave es que las fórmulas de distancia de Smith et al. predicen probabilidades relativas. Para fijar la escala absoluta (cuántos lazos existen en total), necesitamos ajustar el parámetro <span class="in">`edges`</span> (intercepto) hasta alcanzar la densidad observada en encuestas similares.</span>
 <span id="cb34-318"><a href="#cb34-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-319"><a href="#cb34-319" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2. Simulación y Calibración</span></span>
+<span id="cb34-319"><a href="#cb34-319" aria-hidden="true" tabindex="-1"></a>En este ejercicio, fijaremos una densidad objetivo de 0.003 (aprox. 3 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).</span>
 <span id="cb34-320"><a href="#cb34-320" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-321"><a href="#cb34-321" aria-hidden="true" tabindex="-1"></a>Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo simple (máximo 5 iteraciones) para encontrar el intercepto que produce la densidad deseada.</span>
+<span id="cb34-321"><a href="#cb34-321" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2. Simulación y Calibración</span></span>
 <span id="cb34-322"><a href="#cb34-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-325"><a href="#cb34-325" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb34-326"><a href="#cb34-326" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-ergm</span></span>
-<span id="cb34-327"><a href="#cb34-327" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb34-328"><a href="#cb34-328" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb34-329"><a href="#cb34-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-330"><a href="#cb34-330" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ergm)</span>
-<span id="cb34-331"><a href="#cb34-331" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
-<span id="cb34-332"><a href="#cb34-332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-333"><a href="#cb34-333" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Submuestreo (N=200)</span></span>
-<span id="cb34-334"><a href="#cb34-334" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb34-335"><a href="#cb34-335" aria-hidden="true" tabindex="-1"></a>target_n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb34-336"><a href="#cb34-336" aria-hidden="true" tabindex="-1"></a>idx_sample <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(final_df), target_n)</span>
-<span id="cb34-337"><a href="#cb34-337" aria-hidden="true" tabindex="-1"></a>small_df <span class="ot">&lt;-</span> final_df[idx_sample, ]</span>
-<span id="cb34-338"><a href="#cb34-338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-339"><a href="#cb34-339" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Inicializar Red Vacía con Atributos</span></span>
-<span id="cb34-340"><a href="#cb34-340" aria-hidden="true" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">network</span>(target_n, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">density =</span> <span class="dv">0</span>)</span>
-<span id="cb34-341"><a href="#cb34-341" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;race&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>race_raw))</span>
-<span id="cb34-342"><a href="#cb34-342" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;sex&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>female)) <span class="co"># 0/1</span></span>
-<span id="cb34-343"><a href="#cb34-343" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;edu_num&quot;</span>, small_df<span class="sc">$</span>educ)</span>
-<span id="cb34-344"><a href="#cb34-344" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;age&quot;</span>, small_df<span class="sc">$</span>age)</span>
-<span id="cb34-345"><a href="#cb34-345" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;relig&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>relig_raw))</span>
-<span id="cb34-346"><a href="#cb34-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-347"><a href="#cb34-347" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Definir Coeficientes (Mismos valores Sección 2.1)</span></span>
-<span id="cb34-348"><a href="#cb34-348" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANTE: ERGM usa &#39;nodematch&#39; (coincidencia), por lo que invertimos el signo</span></span>
-<span id="cb34-349"><a href="#cb34-349" aria-hidden="true" tabindex="-1"></a><span class="co"># de los coeficientes de &#39;diferencia&#39; para raza, sexo y religión.</span></span>
-<span id="cb34-350"><a href="#cb34-350" aria-hidden="true" tabindex="-1"></a><span class="co"># Las variables continuas (edad, educ) usan &#39;absdiff&#39;, manteniendo su signo negativo.</span></span>
-<span id="cb34-351"><a href="#cb34-351" aria-hidden="true" tabindex="-1"></a>coefs_target <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb34-352"><a href="#cb34-352" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> <span class="sc">-</span><span class="fl">6.5</span>, <span class="co"># Valor inicial (&quot;semilla&quot;)</span></span>
-<span id="cb34-353"><a href="#cb34-353" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.race =</span> <span class="fl">1.352</span>,   <span class="co"># -(-1.352)</span></span>
-<span id="cb34-354"><a href="#cb34-354" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.sex =</span> <span class="fl">0.256</span>,    <span class="co"># -(-0.256)</span></span>
-<span id="cb34-355"><a href="#cb34-355" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.relig =</span> <span class="fl">1.354</span>,  <span class="co"># -(-1.354)</span></span>
-<span id="cb34-356"><a href="#cb34-356" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.age =</span> <span class="sc">-</span><span class="fl">0.047</span>,</span>
-<span id="cb34-357"><a href="#cb34-357" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.edu_num =</span> <span class="sc">-</span><span class="fl">0.189</span></span>
-<span id="cb34-358"><a href="#cb34-358" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb34-359"><a href="#cb34-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-360"><a href="#cb34-360" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula del Modelo</span></span>
-<span id="cb34-361"><a href="#cb34-361" aria-hidden="true" tabindex="-1"></a>ergm_formula <span class="ot">&lt;-</span> net <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;race&quot;</span>) <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;sex&quot;</span>) <span class="sc">+</span> </span>
-<span id="cb34-362"><a href="#cb34-362" aria-hidden="true" tabindex="-1"></a>                      <span class="fu">nodematch</span>(<span class="st">&quot;relig&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;age&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;edu_num&quot;</span>)</span>
-<span id="cb34-363"><a href="#cb34-363" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-364"><a href="#cb34-364" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calibración Rápida de Densidad (Max 5 Iteraciones)</span></span>
-<span id="cb34-365"><a href="#cb34-365" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="fl">0.003</span></span>
-<span id="cb34-366"><a href="#cb34-366" aria-hidden="true" tabindex="-1"></a>current_edges <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">7.0</span> <span class="co"># Empezamos muy abajo</span></span>
-<span id="cb34-367"><a href="#cb34-367" aria-hidden="true" tabindex="-1"></a>step_size <span class="ot">&lt;-</span> <span class="fl">0.5</span> </span>
-<span id="cb34-368"><a href="#cb34-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-369"><a href="#cb34-369" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Calibrando parámetro &#39;edges&#39; para densidad ~0.003...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb34-323"><a href="#cb34-323" aria-hidden="true" tabindex="-1"></a>Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.</span>
+<span id="cb34-324"><a href="#cb34-324" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-327"><a href="#cb34-327" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb34-328"><a href="#cb34-328" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-ergm</span></span>
+<span id="cb34-329"><a href="#cb34-329" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb34-330"><a href="#cb34-330" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb34-331"><a href="#cb34-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-332"><a href="#cb34-332" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ergm)</span>
+<span id="cb34-333"><a href="#cb34-333" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
+<span id="cb34-334"><a href="#cb34-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-335"><a href="#cb34-335" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Submuestreo (N=200)</span></span>
+<span id="cb34-336"><a href="#cb34-336" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb34-337"><a href="#cb34-337" aria-hidden="true" tabindex="-1"></a>target_n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb34-338"><a href="#cb34-338" aria-hidden="true" tabindex="-1"></a>idx_sample <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(final_df), target_n)</span>
+<span id="cb34-339"><a href="#cb34-339" aria-hidden="true" tabindex="-1"></a>small_df <span class="ot">&lt;-</span> final_df[idx_sample, ]</span>
+<span id="cb34-340"><a href="#cb34-340" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-341"><a href="#cb34-341" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Inicializar Red Vacía con Atributos</span></span>
+<span id="cb34-342"><a href="#cb34-342" aria-hidden="true" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">network</span>(target_n, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">density =</span> <span class="dv">0</span>)</span>
+<span id="cb34-343"><a href="#cb34-343" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;race&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>race_raw))</span>
+<span id="cb34-344"><a href="#cb34-344" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;sex&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>female)) <span class="co"># 0/1</span></span>
+<span id="cb34-345"><a href="#cb34-345" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;edu_num&quot;</span>, small_df<span class="sc">$</span>educ)</span>
+<span id="cb34-346"><a href="#cb34-346" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;age&quot;</span>, small_df<span class="sc">$</span>age)</span>
+<span id="cb34-347"><a href="#cb34-347" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;relig&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>relig_raw))</span>
+<span id="cb34-348"><a href="#cb34-348" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-349"><a href="#cb34-349" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Definir Coeficientes (Mismos valores Sección 2.1)</span></span>
+<span id="cb34-350"><a href="#cb34-350" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANTE: ERGM usa &#39;nodematch&#39; (coincidencia), por lo que invertimos el signo</span></span>
+<span id="cb34-351"><a href="#cb34-351" aria-hidden="true" tabindex="-1"></a><span class="co"># de los coeficientes de &#39;diferencia&#39; para raza, sexo y religión.</span></span>
+<span id="cb34-352"><a href="#cb34-352" aria-hidden="true" tabindex="-1"></a><span class="co"># Las variables continuas (edad, educ) usan &#39;absdiff&#39;, manteniendo su signo negativo.</span></span>
+<span id="cb34-353"><a href="#cb34-353" aria-hidden="true" tabindex="-1"></a>coefs_target <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb34-354"><a href="#cb34-354" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> <span class="sc">-</span><span class="fl">6.5</span>, <span class="co"># Valor inicial (&quot;semilla&quot;)</span></span>
+<span id="cb34-355"><a href="#cb34-355" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.race =</span> <span class="fl">1.352</span>, <span class="co"># -(-1.352)</span></span>
+<span id="cb34-356"><a href="#cb34-356" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.sex =</span> <span class="fl">0.256</span>, <span class="co"># -(-0.256)</span></span>
+<span id="cb34-357"><a href="#cb34-357" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.relig =</span> <span class="fl">1.354</span>, <span class="co"># -(-1.354)</span></span>
+<span id="cb34-358"><a href="#cb34-358" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.age =</span> <span class="sc">-</span><span class="fl">0.047</span>,</span>
+<span id="cb34-359"><a href="#cb34-359" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.edu_num =</span> <span class="sc">-</span><span class="fl">0.189</span></span>
+<span id="cb34-360"><a href="#cb34-360" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-361"><a href="#cb34-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-362"><a href="#cb34-362" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula del Modelo</span></span>
+<span id="cb34-363"><a href="#cb34-363" aria-hidden="true" tabindex="-1"></a>ergm_formula <span class="ot">&lt;-</span> net <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;race&quot;</span>) <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;sex&quot;</span>) <span class="sc">+</span></span>
+<span id="cb34-364"><a href="#cb34-364" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nodematch</span>(<span class="st">&quot;relig&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;age&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;edu_num&quot;</span>)</span>
+<span id="cb34-365"><a href="#cb34-365" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-366"><a href="#cb34-366" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calibración Rápida de Densidad (Max 5 Iteraciones)</span></span>
+<span id="cb34-367"><a href="#cb34-367" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="fl">0.003</span></span>
+<span id="cb34-368"><a href="#cb34-368" aria-hidden="true" tabindex="-1"></a>current_edges <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">7.0</span> <span class="co"># Empezamos muy abajo</span></span>
+<span id="cb34-369"><a href="#cb34-369" aria-hidden="true" tabindex="-1"></a>step_size <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
 <span id="cb34-370"><a href="#cb34-370" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-371"><a href="#cb34-371" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
-<span id="cb34-372"><a href="#cb34-372" aria-hidden="true" tabindex="-1"></a>    coefs_target[<span class="st">&quot;edges&quot;</span>] <span class="ot">&lt;-</span> current_edges</span>
-<span id="cb34-373"><a href="#cb34-373" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb34-374"><a href="#cb34-374" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simular 1 red</span></span>
-<span id="cb34-375"><a href="#cb34-375" aria-hidden="true" tabindex="-1"></a>    sim_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb34-376"><a href="#cb34-376" aria-hidden="true" tabindex="-1"></a>    current_density <span class="ot">&lt;-</span> <span class="fu">network.density</span>(sim_net)</span>
-<span id="cb34-377"><a href="#cb34-377" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb34-378"><a href="#cb34-378" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Iter %d: Edges Coef = %.2f -&gt; Densidad = %.5f</span><span class="sc">\n</span><span class="st">&quot;</span>, i, current_edges, current_density))</span>
-<span id="cb34-379"><a href="#cb34-379" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb34-380"><a href="#cb34-380" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajuste simple de búsqueda</span></span>
-<span id="cb34-381"><a href="#cb34-381" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span>(current_density <span class="sc">&lt;</span> target_density) {</span>
-<span id="cb34-382"><a href="#cb34-382" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">+</span> step_size <span class="co"># Subir probabilidad</span></span>
-<span id="cb34-383"><a href="#cb34-383" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb34-384"><a href="#cb34-384" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">-</span> step_size <span class="co"># Bajar probabilidad</span></span>
-<span id="cb34-385"><a href="#cb34-385" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb34-386"><a href="#cb34-386" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reducimos paso para refinar</span></span>
-<span id="cb34-387"><a href="#cb34-387" aria-hidden="true" tabindex="-1"></a>    step_size <span class="ot">&lt;-</span> step_size <span class="sc">*</span> <span class="fl">0.6</span></span>
-<span id="cb34-388"><a href="#cb34-388" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb34-389"><a href="#cb34-389" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-390"><a href="#cb34-390" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Simulación Final</span></span>
-<span id="cb34-391"><a href="#cb34-391" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Generando red final con parámetros calibrados...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb34-392"><a href="#cb34-392" aria-hidden="true" tabindex="-1"></a>final_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb34-393"><a href="#cb34-393" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Densidad Final:&quot;</span>, <span class="fu">network.density</span>(final_net), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb34-394"><a href="#cb34-394" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb34-395"><a href="#cb34-395" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-396"><a href="#cb34-396" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.3. Visualización de la Red</span></span>
+<span id="cb34-371"><a href="#cb34-371" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Calibrando parámetro &#39;edges&#39; para densidad ~0.003...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb34-372"><a href="#cb34-372" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-373"><a href="#cb34-373" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
+<span id="cb34-374"><a href="#cb34-374" aria-hidden="true" tabindex="-1"></a>    coefs_target[<span class="st">&quot;edges&quot;</span>] <span class="ot">&lt;-</span> current_edges</span>
+<span id="cb34-375"><a href="#cb34-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-376"><a href="#cb34-376" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simular 1 red</span></span>
+<span id="cb34-377"><a href="#cb34-377" aria-hidden="true" tabindex="-1"></a>    sim_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb34-378"><a href="#cb34-378" aria-hidden="true" tabindex="-1"></a>    current_density <span class="ot">&lt;-</span> <span class="fu">network.density</span>(sim_net)</span>
+<span id="cb34-379"><a href="#cb34-379" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-380"><a href="#cb34-380" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Iter %d: Edges Coef = %.2f -&gt; Densidad = %.5f</span><span class="sc">\n</span><span class="st">&quot;</span>, i, current_edges, current_density))</span>
+<span id="cb34-381"><a href="#cb34-381" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-382"><a href="#cb34-382" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajuste simple de búsqueda</span></span>
+<span id="cb34-383"><a href="#cb34-383" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_density <span class="sc">&lt;</span> target_density) {</span>
+<span id="cb34-384"><a href="#cb34-384" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">+</span> step_size <span class="co"># Subir probabilidad</span></span>
+<span id="cb34-385"><a href="#cb34-385" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb34-386"><a href="#cb34-386" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">-</span> step_size <span class="co"># Bajar probabilidad</span></span>
+<span id="cb34-387"><a href="#cb34-387" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb34-388"><a href="#cb34-388" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reducimos paso para refinar</span></span>
+<span id="cb34-389"><a href="#cb34-389" aria-hidden="true" tabindex="-1"></a>    step_size <span class="ot">&lt;-</span> step_size <span class="sc">*</span> <span class="fl">0.6</span></span>
+<span id="cb34-390"><a href="#cb34-390" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-391"><a href="#cb34-391" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-392"><a href="#cb34-392" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Simulación Final</span></span>
+<span id="cb34-393"><a href="#cb34-393" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Generando red final con parámetros calibrados...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb34-394"><a href="#cb34-394" aria-hidden="true" tabindex="-1"></a>final_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb34-395"><a href="#cb34-395" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Densidad Final:&quot;</span>, <span class="fu">network.density</span>(final_net), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb34-396"><a href="#cb34-396" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb34-397"><a href="#cb34-397" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-398"><a href="#cb34-398" aria-hidden="true" tabindex="-1"></a>Finalmente, visualizamos la estructura resultante. Los nodos están coloreados por raza, mostrando cómo la homofilia genera agrupamientos (&quot;clusters&quot;) naturales en la red social sintética.</span>
+<span id="cb34-398"><a href="#cb34-398" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.3. Visualización de la Red</span></span>
 <span id="cb34-399"><a href="#cb34-399" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-402"><a href="#cb34-402" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb34-403"><a href="#cb34-403" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: viz-ergm</span></span>
-<span id="cb34-404"><a href="#cb34-404" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: &quot;Red simulada mediante ERGM (N=200) basada en parámetros de homofilia.&quot;</span></span>
-<span id="cb34-405"><a href="#cb34-405" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-406"><a href="#cb34-406" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
-<span id="cb34-407"><a href="#cb34-407" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(intergraph)</span>
-<span id="cb34-408"><a href="#cb34-408" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-409"><a href="#cb34-409" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertir a igraph</span></span>
-<span id="cb34-410"><a href="#cb34-410" aria-hidden="true" tabindex="-1"></a>g_sim <span class="ot">&lt;-</span> <span class="fu">asIgraph</span>(final_net)</span>
-<span id="cb34-411"><a href="#cb34-411" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-412"><a href="#cb34-412" aria-hidden="true" tabindex="-1"></a><span class="co"># Colores por Raza</span></span>
-<span id="cb34-413"><a href="#cb34-413" aria-hidden="true" tabindex="-1"></a><span class="co"># Asumimos coding de clean: 1=White, 2=Black, 3=Hispanic, etc.</span></span>
-<span id="cb34-414"><a href="#cb34-414" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustar según datos reales si es necesario</span></span>
-<span id="cb34-415"><a href="#cb34-415" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(g_sim)<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
-<span id="cb34-416"><a href="#cb34-416" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">~</span> <span class="st">&quot;lightblue&quot;</span>, <span class="co"># White</span></span>
-<span id="cb34-417"><a href="#cb34-417" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;tomato&quot;</span>,    <span class="co"># Black</span></span>
-<span id="cb34-418"><a href="#cb34-418" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">~</span> <span class="st">&quot;gold&quot;</span>,      <span class="co"># Hispanic</span></span>
-<span id="cb34-419"><a href="#cb34-419" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;gray&quot;</span></span>
-<span id="cb34-420"><a href="#cb34-420" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb34-421"><a href="#cb34-421" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-422"><a href="#cb34-422" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>,<span class="dv">0</span>))</span>
-<span id="cb34-423"><a href="#cb34-423" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_sim, </span>
-<span id="cb34-424"><a href="#cb34-424" aria-hidden="true" tabindex="-1"></a>     <span class="at">layout =</span> <span class="fu">layout_with_fr</span>(g_sim),</span>
-<span id="cb34-425"><a href="#cb34-425" aria-hidden="true" tabindex="-1"></a>     <span class="at">vertex.size =</span> <span class="dv">5</span>,</span>
-<span id="cb34-426"><a href="#cb34-426" aria-hidden="true" tabindex="-1"></a>     <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
-<span id="cb34-427"><a href="#cb34-427" aria-hidden="true" tabindex="-1"></a>     <span class="at">edge.color =</span> <span class="fu">adjustcolor</span>(<span class="st">&quot;black&quot;</span>, <span class="at">alpha.f =</span> <span class="fl">0.3</span>))</span>
-<span id="cb34-428"><a href="#cb34-428" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="at">legend=</span><span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>), </span>
-<span id="cb34-429"><a href="#cb34-429" aria-hidden="true" tabindex="-1"></a>       <span class="at">col=</span><span class="fu">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">pch=</span><span class="dv">19</span>, <span class="at">bty=</span><span class="st">&quot;n&quot;</span>, <span class="at">cex=</span><span class="fl">0.8</span>)</span>
-<span id="cb34-430"><a href="#cb34-430" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb34-400"><a href="#cb34-400" aria-hidden="true" tabindex="-1"></a>Finalmente, visualizamos la estructura resultante. Los nodos están coloreados por raza, mostrando cómo la homofilia genera agrupamientos (&quot;clusters&quot;) naturales en la red social sintética.</span>
+<span id="cb34-401"><a href="#cb34-401" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-404"><a href="#cb34-404" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb34-405"><a href="#cb34-405" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: viz-ergm</span></span>
+<span id="cb34-406"><a href="#cb34-406" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: &quot;Red simulada mediante ERGM (N=200) basada en parámetros de homofilia.&quot;</span></span>
+<span id="cb34-407"><a href="#cb34-407" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-408"><a href="#cb34-408" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb34-409"><a href="#cb34-409" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(intergraph)</span>
+<span id="cb34-410"><a href="#cb34-410" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-411"><a href="#cb34-411" aria-hidden="true" tabindex="-1"></a><span class="co"># Convertir a igraph</span></span>
+<span id="cb34-412"><a href="#cb34-412" aria-hidden="true" tabindex="-1"></a>g_sim <span class="ot">&lt;-</span> <span class="fu">asIgraph</span>(final_net)</span>
+<span id="cb34-413"><a href="#cb34-413" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-414"><a href="#cb34-414" aria-hidden="true" tabindex="-1"></a><span class="co"># Colores por Raza</span></span>
+<span id="cb34-415"><a href="#cb34-415" aria-hidden="true" tabindex="-1"></a><span class="co"># Asumimos coding de clean: 1=White, 2=Black, 3=Hispanic, etc.</span></span>
+<span id="cb34-416"><a href="#cb34-416" aria-hidden="true" tabindex="-1"></a><span class="co"># Ajustar según datos reales si es necesario</span></span>
+<span id="cb34-417"><a href="#cb34-417" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(g_sim)<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
+<span id="cb34-418"><a href="#cb34-418" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">~</span> <span class="st">&quot;lightblue&quot;</span>, <span class="co"># White</span></span>
+<span id="cb34-419"><a href="#cb34-419" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;tomato&quot;</span>, <span class="co"># Black</span></span>
+<span id="cb34-420"><a href="#cb34-420" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_sim)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">~</span> <span class="st">&quot;gold&quot;</span>, <span class="co"># Hispanic</span></span>
+<span id="cb34-421"><a href="#cb34-421" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;gray&quot;</span></span>
+<span id="cb34-422"><a href="#cb34-422" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-423"><a href="#cb34-423" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-424"><a href="#cb34-424" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>))</span>
+<span id="cb34-425"><a href="#cb34-425" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_sim,</span>
+<span id="cb34-426"><a href="#cb34-426" aria-hidden="true" tabindex="-1"></a>    <span class="at">layout =</span> <span class="fu">layout_with_fr</span>(g_sim),</span>
+<span id="cb34-427"><a href="#cb34-427" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.size =</span> <span class="dv">5</span>,</span>
+<span id="cb34-428"><a href="#cb34-428" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
+<span id="cb34-429"><a href="#cb34-429" aria-hidden="true" tabindex="-1"></a>    <span class="at">edge.color =</span> <span class="fu">adjustcolor</span>(<span class="st">&quot;black&quot;</span>, <span class="at">alpha.f =</span> <span class="fl">0.3</span>)</span>
+<span id="cb34-430"><a href="#cb34-430" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-431"><a href="#cb34-431" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>,</span>
+<span id="cb34-432"><a href="#cb34-432" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>),</span>
+<span id="cb34-433"><a href="#cb34-433" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="at">cex =</span> <span class="fl">0.8</span></span>
+<span id="cb34-434"><a href="#cb34-434" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-435"><a href="#cb34-435" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

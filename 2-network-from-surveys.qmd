@@ -301,14 +301,16 @@ Si bien la imputación en Blau Space nos permite calcular un $Wy$ para cada indi
 ### 3.1. Por qué ERGM y el Factor de Densidad
 
 El ERGM nos permite simular grafos donde la probabilidad de un lazo depende de:
+
 1.  **Homofilia paramétrica**: Usamos exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.
+
 2.  **Densidad (Edges)**: Un desafío clave es que las fórmulas de distancia de Smith et al. predicen probabilidades relativas. Para fijar la escala absoluta (cuántos lazos existen en total), necesitamos ajustar el parámetro `edges` (intercepto) hasta alcanzar la densidad observada en encuestas similares.
 
-En este ejercicio, fijaremos una **densidad objetivo de 0.003** (aprox. 3 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).
+En este ejercicio, fijaremos una **densidad objetivo de 0.03** (aprox. 30 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).
 
 ### 3.2. Simulación y Calibración
 
-Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo simple (máximo 5 iteraciones) para encontrar el intercepto que produce la densidad deseada.
+Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.
 
 ```{r}
 #| label: run-ergm
@@ -338,35 +340,35 @@ set.vertex.attribute(net, "relig", as.character(small_df$relig_raw))
 # Las variables continuas (edad, educ) usan 'absdiff', manteniendo su signo negativo.
 coefs_target <- c(
     edges = -6.5, # Valor inicial ("semilla")
-    nodematch.race = 1.352,   # -(-1.352)
-    nodematch.sex = 0.256,    # -(-0.256)
-    nodematch.relig = 1.354,  # -(-1.354)
+    nodematch.race = 1.352, # -(-1.352)
+    nodematch.sex = 0.256, # -(-0.256)
+    nodematch.relig = 1.354, # -(-1.354)
     absdiff.age = -0.047,
     absdiff.edu_num = -0.189
 )
 
 # Fórmula del Modelo
-ergm_formula <- net ~ edges + nodematch("race") + nodematch("sex") + 
-                      nodematch("relig") + absdiff("age") + absdiff("edu_num")
+ergm_formula <- net ~ edges + nodematch("race") + nodematch("sex") +
+    nodematch("relig") + absdiff("age") + absdiff("edu_num")
 
 # 4. Calibración Rápida de Densidad (Max 5 Iteraciones)
-target_density <- 0.003
-current_edges <- -7.0 # Empezamos muy abajo
-step_size <- 0.5 
+target_density <- 0.03
+current_edges <- -4.0 # Ajustamos el intercepto inicial para densidad más alta
+step_size <- 0.5
 
-cat("Calibrando parámetro 'edges' para densidad ~0.003...\n")
+cat("Calibrando parámetro 'edges' para densidad ~0.03...\n")
 
-for(i in 1:5) {
+for (i in 1:5) {
     coefs_target["edges"] <- current_edges
-    
+
     # Simular 1 red
     sim_net <- simulate(ergm_formula, coef = coefs_target, verbose = FALSE)
     current_density <- network.density(sim_net)
-    
+
     cat(sprintf("Iter %d: Edges Coef = %.2f -> Densidad = %.5f\n", i, current_edges, current_density))
-    
+
     # Ajuste simple de búsqueda
-    if(current_density < target_density) {
+    if (current_density < target_density) {
         current_edges <- current_edges + step_size # Subir probabilidad
     } else {
         current_edges <- current_edges - step_size # Bajar probabilidad
@@ -400,17 +402,20 @@ g_sim <- asIgraph(final_net)
 # Ajustar según datos reales si es necesario
 V(g_sim)$color <- case_when(
     V(g_sim)$race == "1" ~ "lightblue", # White
-    V(g_sim)$race == "2" ~ "tomato",    # Black
-    V(g_sim)$race == "3" ~ "gold",      # Hispanic
+    V(g_sim)$race == "2" ~ "tomato", # Black
+    V(g_sim)$race == "3" ~ "gold", # Hispanic
     TRUE ~ "gray"
 )
 
-par(mar=c(0,0,0,0))
-plot(g_sim, 
-     layout = layout_with_fr(g_sim),
-     vertex.size = 5,
-     vertex.label = NA,
-     edge.color = adjustcolor("black", alpha.f = 0.3))
-legend("topleft", legend=c("White", "Black", "Hispanic"), 
-       col=c("lightblue", "tomato", "gold"), pch=19, bty="n", cex=0.8)
+par(mar = c(0, 0, 0, 0))
+plot(g_sim,
+    layout = layout_with_fr(g_sim),
+    vertex.size = 5,
+    vertex.label = NA,
+    edge.color = adjustcolor("black", alpha.f = 0.3)
+)
+legend("topleft",
+    legend = c("White", "Black", "Hispanic"),
+    col = c("lightblue", "tomato", "gold"), pch = 19, bty = "n", cex = 0.8
+)
 ```
