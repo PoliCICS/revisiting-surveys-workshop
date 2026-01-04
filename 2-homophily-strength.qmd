@@ -325,7 +325,7 @@ Esto significa que la chance de formar un lazo con alguien de **otra raza** es s
 
 Similarmente, para variables continuas como `Diff Edad`, si $\hat{\beta}_{age} \approx -0.05$:
 $$ OR = e^{-0.05} \approx 0.95 $$
-Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría $0.95^{10} \approx 0.60$, reduciendo la probabilidad al 60%.
+Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría $0.95^{10} \approx 0.60$.
 
 ## 3. Interpretación
 

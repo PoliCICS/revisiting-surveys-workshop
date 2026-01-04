@@ -4309,13 +4309,13 @@ En esta implementación pedagófica utilizamos una versión simplificada de <em>
 <p>Exploración rápida:</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Controls 1985: 13580 </code></pre>
+<pre><code>Controls 1985: 13581 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Controls 2004: 10410 </code></pre>
+<pre><code>Controls 2004: 10413 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Controls total: 23990 </code></pre>
+<pre><code>Controls total: 23994 </code></pre>
 </div>
 </div>
 <p><strong>Nota metodológica sobre <span class="math inline">\(k\)</span>.</strong> El valor de <span class="math inline">\(k\)</span> controla el tamaño del control set. Esto afecta el intercepto (prevalencia) pero no debería afectar sustantivamente los <span class="math inline">\(\boldsymbol{\beta}\)</span> en case–control ideal.</p>
@@ -4361,7 +4361,7 @@ En esta implementación pedagófica utilizamos una versión simplificada de <em>
 <p><strong>Exploración rápida (dataset analítico y distancias).</strong> Antes de modelar, conviene inspeccionar: tamaño final, tasa de <code>tie=1</code>, y rangos plausibles de distancias.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Analysis dataset rows: 30991 </code></pre>
+<pre><code>Analysis dataset rows: 30995 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Tie counts:</code></pre>
@@ -4369,29 +4369,29 @@ En esta implementación pedagófica utilizamos una versión simplificada de <em>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     0     1 
-23990  7001 </code></pre>
+23994  7001 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-Tie rate (P[Y=1] in analysis sample): 0.2259043 </code></pre>
+Tie rate (P[Y=1] in analysis sample): 0.2258751 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Summary of distance predictors:</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   diff_race        diff_relig        diff_sex         age_diff   
- Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.0  
- 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 5.0  
- Median :0.0000   Median :1.0000   Median :0.0000   Median :14.0  
- Mean   :0.2028   Mean   :0.5245   Mean   :0.4697   Mean   :17.5  
- 3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:27.0  
- Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :71.0  
-                  NA&#39;s   :486                                     
+<pre><code>   diff_race        diff_relig        diff_sex         age_diff    
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.00  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 6.00  
+ Median :0.0000   Median :1.0000   Median :0.0000   Median :14.00  
+ Mean   :0.2019   Mean   :0.5181   Mean   :0.4663   Mean   :17.55  
+ 3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:27.00  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :71.00  
+                  NA&#39;s   :486                                      
     edu_diff     
  Min.   : 0.000  
  1st Qu.: 1.000  
  Median : 2.000  
- Mean   : 2.977  
+ Mean   : 2.956  
  3rd Qu.: 4.000  
  Max.   :20.000  
                  </code></pre>
@@ -4511,10 +4511,10 @@ Interacción Temporal
 Diff Raza
 </td>
 <td>
--1.452<sup>***</sup>
+-1.438<sup>***</sup>
 </td>
 <td>
--1.534<sup>***</sup>
+-1.545<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4530,10 +4530,10 @@ Diff Raza
 Diff Relig
 </td>
 <td>
--1.359<sup>***</sup>
+-1.325<sup>***</sup>
 </td>
 <td>
--1.359<sup>***</sup>
+-1.338<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4549,10 +4549,10 @@ Diff Relig
 Diff Sexo
 </td>
 <td>
--0.354<sup>***</sup>
+-0.347<sup>***</sup>
 </td>
 <td>
--0.382<sup>***</sup>
+-0.389<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4568,7 +4568,7 @@ Diff Sexo
 Diff Edad
 </td>
 <td>
--0.045<sup>***</sup>
+-0.046<sup>***</sup>
 </td>
 <td>
 -0.045<sup>***</sup>
@@ -4587,10 +4587,10 @@ Diff Edad
 Diff Educ
 </td>
 <td>
--0.165<sup>***</sup>
+-0.160<sup>***</sup>
 </td>
 <td>
--0.147<sup>***</sup>
+-0.141<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4606,10 +4606,10 @@ Diff Educ
 Año (2004)
 </td>
 <td>
-0.017
+-0.014
 </td>
 <td>
-0.117
+0.075
 </td>
 </tr>
 <tr>
@@ -4627,7 +4627,7 @@ Diff Raza x Año
 <td>
 </td>
 <td>
-0.152
+0.202
 </td>
 </tr>
 <tr>
@@ -4645,7 +4645,7 @@ Diff Relig x Año
 <td>
 </td>
 <td>
--0.002
+0.029
 </td>
 </tr>
 <tr>
@@ -4663,7 +4663,7 @@ Diff Sexo x Año
 <td>
 </td>
 <td>
-0.067
+0.103
 </td>
 </tr>
 <tr>
@@ -4681,7 +4681,7 @@ Diff Edad x Año
 <td>
 </td>
 <td>
--0.001
+-0.003
 </td>
 </tr>
 <tr>
@@ -4699,7 +4699,7 @@ Diff Educ x Año
 <td>
 </td>
 <td>
--0.053<sup>***</sup>
+-0.054<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4715,10 +4715,10 @@ Diff Educ x Año
 Constant
 </td>
 <td>
-0.755<sup>***</sup>
+0.738<sup>***</sup>
 </td>
 <td>
-0.722<sup>***</sup>
+0.709<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4738,10 +4738,10 @@ Constant
 N (Dyads)
 </td>
 <td>
-30,991
+30,995
 </td>
 <td>
-30,991
+30,995
 </td>
 </tr>
 <tr>
@@ -4760,10 +4760,10 @@ N (Respondents)
 Observations
 </td>
 <td>
-30,505
+30,509
 </td>
 <td>
-30,505
+30,509
 </td>
 </tr>
 <tr>
@@ -4775,7 +4775,7 @@ Observations
 <section id="interpretación-de-odds-ratios" class="level3">
 <h3 class="anchored" data-anchor-id="interpretación-de-odds-ratios">2.5. Interpretación de Odds Ratios</h3>
 <p>Para interpretar la magnitud de los efectos, es útil convertir los coeficientes <span class="math inline">\(\hat{\beta}\)</span> a <strong>Odds Ratios (OR)</strong> mediante la exponenciación (<span class="math inline">\(e^{\hat{\beta}}\)</span>). Por ejemplo, si el coeficiente para <code>Diff Raza</code> es <span class="math inline">\(\approx -1.60\)</span>, entonces <span class="math display">\[ OR = e^{-1.60} \approx 0.20 \]</span> Esto significa que la chance de formar un lazo con alguien de <strong>otra raza</strong> es solo el <strong>20%</strong> de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de <span class="math inline">\(1/0.20 = 5\)</span> veces.</p>
-<p>Similarmente, para variables continuas como <code>Diff Edad</code>, si <span class="math inline">\(\hat{\beta}_{age} \approx -0.05\)</span>: <span class="math display">\[ OR = e^{-0.05} \approx 0.95 \]</span> Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría <span class="math inline">\(0.95^{10} \approx 0.60\)</span>, reduciendo la probabilidad al 60%.</p>
+<p>Similarmente, para variables continuas como <code>Diff Edad</code>, si <span class="math inline">\(\hat{\beta}_{age} \approx -0.05\)</span>: <span class="math display">\[ OR = e^{-0.05} \approx 0.95 \]</span> Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría <span class="math inline">\(0.95^{10} \approx 0.60\)</span>.</p>
 </section>
 </section>
 <section id="interpretación" class="level2">
@@ -5610,7 +5610,7 @@ En el contexto del workshop, los coeficientes <span class="math inline">\(\hat{\
 <span id="cb20-339"><a href="#cb20-339" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-340"><a href="#cb20-340" aria-hidden="true" tabindex="-1"></a>Similarmente, para variables continuas como <span class="in">`Diff Edad`</span>, si $\hat{\beta}_{age} \approx -0.05$:</span>
 <span id="cb20-341"><a href="#cb20-341" aria-hidden="true" tabindex="-1"></a>$$ OR = e^{-0.05} \approx 0.95 $$</span>
-<span id="cb20-342"><a href="#cb20-342" aria-hidden="true" tabindex="-1"></a>Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría $0.95^{10} \approx 0.60$, reduciendo la probabilidad al 60%.</span>
+<span id="cb20-342"><a href="#cb20-342" aria-hidden="true" tabindex="-1"></a>Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría $0.95^{10} \approx 0.60$.</span>
 <span id="cb20-343"><a href="#cb20-343" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-344"><a href="#cb20-344" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Interpretación</span></span>
 <span id="cb20-345"><a href="#cb20-345" aria-hidden="true" tabindex="-1"></a></span>
