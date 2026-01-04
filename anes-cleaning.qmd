@@ -29,10 +29,10 @@ library(stringr)
 DATA_PATH <- "data/anes_timeseries_2016.dta"
 
 if (file.exists(DATA_PATH)) {
-  anes_raw <- read_dta(DATA_PATH)
-  cat("Dataset cargado. Dimensiones:", dim(anes_raw), "\n")
+    anes_raw <- read_dta(DATA_PATH)
+    cat("Dataset cargado. Dimensiones:", dim(anes_raw), "\n")
 } else {
-  stop("Archivo ANES no encontrado.")
+    stop("Archivo ANES no encontrado.")
 }
 ```
 
@@ -54,63 +54,63 @@ Seleccionamos las variables basándonos en los códigos del codebook (inspeccion
 #| message: false
 
 anes_subset <- anes_raw %>%
-  select(
-    case_id = V160001,
-    weight = V160101,
-    dem_therm = V161095,
-    age = V161267,
-    educ_raw = V161270,
-    gender_raw = V161342,
-    race_raw = V161310x,
-    relig_raw = V161265x
-  ) %>%
-  # Filtrar casos con peso válido y outcome válido (0-100)
-  filter(weight > 0, dem_therm >= 0, dem_therm <= 100)
+    select(
+        case_id = V160001,
+        weight = V160101,
+        dem_therm = V161095,
+        age = V161267,
+        educ_raw = V161270,
+        gender_raw = V161342,
+        race_raw = V161310x,
+        relig_raw = V161265x
+    ) %>%
+    # Filtrar casos con peso válido y outcome válido (0-100)
+    filter(weight > 0, dem_therm >= 0, dem_therm <= 100)
 
 clean_df <- anes_subset %>%
-  mutate(
-    # Outcome: Asegurar numérico para análisis espacial
-    y = as.numeric(dem_therm),
-    
-    # Age: Códigos negativos son missing
-    age = if_else(age < 0, NA_real_, as.numeric(age)),
-    
-    # Gender: 1=Male, 2=Female
-    female = case_when(
-      gender_raw == 2 ~ 1,
-      gender_raw == 1 ~ 0,
-      TRUE ~ NA_real_
-    ),
-    
-    # Education: Tratamos como escala numérica simple
-    educ = if_else(educ_raw < 0, NA_real_, as.numeric(educ_raw)),
-    
-    # Variables Categóricas (Dummies para Tabla 2)
-    # Race Ref: White (1)
-    race_white_dummy = if_else(race_raw == 1, 1, 0),
-    race_black = if_else(race_raw == 2, 1, 0),
-    race_asian = if_else(race_raw == 3, 1, 0), # Asian/Pac Islr
-    race_native = if_else(race_raw == 4, 1, 0),
-    race_hispanic = if_else(race_raw == 5, 1, 0),
-    race_other = if_else(race_raw == 6, 1, 0),
-    
-    # Religion Ref: Protestant (1, 2, 3)
-    # 1=Mainline, 2=Evangelical, 3=Black Prot
-    relig_protestant_dummy = if_else(relig_raw %in% c(1, 2, 3), 1, 0),
-    relig_catholic = if_else(relig_raw == 4, 1, 0),
-    relig_jewish = if_else(relig_raw == 6, 1, 0),
-    relig_none = if_else(relig_raw == 8, 1, 0), # Not religious
-    relig_other = if_else(relig_raw %in% c(5, 7), 1, 0)
-  )
+    mutate(
+        # Outcome: Asegurar numérico para análisis espacial
+        y = as.numeric(dem_therm),
+
+        # Age: Códigos negativos son missing
+        age = if_else(age < 0, NA_real_, as.numeric(age)),
+
+        # Gender: 1=Male, 2=Female
+        female = case_when(
+            gender_raw == 2 ~ 1,
+            gender_raw == 1 ~ 0,
+            TRUE ~ NA_real_
+        ),
+
+        # Education: Tratamos como escala numérica simple
+        educ = if_else(educ_raw < 0, NA_real_, as.numeric(educ_raw)),
+
+        # Variables Categóricas (Dummies para Tabla 2)
+        # Race Ref: White (1)
+        race_white_dummy = if_else(race_raw == 1, 1, 0),
+        race_black = if_else(race_raw == 2, 1, 0),
+        race_asian = if_else(race_raw == 3, 1, 0), # Asian/Pac Islr
+        race_native = if_else(race_raw == 4, 1, 0),
+        race_hispanic = if_else(race_raw == 5, 1, 0),
+        race_other = if_else(race_raw == 6, 1, 0),
+
+        # Religion Ref: Protestant (1, 2, 3)
+        # 1=Mainline, 2=Evangelical, 3=Black Prot
+        relig_protestant_dummy = if_else(relig_raw %in% c(1, 2, 3), 1, 0),
+        relig_catholic = if_else(relig_raw == 4, 1, 0),
+        relig_jewish = if_else(relig_raw == 6, 1, 0),
+        relig_none = if_else(relig_raw == 8, 1, 0), # Not religious
+        relig_other = if_else(relig_raw %in% c(5, 7), 1, 0)
+    )
 
 # Filtrar casos completos
 final_df <- clean_df %>%
-  haven::zap_labels() %>% # Eliminar etiquetas para evitar problemas de tipo (haven_labelled)
-  filter(
-    !is.na(y), !is.na(age), !is.na(educ), !is.na(female),
-    !is.na(race_raw), !is.na(relig_raw)
-  ) %>%
-  as.data.frame() # Importante para compatibilidad con spdep
+    haven::zap_labels() %>% # Eliminar etiquetas para evitar problemas de tipo (haven_labelled)
+    filter(
+        !is.na(y), !is.na(age), !is.na(educ), !is.na(female),
+        !is.na(race_raw), !is.na(relig_raw)
+    ) %>%
+    as.data.frame() # Importante para compatibilidad con spdep
 
 cat("N Final analítico:", nrow(final_df), "\n")
 ```

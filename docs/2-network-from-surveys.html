@@ -4173,9 +4173,12 @@ window.Quarto = {
 \]</span></p>
 <p>Dado que el intercepto <span class="math inline">\(\alpha\)</span> no es interpretable como densidad real bajo <em>case-control</em>, trabajamos con <strong>probabilidades relativas</strong> de lazo, definiendo un peso:</p>
 <p><span class="math display">\[
-w_{ij} \propto \exp\!\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right).
+w_{ij} \propto \exp\!\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right), \quad (\text{con } w_{ii} = 0),
 \]</span></p>
-<p>que inducen una distribución sobre potenciales alters <span class="math inline">\(j\)</span> que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos <span class="math inline">\(W\)</span> que representa “vecindad social” imputada (no geográfica), y luego calculamos el término contextual:</p>
+<p>que inducen una distribución sobre potenciales alters <span class="math inline">\(j\)</span> que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos <span class="math inline">\(W\)</span> que representa “vecindad social” imputada (no geográfica), <span class="math display">\[
+W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}},
+\]</span></p>
+<p>y luego calculamos el término contextual:</p>
 <p><span class="math display">\[
 (Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,
 \]</span></p>
@@ -4211,7 +4214,7 @@ y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
 <pre><code>Datos ANES cargados. N = 4045 </code></pre>
 </div>
 </div>
-<p>Construimos una matriz de pesos espaciales <span class="math inline">\(W\)</span> basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación <em>k-nearest</em> (k=50) en probabilidad.</p>
+<p>Construimos una matriz de pesos espaciales <span class="math inline">\(W\)</span> basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación <em>k-nearest</em> (k=100) en probabilidad.</p>
 <div class="cell">
 <details open class="code-fold">
 <summary>Código</summary>
@@ -4232,36 +4235,49 @@ y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Betas de Homofilia (Smith &amp; McPherson 2014-like)</span></span>
 <span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>betas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">race =</span> <span class="sc">-</span><span class="fl">1.9</span>, <span class="at">relig =</span> <span class="sc">-</span><span class="fl">1.4</span>, <span class="at">sex =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">age =</span> <span class="sc">-</span><span class="fl">0.05</span>, <span class="at">educ =</span> <span class="sc">-</span><span class="fl">0.15</span>)</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictor Lineal (Log-odds)</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>eta <span class="ot">&lt;-</span> betas[<span class="st">&quot;age&quot;</span>] <span class="sc">*</span> D_age <span class="sc">+</span> betas[<span class="st">&quot;educ&quot;</span>] <span class="sc">*</span> D_educ <span class="sc">+</span> betas[<span class="st">&quot;sex&quot;</span>] <span class="sc">*</span> D_sex <span class="sc">+</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    betas[<span class="st">&quot;race&quot;</span>] <span class="sc">*</span> D_race <span class="sc">+</span> betas[<span class="st">&quot;relig&quot;</span>] <span class="sc">*</span> D_relig</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Pesos (Probabilidad relativa)</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta)</span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(S) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Sparsify: Top K=50 vecinos</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(final_df)</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>neighbors <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, N)</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Estrategia matriz densa para selección (viable para N=4000)</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    row_vals <span class="ot">&lt;-</span> S[i, ]</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    neighbors[[i]] <span class="ot">&lt;-</span> <span class="fu">order</span>(row_vals, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span>k]</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(neighbors) <span class="ot">&lt;-</span> <span class="st">&quot;nb&quot;</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;region.id&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span>N)</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;call&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">match.call</span>()</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Hacemos lista de pesos row-standardized</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>W_listw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(neighbors, <span class="at">style =</span> <span class="st">&quot;W&quot;</span>)</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Matriz W construida (k=50).</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calcular Distancias (Blau Space)</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>D_age <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_age, X_age, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>D_educ <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_educ, X_educ, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>D_sex <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_sex, X_sex, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>D_race <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_race, X_race, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>D_relig <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_relig, X_relig, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Predictor Lineal (Log-odds)</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>eta <span class="ot">&lt;-</span> betas[<span class="st">&quot;age&quot;</span>] <span class="sc">*</span> D_age <span class="sc">+</span> betas[<span class="st">&quot;educ&quot;</span>] <span class="sc">*</span> D_educ <span class="sc">+</span> betas[<span class="st">&quot;sex&quot;</span>] <span class="sc">*</span> D_sex <span class="sc">+</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    betas[<span class="st">&quot;race&quot;</span>] <span class="sc">*</span> D_race <span class="sc">+</span> betas[<span class="st">&quot;relig&quot;</span>] <span class="sc">*</span> D_relig</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Pesos Crudos (Probabilidad relativa)</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>w_raw <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta)</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(w_raw) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Selección Top-K (K=100) con PESOS (No Uniforme)</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(final_df)</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>neighbors <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, N)</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>weights_list <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, N)</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionando Top-K vecinos y extrayendo pesos reales</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ordenar j por peso descendente (indices)</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>    row_w <span class="ot">&lt;-</span> w_raw[i, ]</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>    ord <span class="ot">&lt;-</span> <span class="fu">order</span>(row_w, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    candidates <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(ord, i)</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Seleccionar Top K</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    top_k_indices <span class="ot">&lt;-</span> candidates[<span class="dv">1</span><span class="sc">:</span>K]</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    top_k_weights <span class="ot">&lt;-</span> row_w[top_k_indices]</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    neighbors[[i]] <span class="ot">&lt;-</span> top_k_indices</span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    weights_list[[i]] <span class="ot">&lt;-</span> top_k_weights</span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(neighbors) <span class="ot">&lt;-</span> <span class="st">&quot;nb&quot;</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;region.id&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span>N)</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;call&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">match.call</span>()</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Crear Objeto W (Normalizado por fila)</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>W_listw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(neighbors, <span class="at">glist =</span> weights_list, <span class="at">style =</span> <span class="st">&quot;W&quot;</span>, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Matriz W construida (k=50).</code></pre>
-</div>
 </div>
 </section>
 <section id="modelos-de-regresión" class="level3">
@@ -4274,39 +4290,36 @@ y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
 <p><span class="math display">\[ y = \rho W y + X \beta + \epsilon \]</span></p>
 <details open class="code-fold">
 <summary>Código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula Base</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Usamos dummies explícitas creadas en limpieza</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>fmla_base <span class="ot">&lt;-</span> y <span class="sc">~</span> age <span class="sc">+</span> educ <span class="sc">+</span> female <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    race_black <span class="sc">+</span> race_hispanic <span class="sc">+</span> race_asian <span class="sc">+</span> race_native <span class="sc">+</span> race_other <span class="sc">+</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    relig_catholic <span class="sc">+</span> relig_jewish <span class="sc">+</span> relig_none <span class="sc">+</span> relig_other</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 1: OLS</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_base, <span class="at">data =</span> final_df)</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Nota: Usamos aproximación OLS (y ~ Wy + X) para estabilidad en el workshop.</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>Wy <span class="ot">&lt;-</span> <span class="fu">lag.listw</span>(W_listw, final_df<span class="sc">$</span>y)</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>final_df<span class="sc">$</span>Wy <span class="ot">&lt;-</span> Wy</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>fmla_lag <span class="ot">&lt;-</span> <span class="fu">update</span>(fmla_base, <span class="sc">~</span> . <span class="sc">+</span> Wy)</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>m2_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_lag, <span class="at">data =</span> final_df)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados con Stargazer</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(m1, m2_ols,</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Modelos de Regresión: Simpatía Demócrata (ANES 2016)&quot;</span>,</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo Base&quot;</span>, <span class="st">&quot;Modelo Contextual&quot;</span>),</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">dep.var.labels =</span> <span class="st">&quot;Democrat Thermometer (0-100)&quot;</span>,</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">star.cutoffs =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.001</span>),</span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">keep.stat =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;rsq&quot;</span>, <span class="st">&quot;adj.rsq&quot;</span>, <span class="st">&quot;f&quot;</span>),</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">no.space =</span> <span class="cn">TRUE</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula Base</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Usamos dummies explícitas creadas en limpieza</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>fmla_base <span class="ot">&lt;-</span> y <span class="sc">~</span> age <span class="sc">+</span> educ <span class="sc">+</span> female <span class="sc">+</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    race_black <span class="sc">+</span> race_hispanic <span class="sc">+</span> race_asian <span class="sc">+</span> race_native <span class="sc">+</span> race_other <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    relig_catholic <span class="sc">+</span> relig_jewish <span class="sc">+</span> relig_none <span class="sc">+</span> relig_other</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 1: OLS</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_base, <span class="at">data =</span> final_df)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 2: Lag Espacial (OLS para estabilidad)</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>Wy <span class="ot">&lt;-</span> <span class="fu">lag.listw</span>(W_listw, final_df<span class="sc">$</span>y)</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>final_df<span class="sc">$</span>Wy <span class="ot">&lt;-</span> Wy</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>fmla_lag <span class="ot">&lt;-</span> <span class="fu">update</span>(fmla_base, <span class="sc">~</span> . <span class="sc">+</span> Wy)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>m2_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_lag, <span class="at">data =</span> final_df)</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados con Stargazer</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(m1, m2_ols,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo Base&quot;</span>, <span class="st">&quot;Modelo Contextual&quot;</span>),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">dep.var.labels =</span> <span class="st">&quot;Democrat Thermometer (0-100)&quot;</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">star.cutoffs =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.001</span>),</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">keep.stat =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;rsq&quot;</span>),</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">report =</span> <span class="st">&quot;vc*&quot;</span>, <span class="co"># Solo coeficientes y estrellas</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">omit.table.layout =</span> <span class="st">&quot;n&quot;</span>, <span class="co"># Compacto</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">no.space =</span> <span class="cn">TRUE</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <table style="text-align:center">
-<caption>
-<strong>Modelos de Regresión: Simpatía Demócrata (ANES 2016)</strong>
-</caption>
 <tbody><tr>
 <td colspan="3" style="border-bottom: 1px solid black">
 </td>
@@ -4363,17 +4376,7 @@ age
 -0.007
 </td>
 <td>
-0.007
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.026)
-</td>
-<td>
-(0.026)
+0.010
 </td>
 </tr>
 <tr>
@@ -4384,17 +4387,7 @@ educ
 0.025
 </td>
 <td>
--0.012
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.062)
-</td>
-<td>
-(0.062)
+0.042
 </td>
 </tr>
 <tr>
@@ -4405,17 +4398,7 @@ female
 6.588<sup>***</sup>
 </td>
 <td>
-4.744<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(0.883)
-</td>
-<td>
-(0.911)
+4.676<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4426,17 +4409,7 @@ race_black
 32.644<sup>***</sup>
 </td>
 <td>
-13.459<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.540)
-</td>
-<td>
-(2.988)
+9.344<sup>**</sup>
 </td>
 </tr>
 <tr>
@@ -4447,17 +4420,7 @@ race_hispanic
 16.222<sup>***</sup>
 </td>
 <td>
-6.875<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.514)
-</td>
-<td>
-(1.956)
+4.816<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -4468,17 +4431,7 @@ race_asian
 10.047<sup>***</sup>
 </td>
 <td>
-4.779
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(2.472)
-</td>
-<td>
-(2.554)
+3.775
 </td>
 </tr>
 <tr>
@@ -4489,17 +4442,7 @@ race_native
 14.082<sup>*</sup>
 </td>
 <td>
-9.773
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(5.980)
-</td>
-<td>
-(5.968)
+9.132
 </td>
 </tr>
 <tr>
@@ -4510,17 +4453,7 @@ race_other
 7.895<sup>***</sup>
 </td>
 <td>
-3.902
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(2.266)
-</td>
-<td>
-(2.313)
+3.032
 </td>
 </tr>
 <tr>
@@ -4531,17 +4464,7 @@ relig_catholic
 5.811<sup>***</sup>
 </td>
 <td>
-2.711<sup>*</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.243)
-</td>
-<td>
-(1.302)
+1.844
 </td>
 </tr>
 <tr>
@@ -4552,17 +4475,7 @@ relig_jewish
 16.287<sup>***</sup>
 </td>
 <td>
-7.210<sup>*</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(3.241)
-</td>
-<td>
-(3.440)
+7.110<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -4573,17 +4486,7 @@ relig_none
 9.996<sup>***</sup>
 </td>
 <td>
-3.805<sup>*</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.262)
-</td>
-<td>
-(1.502)
+2.333
 </td>
 </tr>
 <tr>
@@ -4594,17 +4497,7 @@ relig_other
 -0.357
 </td>
 <td>
--0.497
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.233)
-</td>
-<td>
-(1.225)
+-0.574
 </td>
 </tr>
 <tr>
@@ -4614,16 +4507,7 @@ Wy
 <td>
 </td>
 <td>
-0.581<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-</td>
-<td>
-(0.078)
+0.715<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4634,17 +4518,7 @@ Constant
 35.739<sup>***</sup>
 </td>
 <td>
-13.947<sup>***</sup>
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-</td>
-<td>
-(1.810)
-</td>
-<td>
-(3.426)
+8.103<sup>*</sup>
 </td>
 </tr>
 <tr>
@@ -4670,54 +4544,26 @@ R<sup>2</sup>
 0.142
 </td>
 <td>
-0.153
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-Adjusted R<sup>2</sup>
-</td>
-<td>
-0.139
-</td>
-<td>
-0.151
-</td>
-</tr>
-<tr>
-<td style="text-align:left">
-F Statistic
-</td>
-<td>
-55.452<sup>***</sup> (df = 12; 4032)
-</td>
-<td>
-56.180<sup>***</sup> (df = 13; 4031)
+0.156
 </td>
 </tr>
 <tr>
 <td colspan="3" style="border-bottom: 1px solid black">
 </td>
 </tr>
-<tr>
-<td style="text-align:left">
-<em>Note:</em>
-</td>
-<td colspan="2" style="text-align:right">
-<sup><em></em></sup><em>p&lt;0.05; <sup><strong></strong></sup><strong>p&lt;0.01; <sup></sup></strong></em>p&lt;0.001
-</td>
-</tr>
 </tbody></table>
 </section>
 <section id="discusión-de-resultados" class="level3">
 <h3 class="anchored" data-anchor-id="discusión-de-resultados">2.3. Discusión de Resultados</h3>
-<p><strong>Comparación de Coeficientes:</strong></p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>--- Comparación de Efectos ---</code></pre>
+<pre><code>--- Término Contextual ---</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Spatial Rho (Contexto): 0.581</code></pre>
+<pre><code>Spatial Rho (Contexto Social): 0.715</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>--- Comparación de Efectos ---</code></pre>
 </div>
 <div class="cell-output-display">
 <table class="caption-top table table-sm table-striped small">
@@ -4745,42 +4591,46 @@ F Statistic
 <td style="text-align: left;">race_black</td>
 <td style="text-align: left;">Black</td>
 <td style="text-align: right;">32.64</td>
-<td style="text-align: right;">13.46</td>
-<td style="text-align: right;">19.18</td>
-<td style="text-align: right;">58.77</td>
+<td style="text-align: right;">9.34</td>
+<td style="text-align: right;">23.30</td>
+<td style="text-align: right;">71.38</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">race_hispanic</td>
 <td style="text-align: left;">Hispanic</td>
 <td style="text-align: right;">16.22</td>
-<td style="text-align: right;">6.87</td>
-<td style="text-align: right;">9.35</td>
-<td style="text-align: right;">57.62</td>
+<td style="text-align: right;">4.82</td>
+<td style="text-align: right;">11.41</td>
+<td style="text-align: right;">70.31</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">relig_catholic</td>
 <td style="text-align: left;">Catholic</td>
 <td style="text-align: right;">5.81</td>
-<td style="text-align: right;">2.71</td>
-<td style="text-align: right;">3.10</td>
-<td style="text-align: right;">53.35</td>
+<td style="text-align: right;">1.84</td>
+<td style="text-align: right;">3.97</td>
+<td style="text-align: right;">68.26</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">female</td>
 <td style="text-align: left;">Female</td>
 <td style="text-align: right;">6.59</td>
-<td style="text-align: right;">4.74</td>
-<td style="text-align: right;">1.84</td>
-<td style="text-align: right;">27.99</td>
+<td style="text-align: right;">4.68</td>
+<td style="text-align: right;">1.91</td>
+<td style="text-align: right;">29.01</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>El patrón general es que, al pasar del Modelo 1 (solo demografía) al Modelo 2 (demografía + término espacial de “contexto social” imputado), muchos coeficientes demográficos se reducen en magnitud. La lectura sustantiva que proponen es directa: parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos (en el sentido de qué tipo de opiniones políticas es más probable que los rodeen dadas sus ubicaciones en el espacio de Blau).</p>
-<p>El paper ilustra esto con ejemplos numéricos. Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes. En términos de raza/etnicidad, enfatizan que el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. También observan que el coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. La conclusión interpretativa es que una fracción apreciable de las brechas demográficas en simpatía por el Partido Demócrata puede entenderse como diferencias en el “mundo social” probable en que se ubican los encuestados, más que como un efecto puramente individual/demográfico.</p>
-<p>Luego viene el punto central: el término espacial (el contexto social imputado) es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía. Además, subrayan que el tamaño del efecto es grande: dan un ejemplo comparando dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.</p>
-<p>Finalmente, rematan con una idea sociológica fuerte: individuos que viven en mundos sociales muy distintos pueden terminar con alineamientos políticos muy diferentes, y ese mecanismo contextual puede “superar” (en magnitud sustantiva) algunas diferencias estrictamente demográficas cuando se intenta explicar simpatías partidarias.</p>
+<p>Parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos.</p>
+<ul>
+<li><p>El término de contexto social es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.</p></li>
+<li><p>Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes.</p></li>
+<li><p>En términos de raza/etnicidad, el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto.</p></li>
+<li><p>El coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos.</p></li>
+</ul>
+<p>Podemos comparar dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y ver cómo eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.</p>
 </section>
 </section>
 <section id="parte-b-simulación-de-redes-completas-ergm" class="level2">
@@ -5314,225 +5164,250 @@ F Statistic
 <span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>Dado que el intercepto $\alpha$ no es interpretable como densidad real bajo *case-control*, trabajamos con **probabilidades relativas** de lazo, definiendo un peso:</span>
 <span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>w_{ij} \propto \exp<span class="sc">\!</span>\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right).</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>w_{ij} \propto \exp<span class="sc">\!</span>\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right), \quad (\text{con } w_{ii} = 0),</span>
 <span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>que inducen una distribución sobre potenciales alters $j$ que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos $W$ que representa “vecindad social” imputada (no geográfica), y luego calculamos el término contextual:</span>
-<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>(Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,</span>
-<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>donde $y_j$ es la variable de interés del individuo $j$. Intuitivamente, $(Wy)_i$ es una medida de “clima actitudinal” alrededor de $i$.</span>
-<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Parte A: Replicación ANES 2016 (Democrat Scale)</span></span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey), que **no** tiene EGO-net. Imputaremos contexto social y evaluarémos si mejora la explicación de *Democrat Scale* (grado de simpatía/afinidad hacia el Partido Demócrata, reportado por McPherson &amp; Smith) más allá de la demografía. Estimaremos dos modelos:</span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>**Modelo 1:** (demografía)</span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>y_i = \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,</span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a>donde $\mathbf{x}_i$ incluye edad, educación, género, dummies de raza/etnicidad y religión.</span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>**Modelo 2:** (demografía + contexto social imputado)</span>
-<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,</span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>donde $\rho$ captura la asociación entre el outcome individual y el clima actitudinal del entorno social imputado.</span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>El foco interpretativo será (i) si $\rho&gt;0$ y es estadísticamente distinguible de cero, y (ii) si la inclusión de $(Wy)_i$ reduce la magnitud de varios coeficientes demográficos, coherente con la lectura “contextual” discutida para Democrat Scale.</span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.1. Construcción de Pesos (W)</span></span>
-<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a>Cargamos datos limpios de la ANES 2016 (preparados en <span class="in">`anes-cleaning.qmd`</span>).</span>
-<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load-anes</span></span>
-<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
-<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatialreg)</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>que inducen una distribución sobre potenciales alters $j$ que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos $W$ que representa “vecindad social” imputada (no geográfica),</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}},</span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>y luego calculamos el término contextual:</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>(Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>donde $y_j$ es la variable de interés del individuo $j$. Intuitivamente, $(Wy)_i$ es una medida de “clima actitudinal” alrededor de $i$.</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Parte A: Replicación ANES 2016 (Democrat Scale)</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a>Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey), que **no** tiene EGO-net. Imputaremos contexto social y evaluarémos si mejora la explicación de *Democrat Scale* (grado de simpatía/afinidad hacia el Partido Demócrata, reportado por McPherson &amp; Smith) más allá de la demografía. Estimaremos dos modelos:</span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a>**Modelo 1:** (demografía)</span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>y_i = \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a>donde $\mathbf{x}_i$ incluye edad, educación, género, dummies de raza/etnicidad y religión.</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>**Modelo 2:** (demografía + contexto social imputado)</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a>y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,</span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a>donde $\rho$ captura la asociación entre el outcome individual y el clima actitudinal del entorno social imputado.</span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a>El foco interpretativo será (i) si $\rho&gt;0$ y es estadísticamente distinguible de cero, y (ii) si la inclusión de $(Wy)_i$ reduce la magnitud de varios coeficientes demográficos, coherente con la lectura “contextual” discutida para Democrat Scale.</span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.1. Construcción de Pesos (W)</span></span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a>Cargamos datos limpios de la ANES 2016 (preparados en <span class="in">`anes-cleaning.qmd`</span>).</span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: load-anes</span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
 <span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar datos limpios</span></span>
-<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a>final_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/anes_2016_derived/anes_clean.rds&quot;</span>)</span>
-<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Datos ANES cargados. N =&quot;</span>, <span class="fu">nrow</span>(final_df), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spdep)</span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatialreg)</span>
 <span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a>Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación *k-nearest* (k=50) en probabilidad.</span>
-<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: construct-w</span></span>
-<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a><span class="co"># Demográficos</span></span>
-<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a>X_age <span class="ot">&lt;-</span> final_df<span class="sc">$</span>age</span>
-<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a>X_educ <span class="ot">&lt;-</span> final_df<span class="sc">$</span>educ</span>
-<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>X_sex <span class="ot">&lt;-</span> final_df<span class="sc">$</span>female</span>
-<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a>X_race <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(final_df<span class="sc">$</span>race_raw)</span>
-<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a>X_relig <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(final_df<span class="sc">$</span>relig_raw)</span>
-<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculamos distancias</span></span>
-<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>D_age <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_age, X_age, <span class="st">&quot;-&quot;</span>))</span>
-<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>D_educ <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_educ, X_educ, <span class="st">&quot;-&quot;</span>))</span>
-<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>D_sex <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_sex, X_sex, <span class="st">&quot;-&quot;</span>))</span>
-<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>D_race <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_race, X_race, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>))</span>
-<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>D_relig <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_relig, X_relig, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="co"># Mismatch</span></span>
-<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a><span class="co"># Betas de Homofilia (Smith &amp; McPherson 2014-like)</span></span>
-<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>betas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">race =</span> <span class="sc">-</span><span class="fl">1.9</span>, <span class="at">relig =</span> <span class="sc">-</span><span class="fl">1.4</span>, <span class="at">sex =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">age =</span> <span class="sc">-</span><span class="fl">0.05</span>, <span class="at">educ =</span> <span class="sc">-</span><span class="fl">0.15</span>)</span>
-<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictor Lineal (Log-odds)</span></span>
-<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a>eta <span class="ot">&lt;-</span> betas[<span class="st">&quot;age&quot;</span>] <span class="sc">*</span> D_age <span class="sc">+</span> betas[<span class="st">&quot;educ&quot;</span>] <span class="sc">*</span> D_educ <span class="sc">+</span> betas[<span class="st">&quot;sex&quot;</span>] <span class="sc">*</span> D_sex <span class="sc">+</span></span>
-<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a>    betas[<span class="st">&quot;race&quot;</span>] <span class="sc">*</span> D_race <span class="sc">+</span> betas[<span class="st">&quot;relig&quot;</span>] <span class="sc">*</span> D_relig</span>
-<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a><span class="co"># Pesos (Probabilidad relativa)</span></span>
-<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a>S <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta)</span>
-<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(S) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a><span class="co"># Sparsify: Top K=50 vecinos</span></span>
-<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(final_df)</span>
-<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">50</span></span>
-<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a>neighbors <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, N)</span>
-<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a><span class="co"># Estrategia matriz densa para selección (viable para N=4000)</span></span>
-<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
-<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a>    row_vals <span class="ot">&lt;-</span> S[i, ]</span>
-<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a>    neighbors[[i]] <span class="ot">&lt;-</span> <span class="fu">order</span>(row_vals, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span>k]</span>
-<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(neighbors) <span class="ot">&lt;-</span> <span class="st">&quot;nb&quot;</span></span>
-<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;region.id&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span>N)</span>
-<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;call&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">match.call</span>()</span>
-<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a><span class="co"># Hacemos lista de pesos row-standardized</span></span>
-<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>W_listw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(neighbors, <span class="at">style =</span> <span class="st">&quot;W&quot;</span>)</span>
-<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Matriz W construida (k=50).</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.2. Modelos de Regresión</span></span>
-<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>Estimamos dos modelos para explicar la simpatía por el Partido Demócrata ($Y$):</span>
-<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Modelo 1 (Base):** Solo predictores demográficos ($X$).</span>
-<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Modelo 2 (Contexto):** Demografía + Lag Espacial ($W y$).</span>
-<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a>$$ y = \rho W y + X \beta + \epsilon $$</span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar datos limpios</span></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a>final_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/anes_2016_derived/anes_clean.rds&quot;</span>)</span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Datos ANES cargados. N =&quot;</span>, <span class="fu">nrow</span>(final_df), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a>Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfica. Para eficiencia computacional, utilizamos una aproximación *k-nearest* (k=100) en probabilidad.</span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: construct-w</span></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a><span class="co"># Demográficos</span></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a>X_age <span class="ot">&lt;-</span> final_df<span class="sc">$</span>age</span>
+<span id="cb10-107"><a href="#cb10-107" aria-hidden="true" tabindex="-1"></a>X_educ <span class="ot">&lt;-</span> final_df<span class="sc">$</span>educ</span>
+<span id="cb10-108"><a href="#cb10-108" aria-hidden="true" tabindex="-1"></a>X_sex <span class="ot">&lt;-</span> final_df<span class="sc">$</span>female</span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a>X_race <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(final_df<span class="sc">$</span>race_raw)</span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>X_relig <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(final_df<span class="sc">$</span>relig_raw)</span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculamos distancias</span></span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a>D_age <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_age, X_age, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb10-114"><a href="#cb10-114" aria-hidden="true" tabindex="-1"></a>D_educ <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_educ, X_educ, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb10-115"><a href="#cb10-115" aria-hidden="true" tabindex="-1"></a>D_sex <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_sex, X_sex, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb10-116"><a href="#cb10-116" aria-hidden="true" tabindex="-1"></a>D_race <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_race, X_race, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb10-117"><a href="#cb10-117" aria-hidden="true" tabindex="-1"></a>D_relig <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_relig, X_relig, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>)) <span class="co"># Mismatch</span></span>
+<span id="cb10-118"><a href="#cb10-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-119"><a href="#cb10-119" aria-hidden="true" tabindex="-1"></a><span class="co"># Betas de Homofilia (Smith &amp; McPherson 2014-like)</span></span>
+<span id="cb10-120"><a href="#cb10-120" aria-hidden="true" tabindex="-1"></a>betas <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">race =</span> <span class="sc">-</span><span class="fl">1.9</span>, <span class="at">relig =</span> <span class="sc">-</span><span class="fl">1.4</span>, <span class="at">sex =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">age =</span> <span class="sc">-</span><span class="fl">0.05</span>, <span class="at">educ =</span> <span class="sc">-</span><span class="fl">0.15</span>)</span>
+<span id="cb10-121"><a href="#cb10-121" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-122"><a href="#cb10-122" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Calcular Distancias (Blau Space)</span></span>
+<span id="cb10-123"><a href="#cb10-123" aria-hidden="true" tabindex="-1"></a>D_age <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_age, X_age, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb10-124"><a href="#cb10-124" aria-hidden="true" tabindex="-1"></a>D_educ <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_educ, X_educ, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb10-125"><a href="#cb10-125" aria-hidden="true" tabindex="-1"></a>D_sex <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">outer</span>(X_sex, X_sex, <span class="st">&quot;-&quot;</span>))</span>
+<span id="cb10-126"><a href="#cb10-126" aria-hidden="true" tabindex="-1"></a>D_race <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_race, X_race, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb10-127"><a href="#cb10-127" aria-hidden="true" tabindex="-1"></a>D_relig <span class="ot">&lt;-</span> <span class="fu">outer</span>(X_relig, X_relig, <span class="cf">function</span>(x, y) <span class="fu">ifelse</span>(x <span class="sc">!=</span> y, <span class="dv">1</span>, <span class="dv">0</span>))</span>
+<span id="cb10-128"><a href="#cb10-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-129"><a href="#cb10-129" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Predictor Lineal (Log-odds)</span></span>
+<span id="cb10-130"><a href="#cb10-130" aria-hidden="true" tabindex="-1"></a>eta <span class="ot">&lt;-</span> betas[<span class="st">&quot;age&quot;</span>] <span class="sc">*</span> D_age <span class="sc">+</span> betas[<span class="st">&quot;educ&quot;</span>] <span class="sc">*</span> D_educ <span class="sc">+</span> betas[<span class="st">&quot;sex&quot;</span>] <span class="sc">*</span> D_sex <span class="sc">+</span></span>
+<span id="cb10-131"><a href="#cb10-131" aria-hidden="true" tabindex="-1"></a>    betas[<span class="st">&quot;race&quot;</span>] <span class="sc">*</span> D_race <span class="sc">+</span> betas[<span class="st">&quot;relig&quot;</span>] <span class="sc">*</span> D_relig</span>
+<span id="cb10-132"><a href="#cb10-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-133"><a href="#cb10-133" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Pesos Crudos (Probabilidad relativa)</span></span>
+<span id="cb10-134"><a href="#cb10-134" aria-hidden="true" tabindex="-1"></a>w_raw <span class="ot">&lt;-</span> <span class="fu">exp</span>(eta)</span>
+<span id="cb10-135"><a href="#cb10-135" aria-hidden="true" tabindex="-1"></a><span class="fu">diag</span>(w_raw) <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb10-136"><a href="#cb10-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-137"><a href="#cb10-137" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Selección Top-K (K=100) con PESOS (No Uniforme)</span></span>
+<span id="cb10-138"><a href="#cb10-138" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">nrow</span>(final_df)</span>
+<span id="cb10-139"><a href="#cb10-139" aria-hidden="true" tabindex="-1"></a>K <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb10-140"><a href="#cb10-140" aria-hidden="true" tabindex="-1"></a>neighbors <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, N)</span>
+<span id="cb10-141"><a href="#cb10-141" aria-hidden="true" tabindex="-1"></a>weights_list <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="st">&quot;list&quot;</span>, N)</span>
+<span id="cb10-142"><a href="#cb10-142" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-143"><a href="#cb10-143" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionando Top-K vecinos y extrayendo pesos reales</span></span>
+<span id="cb10-144"><a href="#cb10-144" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb10-145"><a href="#cb10-145" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ordenar j por peso descendente (indices)</span></span>
+<span id="cb10-146"><a href="#cb10-146" aria-hidden="true" tabindex="-1"></a>    row_w <span class="ot">&lt;-</span> w_raw[i, ]</span>
+<span id="cb10-147"><a href="#cb10-147" aria-hidden="true" tabindex="-1"></a>    ord <span class="ot">&lt;-</span> <span class="fu">order</span>(row_w, <span class="at">decreasing =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-148"><a href="#cb10-148" aria-hidden="true" tabindex="-1"></a>    candidates <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(ord, i)</span>
+<span id="cb10-149"><a href="#cb10-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-150"><a href="#cb10-150" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Seleccionar Top K</span></span>
+<span id="cb10-151"><a href="#cb10-151" aria-hidden="true" tabindex="-1"></a>    top_k_indices <span class="ot">&lt;-</span> candidates[<span class="dv">1</span><span class="sc">:</span>K]</span>
+<span id="cb10-152"><a href="#cb10-152" aria-hidden="true" tabindex="-1"></a>    top_k_weights <span class="ot">&lt;-</span> row_w[top_k_indices]</span>
 <span id="cb10-153"><a href="#cb10-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: estimate-models</span></span>
-<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: asis</span></span>
-<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span>
-<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula Base</span></span>
-<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="co"># Usamos dummies explícitas creadas en limpieza</span></span>
-<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a>fmla_base <span class="ot">&lt;-</span> y <span class="sc">~</span> age <span class="sc">+</span> educ <span class="sc">+</span> female <span class="sc">+</span></span>
-<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a>    race_black <span class="sc">+</span> race_hispanic <span class="sc">+</span> race_asian <span class="sc">+</span> race_native <span class="sc">+</span> race_other <span class="sc">+</span></span>
-<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a>    relig_catholic <span class="sc">+</span> relig_jewish <span class="sc">+</span> relig_none <span class="sc">+</span> relig_other</span>
-<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 1: OLS</span></span>
-<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_base, <span class="at">data =</span> final_df)</span>
-<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)</span></span>
-<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a><span class="co"># Nota: Usamos aproximación OLS (y ~ Wy + X) para estabilidad en el workshop.</span></span>
-<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a>Wy <span class="ot">&lt;-</span> <span class="fu">lag.listw</span>(W_listw, final_df<span class="sc">$</span>y)</span>
-<span id="cb10-175"><a href="#cb10-175" aria-hidden="true" tabindex="-1"></a>final_df<span class="sc">$</span>Wy <span class="ot">&lt;-</span> Wy</span>
-<span id="cb10-176"><a href="#cb10-176" aria-hidden="true" tabindex="-1"></a>fmla_lag <span class="ot">&lt;-</span> <span class="fu">update</span>(fmla_base, <span class="sc">~</span> . <span class="sc">+</span> Wy)</span>
-<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a>m2_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_lag, <span class="at">data =</span> final_df)</span>
-<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados con Stargazer</span></span>
-<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(m1, m2_ols,</span>
-<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
-<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">&quot;Modelos de Regresión: Simpatía Demócrata (ANES 2016)&quot;</span>,</span>
-<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a>    <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo Base&quot;</span>, <span class="st">&quot;Modelo Contextual&quot;</span>),</span>
-<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a>    <span class="at">dep.var.labels =</span> <span class="st">&quot;Democrat Thermometer (0-100)&quot;</span>,</span>
-<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a>    <span class="at">star.cutoffs =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.001</span>),</span>
-<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>    <span class="at">keep.stat =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;rsq&quot;</span>, <span class="st">&quot;adj.rsq&quot;</span>, <span class="st">&quot;f&quot;</span>),</span>
-<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a>    <span class="at">no.space =</span> <span class="cn">TRUE</span></span>
-<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.3. Discusión de Resultados</span></span>
+<span id="cb10-154"><a href="#cb10-154" aria-hidden="true" tabindex="-1"></a>    neighbors[[i]] <span class="ot">&lt;-</span> top_k_indices</span>
+<span id="cb10-155"><a href="#cb10-155" aria-hidden="true" tabindex="-1"></a>    weights_list[[i]] <span class="ot">&lt;-</span> top_k_weights</span>
+<span id="cb10-156"><a href="#cb10-156" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-157"><a href="#cb10-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-158"><a href="#cb10-158" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(neighbors) <span class="ot">&lt;-</span> <span class="st">&quot;nb&quot;</span></span>
+<span id="cb10-159"><a href="#cb10-159" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;region.id&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">as.character</span>(<span class="dv">1</span><span class="sc">:</span>N)</span>
+<span id="cb10-160"><a href="#cb10-160" aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(neighbors, <span class="st">&quot;call&quot;</span>) <span class="ot">&lt;-</span> <span class="fu">match.call</span>()</span>
+<span id="cb10-161"><a href="#cb10-161" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-162"><a href="#cb10-162" aria-hidden="true" tabindex="-1"></a><span class="co"># 5. Crear Objeto W (Normalizado por fila)</span></span>
+<span id="cb10-163"><a href="#cb10-163" aria-hidden="true" tabindex="-1"></a>W_listw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(neighbors, <span class="at">glist =</span> weights_list, <span class="at">style =</span> <span class="st">&quot;W&quot;</span>, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-164"><a href="#cb10-164" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-165"><a href="#cb10-165" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-166"><a href="#cb10-166" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.2. Modelos de Regresión</span></span>
+<span id="cb10-167"><a href="#cb10-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-168"><a href="#cb10-168" aria-hidden="true" tabindex="-1"></a>Estimamos dos modelos para explicar la simpatía por el Partido Demócrata ($Y$):</span>
+<span id="cb10-169"><a href="#cb10-169" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-170"><a href="#cb10-170" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Modelo 1 (Base):** Solo predictores demográficos ($X$).</span>
+<span id="cb10-171"><a href="#cb10-171" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Modelo 2 (Contexto):** Demografía + Lag Espacial ($W y$).</span>
+<span id="cb10-172"><a href="#cb10-172" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-173"><a href="#cb10-173" aria-hidden="true" tabindex="-1"></a>$$ y = \rho W y + X \beta + \epsilon $$</span>
+<span id="cb10-174"><a href="#cb10-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-177"><a href="#cb10-177" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-178"><a href="#cb10-178" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: estimate-models</span></span>
+<span id="cb10-179"><a href="#cb10-179" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb10-180"><a href="#cb10-180" aria-hidden="true" tabindex="-1"></a><span class="co">#| results: asis</span></span>
+<span id="cb10-181"><a href="#cb10-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-182"><a href="#cb10-182" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(stargazer)</span>
+<span id="cb10-183"><a href="#cb10-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-184"><a href="#cb10-184" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula Base</span></span>
+<span id="cb10-185"><a href="#cb10-185" aria-hidden="true" tabindex="-1"></a><span class="co"># Usamos dummies explícitas creadas en limpieza</span></span>
+<span id="cb10-186"><a href="#cb10-186" aria-hidden="true" tabindex="-1"></a>fmla_base <span class="ot">&lt;-</span> y <span class="sc">~</span> age <span class="sc">+</span> educ <span class="sc">+</span> female <span class="sc">+</span></span>
+<span id="cb10-187"><a href="#cb10-187" aria-hidden="true" tabindex="-1"></a>    race_black <span class="sc">+</span> race_hispanic <span class="sc">+</span> race_asian <span class="sc">+</span> race_native <span class="sc">+</span> race_other <span class="sc">+</span></span>
+<span id="cb10-188"><a href="#cb10-188" aria-hidden="true" tabindex="-1"></a>    relig_catholic <span class="sc">+</span> relig_jewish <span class="sc">+</span> relig_none <span class="sc">+</span> relig_other</span>
+<span id="cb10-189"><a href="#cb10-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-190"><a href="#cb10-190" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 1: OLS</span></span>
+<span id="cb10-191"><a href="#cb10-191" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_base, <span class="at">data =</span> final_df)</span>
 <span id="cb10-192"><a href="#cb10-192" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a>**Comparación de Coeficientes:**</span>
-<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: compare-coefs</span></span>
-<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>c1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m1)</span>
-<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>c2 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_ols)</span>
-<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;--- Comparación de Efectos ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Spatial Rho (Contexto): %.3f</span><span class="sc">\n\n</span><span class="st">&quot;</span>, c2[<span class="st">&quot;Wy&quot;</span>]))</span>
-<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>df_comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Catholic&quot;</span>, <span class="st">&quot;Female&quot;</span>),</span>
-<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model1 =</span> <span class="fu">c</span>(c1[<span class="st">&quot;race_black&quot;</span>], c1[<span class="st">&quot;race_hispanic&quot;</span>], c1[<span class="st">&quot;relig_catholic&quot;</span>], c1[<span class="st">&quot;female&quot;</span>]),</span>
-<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model2 =</span> <span class="fu">c</span>(c2[<span class="st">&quot;race_black&quot;</span>], c2[<span class="st">&quot;race_hispanic&quot;</span>], c2[<span class="st">&quot;relig_catholic&quot;</span>], c2[<span class="st">&quot;female&quot;</span>])</span>
-<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular reducciones</span></span>
-<span id="cb10-214"><a href="#cb10-214" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Diff_Abs <span class="ot">&lt;-</span> df_comp<span class="sc">$</span>Model1 <span class="sc">-</span> df_comp<span class="sc">$</span>Model2</span>
-<span id="cb10-215"><a href="#cb10-215" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Pct_Reduction <span class="ot">&lt;-</span> (df_comp<span class="sc">$</span>Diff_Abs <span class="sc">/</span> df_comp<span class="sc">$</span>Model1) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla formateada</span></span>
-<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_comp,</span>
-<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Coef M1 (Base)&quot;</span>, <span class="st">&quot;Coef M2 (Contextual)&quot;</span>, <span class="st">&quot;Reducción Abs.&quot;</span>, <span class="st">&quot;% Reducción&quot;</span>),</span>
-<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Atenuación de coeficientes demográficos al incluir contexto social.&quot;</span></span>
-<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a>El patrón general es que, al pasar del Modelo 1 (solo demografía) al Modelo 2 (demografía + término espacial de “contexto social” imputado), muchos coeficientes demográficos se reducen en magnitud. La lectura sustantiva que proponen es directa: parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos (en el sentido de qué tipo de opiniones políticas es más probable que los rodeen dadas sus ubicaciones en el espacio de Blau).</span>
-<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a>El paper ilustra esto con ejemplos numéricos. Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes. En términos de raza/etnicidad, enfatizan que el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. También observan que el coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. La conclusión interpretativa es que una fracción apreciable de las brechas demográficas en simpatía por el Partido Demócrata puede entenderse como diferencias en el “mundo social” probable en que se ubican los encuestados, más que como un efecto puramente individual/demográfico.</span>
-<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>Luego viene el punto central: el término espacial (el contexto social imputado) es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía. Además, subrayan que el tamaño del efecto es grande: dan un ejemplo comparando dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.</span>
-<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a>Finalmente, rematan con una idea sociológica fuerte: individuos que viven en mundos sociales muy distintos pueden terminar con alineamientos políticos muy diferentes, y ese mecanismo contextual puede “superar” (en magnitud sustantiva) algunas diferencias estrictamente demográficas cuando se intenta explicar simpatías partidarias.</span>
-<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Parte B: Simulación de Redes Completas (ERGM)</span></span>
-<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a>Para experimentos de difusión (Agent-Based Models), extendemos la lógica anterior para simular una red completa ($N \times N$) usando modelos ERGM. Esto nos permite generar topologías coherentes donde la probabilidad de lazo $P(X_{ij}=1)$ está condicionada por la homofilia.</span>
-<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1. Ejecución Script ERGM</span></span>
-<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>Utilizamos un script dedicado (<span class="in">`02_ATP_network_ergm.R`</span>) que calibra la densidad de la red ajustando el parámetro <span class="in">`edges`</span> mientras mantiene fijos los coeficientes de homofilia derivados de Smith &amp; McPherson (2014).</span>
-<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-ergm</span></span>
-<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
-<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a><span class="co"># Este bloque ejecuta la simulación</span></span>
-<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;02_ATP_network_ergm.R&quot;</span>)</span>
-<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2. Análisis de Red Simulada</span></span>
-<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: analyze-sim</span></span>
-<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-193"><a href="#cb10-193" aria-hidden="true" tabindex="-1"></a><span class="co"># Modelo 2: Lag Espacial (OLS para estabilidad)</span></span>
+<span id="cb10-194"><a href="#cb10-194" aria-hidden="true" tabindex="-1"></a>Wy <span class="ot">&lt;-</span> <span class="fu">lag.listw</span>(W_listw, final_df<span class="sc">$</span>y)</span>
+<span id="cb10-195"><a href="#cb10-195" aria-hidden="true" tabindex="-1"></a>final_df<span class="sc">$</span>Wy <span class="ot">&lt;-</span> Wy</span>
+<span id="cb10-196"><a href="#cb10-196" aria-hidden="true" tabindex="-1"></a>fmla_lag <span class="ot">&lt;-</span> <span class="fu">update</span>(fmla_base, <span class="sc">~</span> . <span class="sc">+</span> Wy)</span>
+<span id="cb10-197"><a href="#cb10-197" aria-hidden="true" tabindex="-1"></a>m2_ols <span class="ot">&lt;-</span> <span class="fu">lm</span>(fmla_lag, <span class="at">data =</span> final_df)</span>
+<span id="cb10-198"><a href="#cb10-198" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-199"><a href="#cb10-199" aria-hidden="true" tabindex="-1"></a><span class="co"># Resultados con Stargazer</span></span>
+<span id="cb10-200"><a href="#cb10-200" aria-hidden="true" tabindex="-1"></a><span class="fu">stargazer</span>(m1, m2_ols,</span>
+<span id="cb10-201"><a href="#cb10-201" aria-hidden="true" tabindex="-1"></a>    <span class="at">type =</span> <span class="st">&quot;html&quot;</span>,</span>
+<span id="cb10-202"><a href="#cb10-202" aria-hidden="true" tabindex="-1"></a>    <span class="at">column.labels =</span> <span class="fu">c</span>(<span class="st">&quot;Modelo Base&quot;</span>, <span class="st">&quot;Modelo Contextual&quot;</span>),</span>
+<span id="cb10-203"><a href="#cb10-203" aria-hidden="true" tabindex="-1"></a>    <span class="at">dep.var.labels =</span> <span class="st">&quot;Democrat Thermometer (0-100)&quot;</span>,</span>
+<span id="cb10-204"><a href="#cb10-204" aria-hidden="true" tabindex="-1"></a>    <span class="at">star.cutoffs =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.01</span>, <span class="fl">0.001</span>),</span>
+<span id="cb10-205"><a href="#cb10-205" aria-hidden="true" tabindex="-1"></a>    <span class="at">keep.stat =</span> <span class="fu">c</span>(<span class="st">&quot;n&quot;</span>, <span class="st">&quot;rsq&quot;</span>),</span>
+<span id="cb10-206"><a href="#cb10-206" aria-hidden="true" tabindex="-1"></a>    <span class="at">report =</span> <span class="st">&quot;vc*&quot;</span>, <span class="co"># Solo coeficientes y estrellas</span></span>
+<span id="cb10-207"><a href="#cb10-207" aria-hidden="true" tabindex="-1"></a>    <span class="at">omit.table.layout =</span> <span class="st">&quot;n&quot;</span>, <span class="co"># Compacto</span></span>
+<span id="cb10-208"><a href="#cb10-208" aria-hidden="true" tabindex="-1"></a>    <span class="at">no.space =</span> <span class="cn">TRUE</span></span>
+<span id="cb10-209"><a href="#cb10-209" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-210"><a href="#cb10-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-211"><a href="#cb10-211" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-212"><a href="#cb10-212" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.3. Discusión de Resultados</span></span>
+<span id="cb10-213"><a href="#cb10-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-216"><a href="#cb10-216" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-217"><a href="#cb10-217" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: compare-coefs</span></span>
+<span id="cb10-218"><a href="#cb10-218" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb10-219"><a href="#cb10-219" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-220"><a href="#cb10-220" aria-hidden="true" tabindex="-1"></a>c1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m1)</span>
+<span id="cb10-221"><a href="#cb10-221" aria-hidden="true" tabindex="-1"></a>c2 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_ols)</span>
+<span id="cb10-222"><a href="#cb10-222" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-223"><a href="#cb10-223" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;--- Término Contextual ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-224"><a href="#cb10-224" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Spatial Rho (Contexto Social): %.3f</span><span class="sc">\n\n</span><span class="st">&quot;</span>, c2[<span class="st">&quot;Wy&quot;</span>]))</span>
+<span id="cb10-225"><a href="#cb10-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-226"><a href="#cb10-226" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;--- Comparación de Efectos ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-227"><a href="#cb10-227" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-228"><a href="#cb10-228" aria-hidden="true" tabindex="-1"></a>df_comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-229"><a href="#cb10-229" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Catholic&quot;</span>, <span class="st">&quot;Female&quot;</span>),</span>
+<span id="cb10-230"><a href="#cb10-230" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model1 =</span> <span class="fu">c</span>(c1[<span class="st">&quot;race_black&quot;</span>], c1[<span class="st">&quot;race_hispanic&quot;</span>], c1[<span class="st">&quot;relig_catholic&quot;</span>], c1[<span class="st">&quot;female&quot;</span>]),</span>
+<span id="cb10-231"><a href="#cb10-231" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model2 =</span> <span class="fu">c</span>(c2[<span class="st">&quot;race_black&quot;</span>], c2[<span class="st">&quot;race_hispanic&quot;</span>], c2[<span class="st">&quot;relig_catholic&quot;</span>], c2[<span class="st">&quot;female&quot;</span>])</span>
+<span id="cb10-232"><a href="#cb10-232" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-233"><a href="#cb10-233" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-234"><a href="#cb10-234" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular reducciones</span></span>
+<span id="cb10-235"><a href="#cb10-235" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Diff_Abs <span class="ot">&lt;-</span> df_comp<span class="sc">$</span>Model1 <span class="sc">-</span> df_comp<span class="sc">$</span>Model2</span>
+<span id="cb10-236"><a href="#cb10-236" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Pct_Reduction <span class="ot">&lt;-</span> (df_comp<span class="sc">$</span>Diff_Abs <span class="sc">/</span> df_comp<span class="sc">$</span>Model1) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb10-237"><a href="#cb10-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-238"><a href="#cb10-238" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla formateada</span></span>
+<span id="cb10-239"><a href="#cb10-239" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_comp,</span>
+<span id="cb10-240"><a href="#cb10-240" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb10-241"><a href="#cb10-241" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Coef M1 (Base)&quot;</span>, <span class="st">&quot;Coef M2 (Contextual)&quot;</span>, <span class="st">&quot;Reducción Abs.&quot;</span>, <span class="st">&quot;% Reducción&quot;</span>),</span>
+<span id="cb10-242"><a href="#cb10-242" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">&quot;Atenuación de coeficientes demográficos al incluir contexto social.&quot;</span></span>
+<span id="cb10-243"><a href="#cb10-243" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-244"><a href="#cb10-244" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-245"><a href="#cb10-245" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-246"><a href="#cb10-246" aria-hidden="true" tabindex="-1"></a>Parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos.</span>
+<span id="cb10-247"><a href="#cb10-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-248"><a href="#cb10-248" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>El término de contexto social es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.</span>
+<span id="cb10-249"><a href="#cb10-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-250"><a href="#cb10-250" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes.</span>
+<span id="cb10-251"><a href="#cb10-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-252"><a href="#cb10-252" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>En términos de raza/etnicidad, el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. </span>
+<span id="cb10-253"><a href="#cb10-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-254"><a href="#cb10-254" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>El coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. </span>
+<span id="cb10-255"><a href="#cb10-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-256"><a href="#cb10-256" aria-hidden="true" tabindex="-1"></a>Podemos comparar dos escenarios idénticos en demografía, pero con contextos distintos (alters promedio “bajo” vs “alto” en la escala), y ver cómo eso produce un cambio sustantivo en el valor predicho del encuestado, de un orden comparable o mayor que el de los predictores demográficos “clásicos”.</span>
+<span id="cb10-257"><a href="#cb10-257" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-258"><a href="#cb10-258" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Parte B: Simulación de Redes Completas (ERGM)</span></span>
 <span id="cb10-259"><a href="#cb10-259" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
-<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sna)</span>
-<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar red simulada (ejemplo)</span></span>
-<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a>sim_net <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/02_ATP_network_ergm/ATP_net_sim_1000_001.rds&quot;</span>)</span>
-<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">degree</span>(sim_net, <span class="at">gmode =</span> <span class="st">&quot;graph&quot;</span>), <span class="at">main =</span> <span class="st">&quot;Distribución de Grado (Simulada)&quot;</span>, <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
-<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Densidad:&quot;</span>, <span class="fu">network.density</span>(sim_net), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-266"><a href="#cb10-266" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-267"><a href="#cb10-267" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Conclusión</span></span>
-<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a>Hemos demostrado cómo el **Blau Space** permite:</span>
-<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Imputar Contexto:** Enriquecer encuestas recuperando la exposición social latente.</span>
-<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Simular Redes:** Generar sustratos realistas para modelos de difusión ABM.</span>
+<span id="cb10-260"><a href="#cb10-260" aria-hidden="true" tabindex="-1"></a>Para experimentos de difusión (Agent-Based Models), extendemos la lógica anterior para simular una red completa ($N \times N$) usando modelos ERGM. Esto nos permite generar topologías coherentes donde la probabilidad de lazo $P(X_{ij}=1)$ está condicionada por la homofilia.</span>
+<span id="cb10-261"><a href="#cb10-261" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-262"><a href="#cb10-262" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1. Ejecución Script ERGM</span></span>
+<span id="cb10-263"><a href="#cb10-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-264"><a href="#cb10-264" aria-hidden="true" tabindex="-1"></a>Utilizamos un script dedicado (<span class="in">`02_ATP_network_ergm.R`</span>) que calibra la densidad de la red ajustando el parámetro <span class="in">`edges`</span> mientras mantiene fijos los coeficientes de homofilia derivados de Smith &amp; McPherson (2014).</span>
+<span id="cb10-265"><a href="#cb10-265" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-268"><a href="#cb10-268" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-269"><a href="#cb10-269" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-ergm</span></span>
+<span id="cb10-270"><a href="#cb10-270" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-271"><a href="#cb10-271" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-272"><a href="#cb10-272" aria-hidden="true" tabindex="-1"></a><span class="co"># Este bloque ejecuta la simulación</span></span>
+<span id="cb10-273"><a href="#cb10-273" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">&quot;02_ATP_network_ergm.R&quot;</span>)</span>
+<span id="cb10-274"><a href="#cb10-274" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-275"><a href="#cb10-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-276"><a href="#cb10-276" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2. Análisis de Red Simulada</span></span>
+<span id="cb10-277"><a href="#cb10-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-280"><a href="#cb10-280" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb10-281"><a href="#cb10-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: analyze-sim</span></span>
+<span id="cb10-282"><a href="#cb10-282" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb10-283"><a href="#cb10-283" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb10-284"><a href="#cb10-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-285"><a href="#cb10-285" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
+<span id="cb10-286"><a href="#cb10-286" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sna)</span>
+<span id="cb10-287"><a href="#cb10-287" aria-hidden="true" tabindex="-1"></a><span class="co"># Cargar red simulada (ejemplo)</span></span>
+<span id="cb10-288"><a href="#cb10-288" aria-hidden="true" tabindex="-1"></a>sim_net <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">&quot;data/02_ATP_network_ergm/ATP_net_sim_1000_001.rds&quot;</span>)</span>
+<span id="cb10-289"><a href="#cb10-289" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">degree</span>(sim_net, <span class="at">gmode =</span> <span class="st">&quot;graph&quot;</span>), <span class="at">main =</span> <span class="st">&quot;Distribución de Grado (Simulada)&quot;</span>, <span class="at">col =</span> <span class="st">&quot;tomato&quot;</span>)</span>
+<span id="cb10-290"><a href="#cb10-290" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Densidad:&quot;</span>, <span class="fu">network.density</span>(sim_net), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-291"><a href="#cb10-291" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-292"><a href="#cb10-292" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-293"><a href="#cb10-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Conclusión</span></span>
+<span id="cb10-294"><a href="#cb10-294" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-295"><a href="#cb10-295" aria-hidden="true" tabindex="-1"></a>Hemos demostrado cómo el **Blau Space** permite:</span>
+<span id="cb10-296"><a href="#cb10-296" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Imputar Contexto:** Enriquecer encuestas recuperando la exposición social latente.</span>
+<span id="cb10-297"><a href="#cb10-297" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Simular Redes:** Generar sustratos realistas para modelos de difusión ABM.</span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
