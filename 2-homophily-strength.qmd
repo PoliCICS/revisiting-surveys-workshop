@@ -319,15 +319,13 @@ stargazer(m1, m2,
 
 ### 2.5. Interpretación de Odds Ratios
 
-Para interpretar la magnitud de los efectos, es útil convertir los coeficientes $\hat{\beta}$ a **Odds Ratios (OR)** mediante la exponenciación ($e^{\hat{\beta}}$). Un OR nos dice cuánto se multiplica la chance de tener un lazo al cambiar una variable independiente, manteniendo el resto constante.
+Para interpretar la magnitud de los efectos, es útil convertir los coeficientes $\hat{\beta}$ a **Odds Ratios (OR)** mediante la exponenciación ($e^{\hat{\beta}}$). Por ejemplo, si el coeficiente para `Diff Raza` es $\approx -1.60$, entonces
+$$ OR = e^{-1.60} \approx 0.20 $$
+Esto significa que la chance de formar un lazo con alguien de **otra raza** es solo el **20%** de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de $1/0.20 = 5$ veces.
 
-Por ejemplo, si el coeficiente para `Diff Raza` es $\approx -1.96$:
-$$ OR = e^{-1.96} \approx 0.14 $$
-Esto significa que la chance de formar un lazo con alguien de **otra raza** es solo el **14%** de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de $1/0.14 \approx 7.1$ veces.
-
-Similarmente, para variables continuas como la edad, si $\hat{\beta}_{age} \approx -0.15$:
-$$ OR = e^{-0.15} \approx 0.86 $$
-Cada año de diferencia reduce la probabilidad relativa del lazo en un 14% (se multiplica por 0.86). Una diferencia de 10 años implicaría $0.86^{10} \approx 0.22$, reduciendo la chance a cerca de una quinta parte.
+Similarmente, para variables continuas como `Diff Edad`, si $\hat{\beta}_{age} \approx -0.05$:
+$$ OR = e^{-0.05} \approx 0.95 $$
+Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría $0.95^{10} \approx 0.60$, reduciendo la probabilidad al 60%.
 
 ## 3. Interpretación
 

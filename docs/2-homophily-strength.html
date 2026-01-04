@@ -4309,13 +4309,13 @@ En esta implementación pedagófica utilizamos una versión simplificada de <em>
 <p>Exploración rápida:</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Controls 1985: 13576 </code></pre>
+<pre><code>Controls 1985: 13580 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Controls 2004: 10411 </code></pre>
+<pre><code>Controls 2004: 10410 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Controls total: 23987 </code></pre>
+<pre><code>Controls total: 23990 </code></pre>
 </div>
 </div>
 <p><strong>Nota metodológica sobre <span class="math inline">\(k\)</span>.</strong> El valor de <span class="math inline">\(k\)</span> controla el tamaño del control set. Esto afecta el intercepto (prevalencia) pero no debería afectar sustantivamente los <span class="math inline">\(\boldsymbol{\beta}\)</span> en case–control ideal.</p>
@@ -4361,7 +4361,7 @@ En esta implementación pedagófica utilizamos una versión simplificada de <em>
 <p><strong>Exploración rápida (dataset analítico y distancias).</strong> Antes de modelar, conviene inspeccionar: tamaño final, tasa de <code>tie=1</code>, y rangos plausibles de distancias.</p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>Analysis dataset rows: 30988 </code></pre>
+<pre><code>Analysis dataset rows: 30991 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Tie counts:</code></pre>
@@ -4369,29 +4369,29 @@ En esta implementación pedagófica utilizamos una versión simplificada de <em>
 <div class="cell-output cell-output-stdout">
 <pre><code>
     0     1 
-23987  7001 </code></pre>
+23990  7001 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-Tie rate (P[Y=1] in analysis sample): 0.2259262 </code></pre>
+Tie rate (P[Y=1] in analysis sample): 0.2259043 </code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Summary of distance predictors:</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   diff_race        diff_relig        diff_sex         age_diff    
- Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.00  
- 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 6.00  
- Median :0.0000   Median :1.0000   Median :0.0000   Median :15.00  
- Mean   :0.2028   Mean   :0.5209   Mean   :0.4699   Mean   :17.65  
- 3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:27.00  
- Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :70.00  
-                  NA&#39;s   :486                                      
+<pre><code>   diff_race        diff_relig        diff_sex         age_diff   
+ Min.   :0.0000   Min.   :0.0000   Min.   :0.0000   Min.   : 0.0  
+ 1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.:0.0000   1st Qu.: 5.0  
+ Median :0.0000   Median :1.0000   Median :0.0000   Median :14.0  
+ Mean   :0.2028   Mean   :0.5245   Mean   :0.4697   Mean   :17.5  
+ 3rd Qu.:0.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:27.0  
+ Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :71.0  
+                  NA&#39;s   :486                                     
     edu_diff     
  Min.   : 0.000  
  1st Qu.: 1.000  
  Median : 2.000  
- Mean   : 2.982  
+ Mean   : 2.977  
  3rd Qu.: 4.000  
  Max.   :20.000  
                  </code></pre>
@@ -4511,10 +4511,10 @@ Interacción Temporal
 Diff Raza
 </td>
 <td>
--1.469<sup>***</sup>
+-1.452<sup>***</sup>
 </td>
 <td>
--1.597<sup>***</sup>
+-1.534<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4530,10 +4530,10 @@ Diff Raza
 Diff Relig
 </td>
 <td>
--1.354<sup>***</sup>
+-1.359<sup>***</sup>
 </td>
 <td>
--1.357<sup>***</sup>
+-1.359<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4549,10 +4549,10 @@ Diff Relig
 Diff Sexo
 </td>
 <td>
--0.348<sup>***</sup>
+-0.354<sup>***</sup>
 </td>
 <td>
--0.412<sup>***</sup>
+-0.382<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4568,10 +4568,10 @@ Diff Sexo
 Diff Edad
 </td>
 <td>
--0.048<sup>***</sup>
+-0.045<sup>***</sup>
 </td>
 <td>
--0.048<sup>***</sup>
+-0.045<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4587,10 +4587,10 @@ Diff Edad
 Diff Educ
 </td>
 <td>
--0.159<sup>***</sup>
+-0.165<sup>***</sup>
 </td>
 <td>
--0.142<sup>***</sup>
+-0.147<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4606,10 +4606,10 @@ Diff Educ
 Año (2004)
 </td>
 <td>
--0.013
+0.017
 </td>
 <td>
--0.003
+0.117
 </td>
 </tr>
 <tr>
@@ -4627,7 +4627,7 @@ Diff Raza x Año
 <td>
 </td>
 <td>
-0.245<sup>*</sup>
+0.152
 </td>
 </tr>
 <tr>
@@ -4645,7 +4645,7 @@ Diff Relig x Año
 <td>
 </td>
 <td>
-0.003
+-0.002
 </td>
 </tr>
 <tr>
@@ -4663,7 +4663,7 @@ Diff Sexo x Año
 <td>
 </td>
 <td>
-0.156<sup>*</sup>
+0.067
 </td>
 </tr>
 <tr>
@@ -4681,7 +4681,7 @@ Diff Edad x Año
 <td>
 </td>
 <td>
-0.001
+-0.001
 </td>
 </tr>
 <tr>
@@ -4699,7 +4699,7 @@ Diff Educ x Año
 <td>
 </td>
 <td>
--0.047<sup>**</sup>
+-0.053<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4715,10 +4715,10 @@ Diff Educ x Año
 Constant
 </td>
 <td>
-0.781<sup>***</sup>
+0.755<sup>***</sup>
 </td>
 <td>
-0.783<sup>***</sup>
+0.722<sup>***</sup>
 </td>
 </tr>
 <tr>
@@ -4738,10 +4738,10 @@ Constant
 N (Dyads)
 </td>
 <td>
-30,988
+30,991
 </td>
 <td>
-30,988
+30,991
 </td>
 </tr>
 <tr>
@@ -4760,10 +4760,10 @@ N (Respondents)
 Observations
 </td>
 <td>
-30,502
+30,505
 </td>
 <td>
-30,502
+30,505
 </td>
 </tr>
 <tr>
@@ -4774,9 +4774,8 @@ Observations
 </section>
 <section id="interpretación-de-odds-ratios" class="level3">
 <h3 class="anchored" data-anchor-id="interpretación-de-odds-ratios">2.5. Interpretación de Odds Ratios</h3>
-<p>Para interpretar la magnitud de los efectos, es útil convertir los coeficientes <span class="math inline">\(\hat{\beta}\)</span> a <strong>Odds Ratios (OR)</strong> mediante la exponenciación (<span class="math inline">\(e^{\hat{\beta}}\)</span>). Un OR nos dice cuánto se multiplica la chance de tener un lazo al cambiar una variable independiente, manteniendo el resto constante.</p>
-<p>Por ejemplo, si el coeficiente para <code>Diff Raza</code> es <span class="math inline">\(\approx -1.96\)</span>: <span class="math display">\[ OR = e^{-1.96} \approx 0.14 \]</span> Esto significa que la chance de formar un lazo con alguien de <strong>otra raza</strong> es solo el <strong>14%</strong> de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de <span class="math inline">\(1/0.14 \approx 7.1\)</span> veces.</p>
-<p>Similarmente, para variables continuas como la edad, si <span class="math inline">\(\hat{\beta}_{age} \approx -0.15\)</span>: <span class="math display">\[ OR = e^{-0.15} \approx 0.86 \]</span> Cada año de diferencia reduce la probabilidad relativa del lazo en un 14% (se multiplica por 0.86). Una diferencia de 10 años implicaría <span class="math inline">\(0.86^{10} \approx 0.22\)</span>, reduciendo la chance a cerca de una quinta parte.</p>
+<p>Para interpretar la magnitud de los efectos, es útil convertir los coeficientes <span class="math inline">\(\hat{\beta}\)</span> a <strong>Odds Ratios (OR)</strong> mediante la exponenciación (<span class="math inline">\(e^{\hat{\beta}}\)</span>). Por ejemplo, si el coeficiente para <code>Diff Raza</code> es <span class="math inline">\(\approx -1.60\)</span>, entonces <span class="math display">\[ OR = e^{-1.60} \approx 0.20 \]</span> Esto significa que la chance de formar un lazo con alguien de <strong>otra raza</strong> es solo el <strong>20%</strong> de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de <span class="math inline">\(1/0.20 = 5\)</span> veces.</p>
+<p>Similarmente, para variables continuas como <code>Diff Edad</code>, si <span class="math inline">\(\hat{\beta}_{age} \approx -0.05\)</span>: <span class="math display">\[ OR = e^{-0.05} \approx 0.95 \]</span> Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría <span class="math inline">\(0.95^{10} \approx 0.60\)</span>, reduciendo la probabilidad al 60%.</p>
 </section>
 </section>
 <section id="interpretación" class="level2">
@@ -5605,49 +5604,47 @@ En el contexto del workshop, los coeficientes <span class="math inline">\(\hat{\
 <span id="cb20-333"><a href="#cb20-333" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-334"><a href="#cb20-334" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.5. Interpretación de Odds Ratios</span></span>
 <span id="cb20-335"><a href="#cb20-335" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-336"><a href="#cb20-336" aria-hidden="true" tabindex="-1"></a>Para interpretar la magnitud de los efectos, es útil convertir los coeficientes $\hat{\beta}$ a **Odds Ratios (OR)** mediante la exponenciación ($e^{\hat{\beta}}$). Un OR nos dice cuánto se multiplica la chance de tener un lazo al cambiar una variable independiente, manteniendo el resto constante.</span>
-<span id="cb20-337"><a href="#cb20-337" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-338"><a href="#cb20-338" aria-hidden="true" tabindex="-1"></a>Por ejemplo, si el coeficiente para <span class="in">`Diff Raza`</span> es $\approx -1.96$:</span>
-<span id="cb20-339"><a href="#cb20-339" aria-hidden="true" tabindex="-1"></a>$$ OR = e^{-1.96} \approx 0.14 $$</span>
-<span id="cb20-340"><a href="#cb20-340" aria-hidden="true" tabindex="-1"></a>Esto significa que la chance de formar un lazo con alguien de **otra raza** es solo el **14%** de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de $1/0.14 \approx 7.1$ veces.</span>
-<span id="cb20-341"><a href="#cb20-341" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-342"><a href="#cb20-342" aria-hidden="true" tabindex="-1"></a>Similarmente, para variables continuas como la edad, si $\hat{\beta}_{age} \approx -0.15$:</span>
-<span id="cb20-343"><a href="#cb20-343" aria-hidden="true" tabindex="-1"></a>$$ OR = e^{-0.15} \approx 0.86 $$</span>
-<span id="cb20-344"><a href="#cb20-344" aria-hidden="true" tabindex="-1"></a>Cada año de diferencia reduce la probabilidad relativa del lazo en un 14% (se multiplica por 0.86). Una diferencia de 10 años implicaría $0.86^{10} \approx 0.22$, reduciendo la chance a cerca de una quinta parte.</span>
+<span id="cb20-336"><a href="#cb20-336" aria-hidden="true" tabindex="-1"></a>Para interpretar la magnitud de los efectos, es útil convertir los coeficientes $\hat{\beta}$ a **Odds Ratios (OR)** mediante la exponenciación ($e^{\hat{\beta}}$). Por ejemplo, si el coeficiente para <span class="in">`Diff Raza`</span> es $\approx -1.60$, entonces</span>
+<span id="cb20-337"><a href="#cb20-337" aria-hidden="true" tabindex="-1"></a>$$ OR = e^{-1.60} \approx 0.20 $$</span>
+<span id="cb20-338"><a href="#cb20-338" aria-hidden="true" tabindex="-1"></a>Esto significa que la chance de formar un lazo con alguien de **otra raza** es solo el **20%** de la chance de formarlo con alguien de la misma raza (referencia), todo lo demás constante. Dicho de otra forma, tener la misma raza aumenta la probabilidad relativa de lazo en un factor de $1/0.20 = 5$ veces.</span>
+<span id="cb20-339"><a href="#cb20-339" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-340"><a href="#cb20-340" aria-hidden="true" tabindex="-1"></a>Similarmente, para variables continuas como <span class="in">`Diff Edad`</span>, si $\hat{\beta}_{age} \approx -0.05$:</span>
+<span id="cb20-341"><a href="#cb20-341" aria-hidden="true" tabindex="-1"></a>$$ OR = e^{-0.05} \approx 0.95 $$</span>
+<span id="cb20-342"><a href="#cb20-342" aria-hidden="true" tabindex="-1"></a>Cada año de diferencia reduce la probabilidad relativa del lazo en un 5% (se multiplica por 0.95). Una diferencia de 10 años implicaría $0.95^{10} \approx 0.60$, reduciendo la probabilidad al 60%.</span>
+<span id="cb20-343"><a href="#cb20-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-344"><a href="#cb20-344" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Interpretación</span></span>
 <span id="cb20-345"><a href="#cb20-345" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-346"><a href="#cb20-346" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Interpretación</span></span>
+<span id="cb20-346"><a href="#cb20-346" aria-hidden="true" tabindex="-1"></a>Los coeficientes estimados describen la *selección por similitud*: los parámetros $\hat\beta$ y $\hat\gamma$ cuantifican cómo varían las odds de un lazo al aumentar la distancia social, manteniendo constantes las otras dimensiones.</span>
 <span id="cb20-347"><a href="#cb20-347" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-348"><a href="#cb20-348" aria-hidden="true" tabindex="-1"></a>Los coeficientes estimados describen la *selección por similitud*: los parámetros $\hat\beta$ y $\hat\gamma$ cuantifican cómo varían las odds de un lazo al aumentar la distancia social, manteniendo constantes las otras dimensiones.</span>
-<span id="cb20-349"><a href="#cb20-349" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-350"><a href="#cb20-350" aria-hidden="true" tabindex="-1"></a>1) **Significado $\hat\beta$.**  </span>
-<span id="cb20-351"><a href="#cb20-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Si $\hat\beta_k &lt; 0$, hay evidencia de homofilia (*homophily*).  </span>
-<span id="cb20-352"><a href="#cb20-352" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para predictores categóricos (p. ej., <span class="in">`diff_race`</span>), $\exp(\hat\beta)$ se interpreta como el factor multiplicativo en las odds de un lazo cuando ego y alter son distintos, condicional a las demás covariables.  </span>
-<span id="cb20-353"><a href="#cb20-353" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para distancias continuas (p. ej., <span class="in">`age_diff`</span>, <span class="in">`edu_diff`</span>), $\exp(\hat\beta)$ es el factor en odds por cada unidad adicional de distancia.</span>
-<span id="cb20-354"><a href="#cb20-354" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-355"><a href="#cb20-355" aria-hidden="true" tabindex="-1"></a>2) **Significado $\hat\gamma$.**  </span>
-<span id="cb20-356"><a href="#cb20-356" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Si $\hat\gamma_k &lt; 0$, la penalización por distancia se vuelve más fuerte en 2004 (homofilia se intensifica).  </span>
-<span id="cb20-357"><a href="#cb20-357" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Si $\hat\gamma_k &gt; 0$, la penalización por distancia se vuelve menos fuerte en 2004 (homofilia se debilita).  </span>
-<span id="cb20-358"><a href="#cb20-358" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-359"><a href="#cb20-359" aria-hidden="true" tabindex="-1"></a>3) **Inferencia y no-independencia (advertencia).**  </span>
-<span id="cb20-360"><a href="#cb20-360" aria-hidden="true" tabindex="-1"></a>La tabla producida por <span class="in">`glm()`</span> y <span class="in">`stargazer()`</span> reporta errores estándar bajo el supuesto i.i.d. (independientes e idénticamente distribuidas). En case–control ese supuesto falla por no-independencia. Por eso, una replicación metodológicamente fiel debe reemplazar estos errores estándar por inferencia robusta, típicamente mediante:</span>
-<span id="cb20-361"><a href="#cb20-361" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**bootstrap a nivel de encuestado** (*respondent-level bootstrap*) con reconstrucción de casos/controles en cada iteración, y, idealmente,</span>
-<span id="cb20-362"><a href="#cb20-362" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ponderación poblacional** (*population weights*) para alinear el control sample con la estructura de oportunidades del año.</span>
-<span id="cb20-363"><a href="#cb20-363" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-364"><a href="#cb20-364" aria-hidden="true" tabindex="-1"></a>4) **Conexión con imputación de redes.**  </span>
-<span id="cb20-365"><a href="#cb20-365" aria-hidden="true" tabindex="-1"></a>En el contexto del workshop, los coeficientes $\hat{\boldsymbol{\beta}}$ (y, si se usa, $\hat{\boldsymbol{\gamma}}$) pueden reinterpretarse como parámetros para generar probabilidades relativas de lazo o pesos de afinidad entre pares, en función de la distancia social. </span>
-<span id="cb20-366"><a href="#cb20-366" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-367"><a href="#cb20-367" aria-hidden="true" tabindex="-1"></a>Bajo una parametrización logística, un esquema natural para imputación es:</span>
+<span id="cb20-348"><a href="#cb20-348" aria-hidden="true" tabindex="-1"></a>1) **Significado $\hat\beta$.**  </span>
+<span id="cb20-349"><a href="#cb20-349" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Si $\hat\beta_k &lt; 0$, hay evidencia de homofilia (*homophily*).  </span>
+<span id="cb20-350"><a href="#cb20-350" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para predictores categóricos (p. ej., <span class="in">`diff_race`</span>), $\exp(\hat\beta)$ se interpreta como el factor multiplicativo en las odds de un lazo cuando ego y alter son distintos, condicional a las demás covariables.  </span>
+<span id="cb20-351"><a href="#cb20-351" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para distancias continuas (p. ej., <span class="in">`age_diff`</span>, <span class="in">`edu_diff`</span>), $\exp(\hat\beta)$ es el factor en odds por cada unidad adicional de distancia.</span>
+<span id="cb20-352"><a href="#cb20-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-353"><a href="#cb20-353" aria-hidden="true" tabindex="-1"></a>2) **Significado $\hat\gamma$.**  </span>
+<span id="cb20-354"><a href="#cb20-354" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Si $\hat\gamma_k &lt; 0$, la penalización por distancia se vuelve más fuerte en 2004 (homofilia se intensifica).  </span>
+<span id="cb20-355"><a href="#cb20-355" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Si $\hat\gamma_k &gt; 0$, la penalización por distancia se vuelve menos fuerte en 2004 (homofilia se debilita).  </span>
+<span id="cb20-356"><a href="#cb20-356" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-357"><a href="#cb20-357" aria-hidden="true" tabindex="-1"></a>3) **Inferencia y no-independencia (advertencia).**  </span>
+<span id="cb20-358"><a href="#cb20-358" aria-hidden="true" tabindex="-1"></a>La tabla producida por <span class="in">`glm()`</span> y <span class="in">`stargazer()`</span> reporta errores estándar bajo el supuesto i.i.d. (independientes e idénticamente distribuidas). En case–control ese supuesto falla por no-independencia. Por eso, una replicación metodológicamente fiel debe reemplazar estos errores estándar por inferencia robusta, típicamente mediante:</span>
+<span id="cb20-359"><a href="#cb20-359" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**bootstrap a nivel de encuestado** (*respondent-level bootstrap*) con reconstrucción de casos/controles en cada iteración, y, idealmente,</span>
+<span id="cb20-360"><a href="#cb20-360" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**ponderación poblacional** (*population weights*) para alinear el control sample con la estructura de oportunidades del año.</span>
+<span id="cb20-361"><a href="#cb20-361" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-362"><a href="#cb20-362" aria-hidden="true" tabindex="-1"></a>4) **Conexión con imputación de redes.**  </span>
+<span id="cb20-363"><a href="#cb20-363" aria-hidden="true" tabindex="-1"></a>En el contexto del workshop, los coeficientes $\hat{\boldsymbol{\beta}}$ (y, si se usa, $\hat{\boldsymbol{\gamma}}$) pueden reinterpretarse como parámetros para generar probabilidades relativas de lazo o pesos de afinidad entre pares, en función de la distancia social. </span>
+<span id="cb20-364"><a href="#cb20-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-365"><a href="#cb20-365" aria-hidden="true" tabindex="-1"></a>Bajo una parametrización logística, un esquema natural para imputación es:</span>
+<span id="cb20-366"><a href="#cb20-366" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-367"><a href="#cb20-367" aria-hidden="true" tabindex="-1"></a>\Pr(Y_{ij}=1 \mid \mathbf{d}_{ij}) = \text{logit}^{-1}\Big(\alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)\Big),</span>
 <span id="cb20-368"><a href="#cb20-368" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb20-369"><a href="#cb20-369" aria-hidden="true" tabindex="-1"></a>\Pr(Y_{ij}=1 \mid \mathbf{d}_{ij}) = \text{logit}^{-1}\Big(\alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij} + \delta \cdot \mathbb{I}(year=2004)\Big),</span>
-<span id="cb20-370"><a href="#cb20-370" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb20-369"><a href="#cb20-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-370"><a href="#cb20-370" aria-hidden="true" tabindex="-1"></a>con la salvedad central: para pasar de “preferencias relativas” a una red con densidad realista, se necesita calibrar $\alpha$ (o imponer restricciones de densidad de red).</span>
 <span id="cb20-371"><a href="#cb20-371" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-372"><a href="#cb20-372" aria-hidden="true" tabindex="-1"></a>con la salvedad central: para pasar de “preferencias relativas” a una red con densidad realista, se necesita calibrar $\alpha$ (o imponer restricciones de densidad de red).</span>
+<span id="cb20-372"><a href="#cb20-372" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Referencias</span></span>
 <span id="cb20-373"><a href="#cb20-373" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-374"><a href="#cb20-374" aria-hidden="true" tabindex="-1"></a><span class="fu">## 4. Referencias</span></span>
-<span id="cb20-375"><a href="#cb20-375" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-376"><a href="#cb20-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Smith, J. A., McPherson, M., &amp; Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456.</span>
-<span id="cb20-377"><a href="#cb20-377" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>McPherson, M., Smith-Lovin, L., &amp; Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. *American Sociological Review*, 71(3), 353-375.</span>
-<span id="cb20-378"><a href="#cb20-378" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Handcock, M. S., Hunter, D. R., Butts, C. T., Goodreau, S. M., &amp; Morris, M. (2008). *statnet: Software tools for the representation, visualization, analysis and simulation of network data*.</span>
+<span id="cb20-374"><a href="#cb20-374" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Smith, J. A., McPherson, M., &amp; Smith-Lovin, L. (2014). Social Distance in the United States: Sex, Race, Religion, Age, and Education Homophily among Confidants, 1985 to 2004. *American Sociological Review*, 79(3), 432–456.</span>
+<span id="cb20-375"><a href="#cb20-375" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>McPherson, M., Smith-Lovin, L., &amp; Brashears, M. E. (2009). Social Isolation in America: Changes in Core Discussion Networks over Two Decades. *American Sociological Review*, 71(3), 353-375.</span>
+<span id="cb20-376"><a href="#cb20-376" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Handcock, M. S., Hunter, D. R., Butts, C. T., Goodreau, S. M., &amp; Morris, M. (2008). *statnet: Software tools for the representation, visualization, analysis and simulation of network data*.</span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->

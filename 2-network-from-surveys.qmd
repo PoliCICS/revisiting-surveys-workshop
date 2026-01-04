@@ -24,9 +24,9 @@ El **Blau space** es un espacio multidimensional donde cada individuo se represe
 - Para variables categóricas: $d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j)$.
 - Para variables continuas: $d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j|$.
 
-(ii) la estructura de oportunidades inducida por las distribuciones marginales de atributos.
+(ii) la fuerza homofílica de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.
 
-(iii) la **fuerza homofílica** de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.
+(iii) la estructura de oportunidades inducida por las distribuciones marginales de atributos.
 
 ![](figs/fig1-blau-space.png){fig-cap="Figure 1. Example networks in two-dimensional Blau space."}
 
@@ -112,14 +112,16 @@ D_age <- abs(outer(X_age, X_age, "-"))
 D_educ <- abs(outer(X_educ, X_educ, "-"))
 D_sex <- abs(outer(X_sex, X_sex, "-"))
 D_race <- outer(X_race, X_race, function(x, y) ifelse(x != y, 1, 0))
-D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0)) # Mismatch
+D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0))
 
 # Betas de Homofilia (Basados en Replicación V3 - GSS 2004)
 # Estos valores corresponden a (beta + delta_2004) del modelo recreado
-betas <- c(race = -1.352, relig = -1.354, sex = -0.256, age = -0.047, educ = -0.189)
+betas <- c(
+    race = -1.352, relig = -1.354, sex = -0.256, age = -0.047, educ = -0.189
+)
 
-# 1. Calcular Distancias (Blau Space)
 cat("Calculando distancias en Blau Space...\n")
+# 1. Calcular Distancias (Blau Space)
 D_age <- abs(outer(X_age, X_age, "-"))
 D_educ <- abs(outer(X_educ, X_educ, "-"))
 D_sex <- abs(outer(X_sex, X_sex, "-"))
@@ -162,7 +164,7 @@ attr(neighbors, "call") <- match.call()
 # 5. Crear Objeto W (Normalizado por fila)
 W_listw <- nb2listw(neighbors, glist = weights_list, style = "W", zero.policy = TRUE)
 
-cat("Matriz W construida (K=100, Paper-Like weights - Replication Coefs).\n")
+cat("Matriz W construida.\n")
 ```
 
 ### 2.2. Modelos de Regresión
@@ -170,9 +172,12 @@ cat("Matriz W construida (K=100, Paper-Like weights - Replication Coefs).\n")
 Estimamos dos modelos para explicar la simpatía por el Partido Demócrata ($Y$):
 
 1.  **Modelo 1 (Base):** Solo predictores demográficos ($X$).
+
+$$ y = X \beta + \epsilon $$
+
 2.  **Modelo 2 (Contexto):** Demografía + Lag Espacial ($W y$).
 
-$$ y = \rho W y + X \beta + \epsilon $$
+$$ y = \rho (W y) + X \beta + \epsilon $$
 
 ```{r}
 #| label: estimate-models
@@ -182,7 +187,6 @@ $$ y = \rho W y + X \beta + \epsilon $$
 library(stargazer)
 
 # Fórmula Base
-# Usamos dummies explícitas creadas en limpieza
 fmla_base <- y ~ age + educ + female +
     race_black + race_hispanic + race_asian + race_native + race_other +
     relig_catholic + relig_jewish + relig_none + relig_other
@@ -191,7 +195,6 @@ fmla_base <- y ~ age + educ + female +
 m1 <- lm(fmla_base, data = final_df)
 
 # Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)
-# Nota: Usamos aproximación OLS (y ~ Wy + X) para estabilidad en el workshop.
 Wy <- lag.listw(W_listw, final_df$y)
 final_df$Wy <- Wy
 fmla_lag <- update(fmla_base, ~ . + Wy)
@@ -200,13 +203,18 @@ m2_ols <- lm(fmla_lag, data = final_df)
 # Resultados con Stargazer ( Compacto )
 stargazer(m1, m2_ols,
     type = "html",
-    title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
-    column.labels = c("Modelo Base", "Modelo Contextual"),
-    dep.var.labels = "Democrat Thermometer (0-100)",
+    title = "Democrat Scale (ANES 2016)",
+    column.labels = c("Base", "Contextual"),
+    dep.var.labels = "Democrat Scale (0-100)",
+    covariate.labels = c(
+        "Age", "Education", "Female",
+        "Black", "Hispanic", "Asian", "Native American", "Other race",
+        "Catholic", "Jewish", "None", "Other religion",
+        "Spatial parameter"
+    ),
     star.cutoffs = c(0.10, 0.05, 0.01),
     keep.stat = c("n", "rsq"),
     report = "vc*", # Solo coeficientes y estrellas
-    omit.table.layout = "n", # Compacto
     no.space = TRUE
 )
 ```
@@ -241,24 +249,21 @@ df_print <- df_comp[, c("Variable", "Model1", "Model2", "Pct_Reduction")]
 # Mostrar tabla formateada
 knitr::kable(df_print,
     digits = 2,
-    col.names = c("Variable", "Coef M1", "Coef M2", "% Reducción"),
-    caption = "Atenuación de coeficientes demográficos al incluir contexto social."
+    col.names = c("Variable", "Coef M1", "Coef M2", "% Reducción")
 )
 ```
 
 Parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos.
 
-- El término de contexto social es positivo y estadísticamente significativo en el Modelo 2. La interpretación es que quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.
+- Término $\rho$ positivo y estadísticamente significativo: quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.
 
-- Para religión, señalan que el contraste entre católicos vs. protestantes permanece significativo pero su magnitud cae de manera importante al controlar contexto; y algo análogo ocurre con “none” (sin religión) versus protestantes.
+- Religión: el contraste entre católicos vs. protestantes ya no es estadísticamente significativo al controlar contexto.
 
-- En términos de raza/etnicidad, el efecto asociado a Hispanic y a Black también disminuye sustantivamente al introducir el término de contexto. 
-
-- El coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. 
+- Raza: los efectos son menores, y el contraste entre white/asian y white/native es menos significativo.
 
 ### 2.4. Casos de Ejemplo: ¿Cuánto importa el contexto?
 
-Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho en la escala demócrata al mover a una misma persona de un contexto "Republicano" a uno "Demócrata", y contrastaremos ese cambio con efectos puramente demográficos (por ejemplo, cambiar la raza de "Blanca" a "Negra").
+Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho comparando a una misma persona en dos contextos diferentes, y contrastaremos ese cambio con efectos puramente demográficos.
 
 ```{r}
 #| label: case-examples
@@ -273,26 +278,18 @@ Wy_p10 <- quantile(final_df$Wy, 0.10, na.rm = TRUE)
 Wy_p90 <- quantile(final_df$Wy, 0.90, na.rm = TRUE)
 delta_context <- coefs["Wy"] * (Wy_p90 - Wy_p10)
 
-# --- Efecto Demográfico (Raza: White -> Black) ---
-# En el modelo, "White" es la categoría base (0 en dummies de raza)
-# "Black" es cambiar race_black de 0 a 1
-delta_race_black <- coefs["race_black"]
-
-# --- Efecto Demográfico (Sexo: Male -> Female) ---
-# "Male" es base (0), "Female" es cambiar female de 0 a 1
-delta_female <- coefs["female"]
-
 # Reporte
 cat(sprintf("CONTEXT EFFECT (P10 -> P90 Wy): +%.2f puntos\n", delta_context))
+
+# --- Efecto Demográfico ---
+# (Raza: White -> Black)
+delta_race_black <- coefs["race_black"]
 cat(sprintf("RACE EFFECT (White -> Black):  +%.2f puntos\n", delta_race_black))
+
+# (Sexo: Male -> Female)
+delta_female <- coefs["female"]
 cat(sprintf("SEX EFFECT (Male -> Female):   +%.2f puntos\n", delta_female))
-
-# Comparación relativa
-ratio <- delta_context / delta_race_black
-cat(sprintf("\nEl efecto del contexto es %.1f veces el efecto de ser Afroamericano (vs Blanco).\n", ratio))
 ```
-
-Este ejercicio muestra que la influencia del entorno social imputado (moverse de un vecindario actitudinal conservador a uno liberal) puede tener una magnitud **superior** o comparable a diferencias demográficas estructurales profundas como la raza o el género, reforzando la tesis de McPherson & Smith sobre la importancia de la homofilia en la formación de opiniones.
 
 ## 3. Parte B: Simulación de Redes Completas (ERGM)
 
