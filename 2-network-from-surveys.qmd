@@ -114,12 +114,12 @@ D_sex <- abs(outer(X_sex, X_sex, "-"))
 D_race <- outer(X_race, X_race, function(x, y) ifelse(x != y, 1, 0))
 D_relig <- outer(X_relig, X_relig, function(x, y) ifelse(x != y, 1, 0)) # Mismatch
 
-# Betas de Homofilia (Smith & McPherson 2014-like)
-# Betas de Homofilia (Estimación GSS 2004 - Smith & McPherson 2014)
-# Ajustados por interacciones temporales: beta_2004 = beta_base + delta_2004
-betas <- c(race = -1.695, relig = -1.485, sex = -0.229, age = -0.201, educ = -0.052)
+# Betas de Homofilia (Basados en Replicación V3 - GSS 2004)
+# Estos valores corresponden a (beta + delta_2004) del modelo recreado
+betas <- c(race = -1.352, relig = -1.354, sex = -0.256, age = -0.047, educ = -0.189)
 
 # 1. Calcular Distancias (Blau Space)
+cat("Calculando distancias en Blau Space...\n")
 D_age <- abs(outer(X_age, X_age, "-"))
 D_educ <- abs(outer(X_educ, X_educ, "-"))
 D_sex <- abs(outer(X_sex, X_sex, "-"))
@@ -140,7 +140,7 @@ K <- 100
 neighbors <- vector("list", N)
 weights_list <- vector("list", N)
 
-# Seleccionando Top-K vecinos y extrayendo pesos reales
+cat("Seleccionando Top-K vecinos y extrayendo pesos reales...\n")
 for (i in 1:N) {
     # Ordenar j por peso descendente (indices)
     row_w <- w_raw[i, ]
@@ -161,6 +161,8 @@ attr(neighbors, "call") <- match.call()
 
 # 5. Crear Objeto W (Normalizado por fila)
 W_listw <- nb2listw(neighbors, glist = weights_list, style = "W", zero.policy = TRUE)
+
+cat("Matriz W construida (K=100, Paper-Like weights - Replication Coefs).\n")
 ```
 
 ### 2.2. Modelos de Regresión
@@ -188,15 +190,17 @@ fmla_base <- y ~ age + educ + female +
 # Modelo 1: OLS
 m1 <- lm(fmla_base, data = final_df)
 
-# Modelo 2: Lag Espacial (OLS para estabilidad)
+# Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)
+# Nota: Usamos aproximación OLS (y ~ Wy + X) para estabilidad en el workshop.
 Wy <- lag.listw(W_listw, final_df$y)
 final_df$Wy <- Wy
 fmla_lag <- update(fmla_base, ~ . + Wy)
 m2_ols <- lm(fmla_lag, data = final_df)
 
-# Resultados con Stargazer
+# Resultados con Stargazer ( Compacto )
 stargazer(m1, m2_ols,
     type = "html",
+    title = "Modelos de Regresión: Simpatía Demócrata (ANES 2016)",
     column.labels = c("Modelo Base", "Modelo Contextual"),
     dep.var.labels = "Democrat Thermometer (0-100)",
     star.cutoffs = c(0.10, 0.05, 0.01),
@@ -209,6 +213,8 @@ stargazer(m1, m2_ols,
 
 ### 2.3. Discusión de Resultados
 
+**Comparación de Coeficientes:**
+
 ```{r}
 #| label: compare-coefs
 #| echo: false
@@ -216,10 +222,8 @@ stargazer(m1, m2_ols,
 c1 <- coef(m1)
 c2 <- coef(m2_ols)
 
-cat("--- Término Contextual ---\n")
-cat(sprintf("Spatial Rho (Contexto Social): %.3f\n\n", c2["Wy"]))
-
 cat("--- Comparación de Efectos ---\n")
+cat(sprintf("Spatial Rho (Contexto): %.3f\n\n", c2["Wy"]))
 
 df_comp <- data.frame(
     Variable = c("Black", "Hispanic", "Catholic", "Female"),
@@ -227,7 +231,6 @@ df_comp <- data.frame(
     Model2 = c(c2["race_black"], c2["race_hispanic"], c2["relig_catholic"], c2["female"])
 )
 
-# Calcular reducciones
 # Calcular reducciones
 df_comp$Diff_Abs <- df_comp$Model1 - df_comp$Model2
 df_comp$Pct_Reduction <- (df_comp$Diff_Abs / df_comp$Model1) * 100
@@ -253,43 +256,43 @@ Parte de lo que uno atribuiría a “efectos individuales” de raza, religión,
 
 - El coeficiente de educación se reduce entre modelos, aunque en menor proporción relativa que varios de los contrastes categóricos. 
 
-### 2.4. Casos de Ejemplo
+### 2.4. Casos de Ejemplo: ¿Cuánto importa el contexto?
 
-Para ilustrar el poder del contexto social, podemos comparar dos individuos hipotéticos con **idénticas características demográficas** pero ubicados en **distintos contextos sociales** (distintos valores de $Wy$).
+Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho en la escala demócrata al mover a una misma persona de un contexto "Republicano" a uno "Demócrata", y contrastaremos ese cambio con efectos puramente demográficos (por ejemplo, cambiar la raza de "Blanca" a "Negra").
 
 ```{r}
 #| label: case-examples
 #| echo: true
 
-# Definimos un perfil demográfico "Promedio"
-perfil_base <- data.frame(
-    age = mean(final_df$age),
-    educ = mean(final_df$educ),
-    female = 1, # Mujer
-    race_black = 0, race_hispanic = 0, race_asian = 0, race_native = 0, race_other = 0,
-    relig_catholic = 1, relig_jewish = 0, relig_none = 0, relig_other = 0,
-    Wy = 0 # Placeholder
-)
+# 1. Obtener coeficientes del Modelo 2 (Contextual)
+coefs <- coef(m2_ols)
 
-# Creamos dos escenarios de contexto
-# Escenario A: Contexto "Republicano" (Wy bajo, percentil 10)
-# Escenario B: Contexto "Demócrata" (Wy alto, percentil 90)
-Wy_low <- quantile(final_df$Wy, 0.10, na.rm=TRUE)
-Wy_high <- quantile(final_df$Wy, 0.90, na.rm=TRUE)
+# --- Efecto Contextual ---
+# Comparamos moverse del percentil 10 al 90 de `Wy`
+Wy_p10 <- quantile(final_df$Wy, 0.10, na.rm = TRUE)
+Wy_p90 <- quantile(final_df$Wy, 0.90, na.rm = TRUE)
+delta_context <- coefs["Wy"] * (Wy_p90 - Wy_p10)
 
-caso_A <- perfil_base; caso_A$Wy <- Wy_low
-caso_B <- perfil_base; caso_B$Wy <- Wy_high
+# --- Efecto Demográfico (Raza: White -> Black) ---
+# En el modelo, "White" es la categoría base (0 en dummies de raza)
+# "Black" es cambiar race_black de 0 a 1
+delta_race_black <- coefs["race_black"]
 
-# Predecimos con Modelo 2
-pred_A <- predict(m2_ols, newdata = caso_A)
-pred_B <- predict(m2_ols, newdata = caso_B)
+# --- Efecto Demográfico (Sexo: Male -> Female) ---
+# "Male" es base (0), "Female" es cambiar female de 0 a 1
+delta_female <- coefs["female"]
 
-cat(sprintf("Predicción Caso A (Contexto Bajo): %.2f\n", pred_A))
-cat(sprintf("Predicción Caso B (Contexto Alto): %.2f\n", pred_B))
-cat(sprintf("Diferencia atribuible al contexto: %.2f puntos\n", pred_B - pred_A))
+# Reporte
+cat(sprintf("CONTEXT EFFECT (P10 -> P90 Wy): +%.2f puntos\n", delta_context))
+cat(sprintf("RACE EFFECT (White -> Black):  +%.2f puntos\n", delta_race_black))
+cat(sprintf("SEX EFFECT (Male -> Female):   +%.2f puntos\n", delta_female))
+
+# Comparación relativa
+ratio <- delta_context / delta_race_black
+cat(sprintf("\nEl efecto del contexto es %.1f veces el efecto de ser Afroamericano (vs Blanco).\n", ratio))
 ```
 
-Esta comparación muestra cómo, manteniendo constante la demografía, el entorno social imputado puede desplazar significativamente la predicción actitudinal.
+Este ejercicio muestra que la influencia del entorno social imputado (moverse de un vecindario actitudinal conservador a uno liberal) puede tener una magnitud **superior** o comparable a diferencias demográficas estructurales profundas como la raza o el género, reforzando la tesis de McPherson & Smith sobre la importancia de la homofilia en la formación de opiniones.
 
 ## 3. Parte B: Simulación de Redes Completas (ERGM)
 
