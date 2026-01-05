@@ -19,3 +19,5 @@ renv/local/
 **/*.quarto_ipynb
 replication-smith2014-table3/
 _0_ignore/
+scripts/
+scripts/replication_ms2019/
