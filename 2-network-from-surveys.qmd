@@ -1,5 +1,5 @@
 ---
-title: "Imputando Redes desde Encuestas"
+title: "Imputando Contexto Social a las encuestas"
 author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
@@ -20,15 +20,15 @@ La meta metodológica es mostrar que el “término contextual” no solo puede 
 
 El **Blau space** es un espacio multidimensional donde cada individuo se representa por sus coordenadas sociodemográficas (edad, educación, raza/etnicidad, religión, género, etc.). La probabilidad de interacción entre dos individuos depende de:
 
-(i) cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas $\mathbf{d}_{ij}$ entre individuos $i$ y $j$:
+1.   **Distancia social**: cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas $\mathbf{d}_{ij}$ entre individuos $i$ y $j$:
 - Para variables categóricas: $d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j)$.
 - Para variables continuas: $d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j|$.
 
-(ii) la fuerza homofílica de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.
+2.   **Fuerza homofílica**: la fuerza homofílica de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.
 
-(iii) la estructura de oportunidades inducida por las distribuciones marginales de atributos.
+3.   **Estructura de oportunidades**: la estructura de oportunidades inducida por las distribuciones marginales de atributos.
 
-![Figure 1. Social distance in two-dimensional Blau space.](figs/fig1-blau-space.png){width="90%"}
+![Figure 1. Example networks in two-dimensional Blau space.](figs/fig1-blau-space.png){width="90%"}
 
 ### 1.2. Término Contextual
 
@@ -57,7 +57,7 @@ $$
 
 donde $y_j$ es la variable de interés del individuo $j$. Intuitivamente, $(Wy)_i$ es una medida de “clima actitudinal” alrededor de $i$.
 
-## 2. Parte A: Replicación ANES 2016 (Democrat Scale)
+## 2. Imputando Contexto Social (ANES 2016, Democrat Scale)
 
 Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey), que **no** tiene EGO-net. Imputaremos contexto social y evaluarémos si mejora la explicación de *Democrat Scale* (grado de simpatía/afinidad hacia el Partido Demócrata, reportado por McPherson & Smith) más allá de la demografía. Estimaremos dos modelos:
 
@@ -223,8 +223,6 @@ stargazer(m1, m2_ols,
 
 ### 2.3. Discusión de Resultados
 
-**Comparación de Coeficientes:**
-
 ```{r}
 #| label: compare-coefs
 #| echo: false
@@ -264,7 +262,7 @@ Parte de lo que uno atribuiría a “efectos individuales” de raza, religión,
 
 - Raza: los efectos son menores, y el contraste entre white/asian y white/native es menos significativo.
 
-### 2.4. Casos de Ejemplo: ¿Cuánto importa el contexto?
+#### **¿Cuánto importa el contexto?**
 
 Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho comparando a una misma persona en dos contextos diferentes, y contrastaremos ese cambio con efectos puramente demográficos.
 
@@ -281,20 +279,18 @@ Wy_p10 <- quantile(final_df$Wy, 0.10, na.rm = TRUE)
 Wy_p90 <- quantile(final_df$Wy, 0.90, na.rm = TRUE)
 delta_context <- coefs["Wy"] * (Wy_p90 - Wy_p10)
 
-# Reporte
 cat(sprintf("CONTEXT EFFECT (P10 -> P90 Wy): +%.2f puntos\n", delta_context))
 
-# --- Efecto Demográfico ---
-# (Raza: White -> Black)
+# --- Efecto Demográfico --- (Race: White -> Black)
 delta_race_black <- coefs["race_black"]
 cat(sprintf("RACE EFFECT (White -> Black):  +%.2f puntos\n", delta_race_black))
 
-# (Sexo: Male -> Female)
+# --- Efecto Demográfico --- (Sex: Male -> Female)
 delta_female <- coefs["female"]
 cat(sprintf("SEX EFFECT (Male -> Female):   +%.2f puntos\n", delta_female))
 ```
 
-## 3. Parte B: Simulación de Redes Completas (ERGM)
+## 3. Interludio: Simulación de Redes Completas
 
 Si bien la imputación en Blau Space nos permite calcular un $(Wy)$ para cada individuo, no produce una red explícita de "quién es amigo de quién" a nivel global. 
 
@@ -306,7 +302,7 @@ Para generar una topología de red completa que respete los principios de homofi
 
 Fijaremos una **densidad de 0.03** (aprox. 30 lazos por cada 200 pares posibles).
 
-### 3.1. Simulación y Calibración
+### 3.1. Calibración `edges`
 
 Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.
 
@@ -377,7 +373,7 @@ for (i in 1:5) {
 ```
 
 
-### 3.2. Visualización de la Red
+### 3.2. Visualización de red simulada
 
 Genial, ahora que tenemos los coeficientes calibrados, podemos generar la red final.
 

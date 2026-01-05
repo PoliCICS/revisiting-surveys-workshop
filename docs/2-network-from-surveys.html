@@ -8,7 +8,7 @@
 
 <meta name="author" content="Aníbal Olivera">
 
-<title>Imputando Redes desde Encuestas – Revisitando las encuestas</title>
+<title>Imputando Contexto Social a las encuestas – Revisitando las encuestas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -4090,17 +4090,16 @@ window.Quarto = {
   <li><a href="#blau-space-y-estructura-de-oportunidades" id="toc-blau-space-y-estructura-de-oportunidades" class="nav-link" data-scroll-target="#blau-space-y-estructura-de-oportunidades">1.1. Blau Space y Estructura de Oportunidades</a></li>
   <li><a href="#término-contextual" id="toc-término-contextual" class="nav-link" data-scroll-target="#término-contextual">1.2. Término Contextual</a></li>
   </ul></li>
-  <li><a href="#parte-a-replicación-anes-2016-democrat-scale" id="toc-parte-a-replicación-anes-2016-democrat-scale" class="nav-link" data-scroll-target="#parte-a-replicación-anes-2016-democrat-scale">2. Parte A: Replicación ANES 2016 (Democrat Scale)</a>
+  <li><a href="#imputando-contexto-social-anes-2016-democrat-scale" id="toc-imputando-contexto-social-anes-2016-democrat-scale" class="nav-link" data-scroll-target="#imputando-contexto-social-anes-2016-democrat-scale">2. Imputando Contexto Social (ANES 2016, Democrat Scale)</a>
   <ul class="collapse">
   <li><a href="#construcción-de-pesos-w" id="toc-construcción-de-pesos-w" class="nav-link" data-scroll-target="#construcción-de-pesos-w">2.1. Construcción de Pesos (W)</a></li>
   <li><a href="#modelos-de-regresión" id="toc-modelos-de-regresión" class="nav-link" data-scroll-target="#modelos-de-regresión">2.2. Modelos de Regresión</a></li>
   <li><a href="#discusión-de-resultados" id="toc-discusión-de-resultados" class="nav-link" data-scroll-target="#discusión-de-resultados">2.3. Discusión de Resultados</a></li>
-  <li><a href="#casos-de-ejemplo-cuánto-importa-el-contexto" id="toc-casos-de-ejemplo-cuánto-importa-el-contexto" class="nav-link" data-scroll-target="#casos-de-ejemplo-cuánto-importa-el-contexto">2.4. Casos de Ejemplo: ¿Cuánto importa el contexto?</a></li>
   </ul></li>
-  <li><a href="#parte-b-simulación-de-redes-completas-ergm" id="toc-parte-b-simulación-de-redes-completas-ergm" class="nav-link" data-scroll-target="#parte-b-simulación-de-redes-completas-ergm">3. Parte B: Simulación de Redes Completas (ERGM)</a>
+  <li><a href="#interludio-simulación-de-redes-completas" id="toc-interludio-simulación-de-redes-completas" class="nav-link" data-scroll-target="#interludio-simulación-de-redes-completas">3. Interludio: Simulación de Redes Completas</a>
   <ul class="collapse">
-  <li><a href="#simulación-y-calibración" id="toc-simulación-y-calibración" class="nav-link" data-scroll-target="#simulación-y-calibración">3.1. Simulación y Calibración</a></li>
-  <li><a href="#visualización-de-la-red" id="toc-visualización-de-la-red" class="nav-link" data-scroll-target="#visualización-de-la-red">3.2. Visualización de la Red</a></li>
+  <li><a href="#calibración-edges" id="toc-calibración-edges" class="nav-link" data-scroll-target="#calibración-edges">3.1. Calibración <code>edges</code></a></li>
+  <li><a href="#visualización-de-red-simulada" id="toc-visualización-de-red-simulada" class="nav-link" data-scroll-target="#visualización-de-red-simulada">3.2. Visualización de red simulada</a></li>
   </ul></li>
   </ul>
 <div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/2-network-from-surveys.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/2-network-from-surveys.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
@@ -4114,7 +4113,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Imputando Redes desde Encuestas</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Código</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Mostrar todo el código</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Ocultar todo el código</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">Ver el código fuente</a></li></ul></div></div>
+<div class="quarto-title-block"><div><h1 class="title">Imputando Contexto Social a las encuestas</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Código</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Mostrar todo el código</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Ocultar todo el código</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">Ver el código fuente</a></li></ul></div></div>
 </div>
 
 
@@ -4153,16 +4152,16 @@ window.Quarto = {
 <section id="blau-space-y-estructura-de-oportunidades" class="level3">
 <h3 class="anchored" data-anchor-id="blau-space-y-estructura-de-oportunidades">1.1. Blau Space y Estructura de Oportunidades</h3>
 <p>El <strong>Blau space</strong> es un espacio multidimensional donde cada individuo se representa por sus coordenadas sociodemográficas (edad, educación, raza/etnicidad, religión, género, etc.). La probabilidad de interacción entre dos individuos depende de:</p>
-<ol type="i">
-<li>cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas <span class="math inline">\(\mathbf{d}_{ij}\)</span> entre individuos <span class="math inline">\(i\)</span> y <span class="math inline">\(j\)</span>:</li>
+<ol type="1">
+<li><strong>Distancia social</strong>: cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas <span class="math inline">\(\mathbf{d}_{ij}\)</span> entre individuos <span class="math inline">\(i\)</span> y <span class="math inline">\(j\)</span>:</li>
 </ol>
 <ul>
 <li>Para variables categóricas: <span class="math inline">\(d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j)\)</span>.</li>
 <li>Para variables continuas: <span class="math inline">\(d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j|\)</span>.</li>
 </ul>
-<ol start="2" type="i">
-<li><p>la fuerza homofílica de cada dimensión social (parametrizada por <span class="math inline">\(\boldsymbol{\beta}\)</span>), que determina cuán rápido decae la probabilidad de interacción con la distancia.</p></li>
-<li><p>la estructura de oportunidades inducida por las distribuciones marginales de atributos.</p></li>
+<ol start="2" type="1">
+<li><p><strong>Fuerza homofílica</strong>: la fuerza homofílica de cada dimensión social (parametrizada por <span class="math inline">\(\boldsymbol{\beta}\)</span>), que determina cuán rápido decae la probabilidad de interacción con la distancia.</p></li>
+<li><p><strong>Estructura de oportunidades</strong>: la estructura de oportunidades inducida por las distribuciones marginales de atributos.</p></li>
 </ol>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -4191,8 +4190,8 @@ W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathca
 <p>donde <span class="math inline">\(y_j\)</span> es la variable de interés del individuo <span class="math inline">\(j\)</span>. Intuitivamente, <span class="math inline">\((Wy)_i\)</span> es una medida de “clima actitudinal” alrededor de <span class="math inline">\(i\)</span>.</p>
 </section>
 </section>
-<section id="parte-a-replicación-anes-2016-democrat-scale" class="level2">
-<h2 class="anchored" data-anchor-id="parte-a-replicación-anes-2016-democrat-scale">2. Parte A: Replicación ANES 2016 (Democrat Scale)</h2>
+<section id="imputando-contexto-social-anes-2016-democrat-scale" class="level2">
+<h2 class="anchored" data-anchor-id="imputando-contexto-social-anes-2016-democrat-scale">2. Imputando Contexto Social (ANES 2016, Democrat Scale)</h2>
 <p>Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey), que <strong>no</strong> tiene EGO-net. Imputaremos contexto social y evaluarémos si mejora la explicación de <em>Democrat Scale</em> (grado de simpatía/afinidad hacia el Partido Demócrata, reportado por McPherson &amp; Smith) más allá de la demografía. Estimaremos dos modelos:</p>
 <p><strong>Modelo 1:</strong> (demografía) <span class="math display">\[
 y_i = \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
@@ -4610,7 +4609,6 @@ Reference categories: Race = White; Religion = Protestant.
 </section>
 <section id="discusión-de-resultados" class="level3">
 <h3 class="anchored" data-anchor-id="discusión-de-resultados">2.3. Discusión de Resultados</h3>
-<p><strong>Comparación de Coeficientes:</strong></p>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
 <pre><code>--- Comparación de Efectos ---</code></pre>
@@ -4663,9 +4661,8 @@ Reference categories: Race = White; Religion = Protestant.
 <li><p>Religión: el contraste entre católicos vs. protestantes ya no es estadísticamente significativo al controlar contexto.</p></li>
 <li><p>Raza: los efectos son menores, y el contraste entre white/asian y white/native es menos significativo.</p></li>
 </ul>
-</section>
-<section id="casos-de-ejemplo-cuánto-importa-el-contexto" class="level3">
-<h3 class="anchored" data-anchor-id="casos-de-ejemplo-cuánto-importa-el-contexto">2.4. Casos de Ejemplo: ¿Cuánto importa el contexto?</h3>
+<section id="cuánto-importa-el-contexto" class="level4">
+<h4 class="anchored" data-anchor-id="cuánto-importa-el-contexto"><strong>¿Cuánto importa el contexto?</strong></h4>
 <p>Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho comparando a una misma persona en dos contextos diferentes, y contrastaremos ese cambio con efectos puramente demográficos.</p>
 <div class="cell">
 <details open class="code-fold">
@@ -4679,25 +4676,23 @@ Reference categories: Race = White; Religion = Protestant.
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>Wy_p90 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(final_df<span class="sc">$</span>Wy, <span class="fl">0.90</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>delta_context <span class="ot">&lt;-</span> coefs[<span class="st">&quot;Wy&quot;</span>] <span class="sc">*</span> (Wy_p90 <span class="sc">-</span> Wy_p10)</span>
 <span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Reporte</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;CONTEXT EFFECT (P10 -&gt; P90 Wy): +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_context))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;CONTEXT EFFECT (P10 -&gt; P90 Wy): +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_context))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>CONTEXT EFFECT (P10 -&gt; P90 Wy): +19.57 puntos</code></pre>
 </div>
 <details open class="code-fold">
 <summary>Código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Demográfico ---</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (Raza: White -&gt; Black)</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>delta_race_black <span class="ot">&lt;-</span> coefs[<span class="st">&quot;race_black&quot;</span>]</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;RACE EFFECT (White -&gt; Black):  +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_race_black))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Demográfico --- (Race: White -&gt; Black)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>delta_race_black <span class="ot">&lt;-</span> coefs[<span class="st">&quot;race_black&quot;</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;RACE EFFECT (White -&gt; Black):  +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_race_black))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>RACE EFFECT (White -&gt; Black):  +13.87 puntos</code></pre>
 </div>
 <details open class="code-fold">
 <summary>Código</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (Sexo: Male -&gt; Female)</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Demográfico --- (Sex: Male -&gt; Female)</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>delta_female <span class="ot">&lt;-</span> coefs[<span class="st">&quot;female&quot;</span>]</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;SEX EFFECT (Male -&gt; Female):   +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_female))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
@@ -4707,8 +4702,9 @@ Reference categories: Race = White; Religion = Protestant.
 </div>
 </section>
 </section>
-<section id="parte-b-simulación-de-redes-completas-ergm" class="level2">
-<h2 class="anchored" data-anchor-id="parte-b-simulación-de-redes-completas-ergm">3. Parte B: Simulación de Redes Completas (ERGM)</h2>
+</section>
+<section id="interludio-simulación-de-redes-completas" class="level2">
+<h2 class="anchored" data-anchor-id="interludio-simulación-de-redes-completas">3. Interludio: Simulación de Redes Completas</h2>
 <p>Si bien la imputación en Blau Space nos permite calcular un <span class="math inline">\((Wy)\)</span> para cada individuo, no produce una red explícita de “quién es amigo de quién” a nivel global.</p>
 <p>Para generar una topología de red completa que respete los principios de homofilia estimados, utilizamos un <strong>Exponential Random Graph Model (ERGM)</strong>, que nos permite simular grafos donde la probabilidad de un lazo depende de:</p>
 <ol type="1">
@@ -4716,8 +4712,8 @@ Reference categories: Race = White; Religion = Protestant.
 <li><p><strong>Densidad (Edges)</strong>: nos dice cuántos lazos existen en total, así que ajustamos el parámetro <code>edges</code> (intercepto) hasta alcanzar la densidad observada en redes reales.</p></li>
 </ol>
 <p>Fijaremos una <strong>densidad de 0.03</strong> (aprox. 30 lazos por cada 200 pares posibles).</p>
-<section id="simulación-y-calibración" class="level3">
-<h3 class="anchored" data-anchor-id="simulación-y-calibración">3.1. Simulación y Calibración</h3>
+<section id="calibración-edges" class="level3">
+<h3 class="anchored" data-anchor-id="calibración-edges">3.1. Calibración <code>edges</code></h3>
 <p>Usaremos una sub-muestra de <strong>N=200</strong> individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.</p>
 <div class="cell">
 <details open class="code-fold">
@@ -4796,8 +4792,8 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 </div>
 </div>
 </section>
-<section id="visualización-de-la-red" class="level3">
-<h3 class="anchored" data-anchor-id="visualización-de-la-red">3.2. Visualización de la Red</h3>
+<section id="visualización-de-red-simulada" class="level3">
+<h3 class="anchored" data-anchor-id="visualización-de-red-simulada">3.2. Visualización de red simulada</h3>
 <p>Genial, ahora que tenemos los coeficientes calibrados, podemos generar la red final.</p>
 <div class="cell">
 <details open class="code-fold">
@@ -5331,7 +5327,7 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Imputando Redes desde Encuestas&quot;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Imputando Contexto Social a las encuestas&quot;</span></span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> &quot;Aníbal Olivera&quot;</span></span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> &quot;2025-01-08&quot;</span></span>
 <span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
@@ -5352,13 +5348,13 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a>El **Blau space** es un espacio multidimensional donde cada individuo se representa por sus coordenadas sociodemográficas (edad, educación, raza/etnicidad, religión, género, etc.). La probabilidad de interacción entre dos individuos depende de:</span>
 <span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>(i) cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas $\mathbf{d}_{ij}$ entre individuos $i$ y $j$:</span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="ss">1.   </span>**Distancia social**: cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas $\mathbf{d}_{ij}$ entre individuos $i$ y $j$:</span>
 <span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para variables categóricas: $d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j)$.</span>
 <span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Para variables continuas: $d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j|$.</span>
 <span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>(ii) la fuerza homofílica de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="ss">2.   </span>**Fuerza homofílica**: la fuerza homofílica de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.</span>
 <span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>(iii) la estructura de oportunidades inducida por las distribuciones marginales de atributos.</span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="ss">3.   </span>**Estructura de oportunidades**: la estructura de oportunidades inducida por las distribuciones marginales de atributos.</span>
 <span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a><span class="al">![Figure 1. Social distance in two-dimensional Blau space.](figs/fig1-blau-space.png)</span>{width=&quot;90%&quot;}</span>
 <span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a></span>
@@ -5389,7 +5385,7 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb25-57"><a href="#cb25-57" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a>donde $y_j$ es la variable de interés del individuo $j$. Intuitivamente, $(Wy)_i$ es una medida de “clima actitudinal” alrededor de $i$.</span>
 <span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Parte A: Replicación ANES 2016 (Democrat Scale)</span></span>
+<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Imputando Contexto Social (ANES 2016, Democrat Scale)</span></span>
 <span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-62"><a href="#cb25-62" aria-hidden="true" tabindex="-1"></a>Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey), que **no** tiene EGO-net. Imputaremos contexto social y evaluarémos si mejora la explicación de *Democrat Scale* (grado de simpatía/afinidad hacia el Partido Demócrata, reportado por McPherson &amp; Smith) más allá de la demografía. Estimaremos dos modelos:</span>
 <span id="cb25-63"><a href="#cb25-63" aria-hidden="true" tabindex="-1"></a></span>
@@ -5555,227 +5551,223 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb25-229"><a href="#cb25-229" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-230"><a href="#cb25-230" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.3. Discusión de Resultados</span></span>
 <span id="cb25-231"><a href="#cb25-231" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-232"><a href="#cb25-232" aria-hidden="true" tabindex="-1"></a>**Comparación de Coeficientes:**</span>
-<span id="cb25-233"><a href="#cb25-233" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-236"><a href="#cb25-236" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-237"><a href="#cb25-237" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: compare-coefs</span></span>
-<span id="cb25-238"><a href="#cb25-238" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
-<span id="cb25-239"><a href="#cb25-239" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-240"><a href="#cb25-240" aria-hidden="true" tabindex="-1"></a>c1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m1)</span>
-<span id="cb25-241"><a href="#cb25-241" aria-hidden="true" tabindex="-1"></a>c2 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_ols)</span>
-<span id="cb25-242"><a href="#cb25-242" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-243"><a href="#cb25-243" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;--- Comparación de Efectos ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb25-244"><a href="#cb25-244" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Spatial Rho (Contexto): %.3f</span><span class="sc">\n\n</span><span class="st">&quot;</span>, c2[<span class="st">&quot;Wy&quot;</span>]))</span>
-<span id="cb25-245"><a href="#cb25-245" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-246"><a href="#cb25-246" aria-hidden="true" tabindex="-1"></a>df_comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb25-247"><a href="#cb25-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Catholic&quot;</span>, <span class="st">&quot;Female&quot;</span>),</span>
-<span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model1 =</span> <span class="fu">c</span>(c1[<span class="st">&quot;race_black&quot;</span>], c1[<span class="st">&quot;race_hispanic&quot;</span>], c1[<span class="st">&quot;relig_catholic&quot;</span>], c1[<span class="st">&quot;female&quot;</span>]),</span>
-<span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model2 =</span> <span class="fu">c</span>(c2[<span class="st">&quot;race_black&quot;</span>], c2[<span class="st">&quot;race_hispanic&quot;</span>], c2[<span class="st">&quot;relig_catholic&quot;</span>], c2[<span class="st">&quot;female&quot;</span>])</span>
-<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular reducciones</span></span>
-<span id="cb25-253"><a href="#cb25-253" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Diff_Abs <span class="ot">&lt;-</span> df_comp<span class="sc">$</span>Model1 <span class="sc">-</span> df_comp<span class="sc">$</span>Model2</span>
-<span id="cb25-254"><a href="#cb25-254" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Pct_Reduction <span class="ot">&lt;-</span> (df_comp<span class="sc">$</span>Diff_Abs <span class="sc">/</span> df_comp<span class="sc">$</span>Model1) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb25-255"><a href="#cb25-255" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-256"><a href="#cb25-256" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar columnas para mostrar</span></span>
-<span id="cb25-257"><a href="#cb25-257" aria-hidden="true" tabindex="-1"></a>df_print <span class="ot">&lt;-</span> df_comp[, <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Model1&quot;</span>, <span class="st">&quot;Model2&quot;</span>, <span class="st">&quot;Pct_Reduction&quot;</span>)]</span>
-<span id="cb25-258"><a href="#cb25-258" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-259"><a href="#cb25-259" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla formateada</span></span>
-<span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_print,</span>
-<span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Coef M1&quot;</span>, <span class="st">&quot;Coef M2&quot;</span>, <span class="st">&quot;% Reducción&quot;</span>)</span>
-<span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-234"><a href="#cb25-234" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-235"><a href="#cb25-235" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: compare-coefs</span></span>
+<span id="cb25-236"><a href="#cb25-236" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb25-237"><a href="#cb25-237" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-238"><a href="#cb25-238" aria-hidden="true" tabindex="-1"></a>c1 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m1)</span>
+<span id="cb25-239"><a href="#cb25-239" aria-hidden="true" tabindex="-1"></a>c2 <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_ols)</span>
+<span id="cb25-240"><a href="#cb25-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-241"><a href="#cb25-241" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;--- Comparación de Efectos ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb25-242"><a href="#cb25-242" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Spatial Rho (Contexto): %.3f</span><span class="sc">\n\n</span><span class="st">&quot;</span>, c2[<span class="st">&quot;Wy&quot;</span>]))</span>
+<span id="cb25-243"><a href="#cb25-243" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-244"><a href="#cb25-244" aria-hidden="true" tabindex="-1"></a>df_comp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb25-245"><a href="#cb25-245" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> <span class="fu">c</span>(<span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Catholic&quot;</span>, <span class="st">&quot;Female&quot;</span>),</span>
+<span id="cb25-246"><a href="#cb25-246" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model1 =</span> <span class="fu">c</span>(c1[<span class="st">&quot;race_black&quot;</span>], c1[<span class="st">&quot;race_hispanic&quot;</span>], c1[<span class="st">&quot;relig_catholic&quot;</span>], c1[<span class="st">&quot;female&quot;</span>]),</span>
+<span id="cb25-247"><a href="#cb25-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">Model2 =</span> <span class="fu">c</span>(c2[<span class="st">&quot;race_black&quot;</span>], c2[<span class="st">&quot;race_hispanic&quot;</span>], c2[<span class="st">&quot;relig_catholic&quot;</span>], c2[<span class="st">&quot;female&quot;</span>])</span>
+<span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular reducciones</span></span>
+<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Diff_Abs <span class="ot">&lt;-</span> df_comp<span class="sc">$</span>Model1 <span class="sc">-</span> df_comp<span class="sc">$</span>Model2</span>
+<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a>df_comp<span class="sc">$</span>Pct_Reduction <span class="ot">&lt;-</span> (df_comp<span class="sc">$</span>Diff_Abs <span class="sc">/</span> df_comp<span class="sc">$</span>Model1) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb25-253"><a href="#cb25-253" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-254"><a href="#cb25-254" aria-hidden="true" tabindex="-1"></a><span class="co"># Seleccionar columnas para mostrar</span></span>
+<span id="cb25-255"><a href="#cb25-255" aria-hidden="true" tabindex="-1"></a>df_print <span class="ot">&lt;-</span> df_comp[, <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Model1&quot;</span>, <span class="st">&quot;Model2&quot;</span>, <span class="st">&quot;Pct_Reduction&quot;</span>)]</span>
+<span id="cb25-256"><a href="#cb25-256" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-257"><a href="#cb25-257" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla formateada</span></span>
+<span id="cb25-258"><a href="#cb25-258" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(df_print,</span>
+<span id="cb25-259"><a href="#cb25-259" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Coef M1&quot;</span>, <span class="st">&quot;Coef M2&quot;</span>, <span class="st">&quot;% Reducción&quot;</span>)</span>
+<span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a>Parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos.</span>
 <span id="cb25-266"><a href="#cb25-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a>Parte de lo que uno atribuiría a “efectos individuales” de raza, religión, educación, etc., en realidad refleja que distintos grupos tienden a habitar contextos sociales distintos.</span>
+<span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Término $\rho$ positivo y estadísticamente significativo: quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.</span>
 <span id="cb25-268"><a href="#cb25-268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Término $\rho$ positivo y estadísticamente significativo: quienes están, en promedio, rodeados por alters que muestran mayor simpatía por los demócratas tienden también a reportar mayor simpatía.</span>
+<span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Religión: el contraste entre católicos vs. protestantes ya no es estadísticamente significativo al controlar contexto.</span>
 <span id="cb25-270"><a href="#cb25-270" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Religión: el contraste entre católicos vs. protestantes ya no es estadísticamente significativo al controlar contexto.</span>
+<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Raza: los efectos son menores, y el contraste entre white/asian y white/native es menos significativo.</span>
 <span id="cb25-272"><a href="#cb25-272" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-273"><a href="#cb25-273" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Raza: los efectos son menores, y el contraste entre white/asian y white/native es menos significativo.</span>
+<span id="cb25-273"><a href="#cb25-273" aria-hidden="true" tabindex="-1"></a><span class="fu">#### **¿Cuánto importa el contexto?**</span></span>
 <span id="cb25-274"><a href="#cb25-274" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-275"><a href="#cb25-275" aria-hidden="true" tabindex="-1"></a><span class="fu">### 2.4. Casos de Ejemplo: ¿Cuánto importa el contexto?</span></span>
+<span id="cb25-275"><a href="#cb25-275" aria-hidden="true" tabindex="-1"></a>Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho comparando a una misma persona en dos contextos diferentes, y contrastaremos ese cambio con efectos puramente demográficos.</span>
 <span id="cb25-276"><a href="#cb25-276" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-277"><a href="#cb25-277" aria-hidden="true" tabindex="-1"></a>Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho comparando a una misma persona en dos contextos diferentes, y contrastaremos ese cambio con efectos puramente demográficos.</span>
-<span id="cb25-278"><a href="#cb25-278" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-282"><a href="#cb25-282" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: case-examples</span></span>
-<span id="cb25-283"><a href="#cb25-283" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
-<span id="cb25-284"><a href="#cb25-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-285"><a href="#cb25-285" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Obtener coeficientes del Modelo 2 (Contextual)</span></span>
-<span id="cb25-286"><a href="#cb25-286" aria-hidden="true" tabindex="-1"></a>coefs <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_ols)</span>
-<span id="cb25-287"><a href="#cb25-287" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-288"><a href="#cb25-288" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Contextual ---</span></span>
-<span id="cb25-289"><a href="#cb25-289" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparamos moverse del percentil 10 al 90 de `Wy`</span></span>
-<span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a>Wy_p10 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(final_df<span class="sc">$</span>Wy, <span class="fl">0.10</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a>Wy_p90 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(final_df<span class="sc">$</span>Wy, <span class="fl">0.90</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-292"><a href="#cb25-292" aria-hidden="true" tabindex="-1"></a>delta_context <span class="ot">&lt;-</span> coefs[<span class="st">&quot;Wy&quot;</span>] <span class="sc">*</span> (Wy_p90 <span class="sc">-</span> Wy_p10)</span>
+<span id="cb25-279"><a href="#cb25-279" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-280"><a href="#cb25-280" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: case-examples</span></span>
+<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb25-282"><a href="#cb25-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-283"><a href="#cb25-283" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Obtener coeficientes del Modelo 2 (Contextual)</span></span>
+<span id="cb25-284"><a href="#cb25-284" aria-hidden="true" tabindex="-1"></a>coefs <span class="ot">&lt;-</span> <span class="fu">coef</span>(m2_ols)</span>
+<span id="cb25-285"><a href="#cb25-285" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-286"><a href="#cb25-286" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Contextual ---</span></span>
+<span id="cb25-287"><a href="#cb25-287" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparamos moverse del percentil 10 al 90 de `Wy`</span></span>
+<span id="cb25-288"><a href="#cb25-288" aria-hidden="true" tabindex="-1"></a>Wy_p10 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(final_df<span class="sc">$</span>Wy, <span class="fl">0.10</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-289"><a href="#cb25-289" aria-hidden="true" tabindex="-1"></a>Wy_p90 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(final_df<span class="sc">$</span>Wy, <span class="fl">0.90</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a>delta_context <span class="ot">&lt;-</span> coefs[<span class="st">&quot;Wy&quot;</span>] <span class="sc">*</span> (Wy_p90 <span class="sc">-</span> Wy_p10)</span>
+<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-292"><a href="#cb25-292" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;CONTEXT EFFECT (P10 -&gt; P90 Wy): +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_context))</span>
 <span id="cb25-293"><a href="#cb25-293" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-294"><a href="#cb25-294" aria-hidden="true" tabindex="-1"></a><span class="co"># Reporte</span></span>
-<span id="cb25-295"><a href="#cb25-295" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;CONTEXT EFFECT (P10 -&gt; P90 Wy): +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_context))</span>
-<span id="cb25-296"><a href="#cb25-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-297"><a href="#cb25-297" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Demográfico ---</span></span>
-<span id="cb25-298"><a href="#cb25-298" aria-hidden="true" tabindex="-1"></a><span class="co"># (Raza: White -&gt; Black)</span></span>
-<span id="cb25-299"><a href="#cb25-299" aria-hidden="true" tabindex="-1"></a>delta_race_black <span class="ot">&lt;-</span> coefs[<span class="st">&quot;race_black&quot;</span>]</span>
-<span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;RACE EFFECT (White -&gt; Black):  +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_race_black))</span>
-<span id="cb25-301"><a href="#cb25-301" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-302"><a href="#cb25-302" aria-hidden="true" tabindex="-1"></a><span class="co"># (Sexo: Male -&gt; Female)</span></span>
-<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a>delta_female <span class="ot">&lt;-</span> coefs[<span class="st">&quot;female&quot;</span>]</span>
-<span id="cb25-304"><a href="#cb25-304" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;SEX EFFECT (Male -&gt; Female):   +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_female))</span>
-<span id="cb25-305"><a href="#cb25-305" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-294"><a href="#cb25-294" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Demográfico --- (Race: White -&gt; Black)</span></span>
+<span id="cb25-295"><a href="#cb25-295" aria-hidden="true" tabindex="-1"></a>delta_race_black <span class="ot">&lt;-</span> coefs[<span class="st">&quot;race_black&quot;</span>]</span>
+<span id="cb25-296"><a href="#cb25-296" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;RACE EFFECT (White -&gt; Black):  +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_race_black))</span>
+<span id="cb25-297"><a href="#cb25-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-298"><a href="#cb25-298" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Efecto Demográfico --- (Sex: Male -&gt; Female)</span></span>
+<span id="cb25-299"><a href="#cb25-299" aria-hidden="true" tabindex="-1"></a>delta_female <span class="ot">&lt;-</span> coefs[<span class="st">&quot;female&quot;</span>]</span>
+<span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;SEX EFFECT (Male -&gt; Female):   +%.2f puntos</span><span class="sc">\n</span><span class="st">&quot;</span>, delta_female))</span>
+<span id="cb25-301"><a href="#cb25-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-302"><a href="#cb25-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Interludio: Simulación de Redes Completas</span></span>
+<span id="cb25-304"><a href="#cb25-304" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-305"><a href="#cb25-305" aria-hidden="true" tabindex="-1"></a>Si bien la imputación en Blau Space nos permite calcular un $(Wy)$ para cada individuo, no produce una red explícita de &quot;quién es amigo de quién&quot; a nivel global. </span>
 <span id="cb25-306"><a href="#cb25-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-307"><a href="#cb25-307" aria-hidden="true" tabindex="-1"></a><span class="fu">## 3. Parte B: Simulación de Redes Completas (ERGM)</span></span>
+<span id="cb25-307"><a href="#cb25-307" aria-hidden="true" tabindex="-1"></a>Para generar una topología de red completa que respete los principios de homofilia estimados, utilizamos un **Exponential Random Graph Model (ERGM)**, que nos permite simular grafos donde la probabilidad de un lazo depende de:</span>
 <span id="cb25-308"><a href="#cb25-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-309"><a href="#cb25-309" aria-hidden="true" tabindex="-1"></a>Si bien la imputación en Blau Space nos permite calcular un $(Wy)$ para cada individuo, no produce una red explícita de &quot;quién es amigo de quién&quot; a nivel global. </span>
+<span id="cb25-309"><a href="#cb25-309" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Homofilia paramétrica**: exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.</span>
 <span id="cb25-310"><a href="#cb25-310" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-311"><a href="#cb25-311" aria-hidden="true" tabindex="-1"></a>Para generar una topología de red completa que respete los principios de homofilia estimados, utilizamos un **Exponential Random Graph Model (ERGM)**, que nos permite simular grafos donde la probabilidad de un lazo depende de:</span>
+<span id="cb25-311"><a href="#cb25-311" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Densidad (Edges)**: nos dice cuántos lazos existen en total, así que ajustamos el parámetro <span class="in">`edges`</span> (intercepto) hasta alcanzar la densidad observada en redes reales.</span>
 <span id="cb25-312"><a href="#cb25-312" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-313"><a href="#cb25-313" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Homofilia paramétrica**: exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.</span>
+<span id="cb25-313"><a href="#cb25-313" aria-hidden="true" tabindex="-1"></a>Fijaremos una **densidad de 0.03** (aprox. 30 lazos por cada 200 pares posibles).</span>
 <span id="cb25-314"><a href="#cb25-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-315"><a href="#cb25-315" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Densidad (Edges)**: nos dice cuántos lazos existen en total, así que ajustamos el parámetro <span class="in">`edges`</span> (intercepto) hasta alcanzar la densidad observada en redes reales.</span>
+<span id="cb25-315"><a href="#cb25-315" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1. Calibración `edges`</span></span>
 <span id="cb25-316"><a href="#cb25-316" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-317"><a href="#cb25-317" aria-hidden="true" tabindex="-1"></a>Fijaremos una **densidad de 0.03** (aprox. 30 lazos por cada 200 pares posibles).</span>
+<span id="cb25-317"><a href="#cb25-317" aria-hidden="true" tabindex="-1"></a>Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.</span>
 <span id="cb25-318"><a href="#cb25-318" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-319"><a href="#cb25-319" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.1. Simulación y Calibración</span></span>
-<span id="cb25-320"><a href="#cb25-320" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-321"><a href="#cb25-321" aria-hidden="true" tabindex="-1"></a>Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.</span>
-<span id="cb25-322"><a href="#cb25-322" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-325"><a href="#cb25-325" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-326"><a href="#cb25-326" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-ergm</span></span>
-<span id="cb25-327"><a href="#cb25-327" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb25-328"><a href="#cb25-328" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb25-329"><a href="#cb25-329" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-330"><a href="#cb25-330" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ergm)</span>
-<span id="cb25-331"><a href="#cb25-331" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
-<span id="cb25-332"><a href="#cb25-332" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-333"><a href="#cb25-333" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Submuestreo (N=200)</span></span>
-<span id="cb25-334"><a href="#cb25-334" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
-<span id="cb25-335"><a href="#cb25-335" aria-hidden="true" tabindex="-1"></a>target_n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
-<span id="cb25-336"><a href="#cb25-336" aria-hidden="true" tabindex="-1"></a>idx_sample <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(final_df), target_n)</span>
-<span id="cb25-337"><a href="#cb25-337" aria-hidden="true" tabindex="-1"></a>small_df <span class="ot">&lt;-</span> final_df[idx_sample, ]</span>
-<span id="cb25-338"><a href="#cb25-338" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-339"><a href="#cb25-339" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Inicializar Red Vacía con Atributos</span></span>
-<span id="cb25-340"><a href="#cb25-340" aria-hidden="true" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">network</span>(target_n, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">density =</span> <span class="dv">0</span>)</span>
-<span id="cb25-341"><a href="#cb25-341" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;race&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>race_raw))</span>
-<span id="cb25-342"><a href="#cb25-342" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;sex&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>female)) <span class="co"># 0/1</span></span>
-<span id="cb25-343"><a href="#cb25-343" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;edu_num&quot;</span>, small_df<span class="sc">$</span>educ)</span>
-<span id="cb25-344"><a href="#cb25-344" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;age&quot;</span>, small_df<span class="sc">$</span>age)</span>
-<span id="cb25-345"><a href="#cb25-345" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;relig&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>relig_raw))</span>
-<span id="cb25-346"><a href="#cb25-346" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-347"><a href="#cb25-347" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Definir Coeficientes (Mismos valores Sección 2.1)</span></span>
-<span id="cb25-348"><a href="#cb25-348" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANTE: ERGM usa &#39;nodematch&#39; (coincidencia), por lo que invertimos el signo</span></span>
-<span id="cb25-349"><a href="#cb25-349" aria-hidden="true" tabindex="-1"></a><span class="co"># de los coeficientes de &#39;diferencia&#39; para raza, sexo y religión.</span></span>
-<span id="cb25-350"><a href="#cb25-350" aria-hidden="true" tabindex="-1"></a><span class="co"># Las variables continuas (edad, educ) usan &#39;absdiff&#39;, manteniendo su signo negativo.</span></span>
-<span id="cb25-351"><a href="#cb25-351" aria-hidden="true" tabindex="-1"></a>coefs_target <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb25-352"><a href="#cb25-352" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> <span class="sc">-</span><span class="fl">6.5</span>, <span class="co"># Valor inicial (&quot;semilla&quot;)</span></span>
-<span id="cb25-353"><a href="#cb25-353" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.race =</span> <span class="fl">1.352</span>, <span class="co"># -(-1.352)</span></span>
-<span id="cb25-354"><a href="#cb25-354" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.sex =</span> <span class="fl">0.256</span>, <span class="co"># -(-0.256)</span></span>
-<span id="cb25-355"><a href="#cb25-355" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.relig =</span> <span class="fl">1.354</span>, <span class="co"># -(-1.354)</span></span>
-<span id="cb25-356"><a href="#cb25-356" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.age =</span> <span class="sc">-</span><span class="fl">0.047</span>,</span>
-<span id="cb25-357"><a href="#cb25-357" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.edu_num =</span> <span class="sc">-</span><span class="fl">0.189</span></span>
-<span id="cb25-358"><a href="#cb25-358" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-321"><a href="#cb25-321" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-322"><a href="#cb25-322" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: run-ergm</span></span>
+<span id="cb25-323"><a href="#cb25-323" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb25-324"><a href="#cb25-324" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb25-325"><a href="#cb25-325" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-326"><a href="#cb25-326" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ergm)</span>
+<span id="cb25-327"><a href="#cb25-327" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(network)</span>
+<span id="cb25-328"><a href="#cb25-328" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-329"><a href="#cb25-329" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Submuestreo (N=200)</span></span>
+<span id="cb25-330"><a href="#cb25-330" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb25-331"><a href="#cb25-331" aria-hidden="true" tabindex="-1"></a>target_n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb25-332"><a href="#cb25-332" aria-hidden="true" tabindex="-1"></a>idx_sample <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(final_df), target_n)</span>
+<span id="cb25-333"><a href="#cb25-333" aria-hidden="true" tabindex="-1"></a>small_df <span class="ot">&lt;-</span> final_df[idx_sample, ]</span>
+<span id="cb25-334"><a href="#cb25-334" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-335"><a href="#cb25-335" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Inicializar Red Vacía con Atributos</span></span>
+<span id="cb25-336"><a href="#cb25-336" aria-hidden="true" tabindex="-1"></a>net <span class="ot">&lt;-</span> <span class="fu">network</span>(target_n, <span class="at">directed =</span> <span class="cn">FALSE</span>, <span class="at">density =</span> <span class="dv">0</span>)</span>
+<span id="cb25-337"><a href="#cb25-337" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;race&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>race_raw))</span>
+<span id="cb25-338"><a href="#cb25-338" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;sex&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>female)) <span class="co"># 0/1</span></span>
+<span id="cb25-339"><a href="#cb25-339" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;edu_num&quot;</span>, small_df<span class="sc">$</span>educ)</span>
+<span id="cb25-340"><a href="#cb25-340" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;age&quot;</span>, small_df<span class="sc">$</span>age)</span>
+<span id="cb25-341"><a href="#cb25-341" aria-hidden="true" tabindex="-1"></a><span class="fu">set.vertex.attribute</span>(net, <span class="st">&quot;relig&quot;</span>, <span class="fu">as.character</span>(small_df<span class="sc">$</span>relig_raw))</span>
+<span id="cb25-342"><a href="#cb25-342" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-343"><a href="#cb25-343" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Definir Coeficientes (Mismos valores Sección 2.1)</span></span>
+<span id="cb25-344"><a href="#cb25-344" aria-hidden="true" tabindex="-1"></a><span class="co"># IMPORTANTE: ERGM usa &#39;nodematch&#39; (coincidencia), por lo que invertimos el signo</span></span>
+<span id="cb25-345"><a href="#cb25-345" aria-hidden="true" tabindex="-1"></a><span class="co"># de los coeficientes de &#39;diferencia&#39; para raza, sexo y religión.</span></span>
+<span id="cb25-346"><a href="#cb25-346" aria-hidden="true" tabindex="-1"></a><span class="co"># Las variables continuas (edad, educ) usan &#39;absdiff&#39;, manteniendo su signo negativo.</span></span>
+<span id="cb25-347"><a href="#cb25-347" aria-hidden="true" tabindex="-1"></a>coefs_target <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb25-348"><a href="#cb25-348" aria-hidden="true" tabindex="-1"></a>    <span class="at">edges =</span> <span class="sc">-</span><span class="fl">6.5</span>, <span class="co"># Valor inicial (&quot;semilla&quot;)</span></span>
+<span id="cb25-349"><a href="#cb25-349" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.race =</span> <span class="fl">1.352</span>, <span class="co"># -(-1.352)</span></span>
+<span id="cb25-350"><a href="#cb25-350" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.sex =</span> <span class="fl">0.256</span>, <span class="co"># -(-0.256)</span></span>
+<span id="cb25-351"><a href="#cb25-351" aria-hidden="true" tabindex="-1"></a>    <span class="at">nodematch.relig =</span> <span class="fl">1.354</span>, <span class="co"># -(-1.354)</span></span>
+<span id="cb25-352"><a href="#cb25-352" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.age =</span> <span class="sc">-</span><span class="fl">0.047</span>,</span>
+<span id="cb25-353"><a href="#cb25-353" aria-hidden="true" tabindex="-1"></a>    <span class="at">absdiff.edu_num =</span> <span class="sc">-</span><span class="fl">0.189</span></span>
+<span id="cb25-354"><a href="#cb25-354" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-355"><a href="#cb25-355" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-356"><a href="#cb25-356" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula del Modelo</span></span>
+<span id="cb25-357"><a href="#cb25-357" aria-hidden="true" tabindex="-1"></a>ergm_formula <span class="ot">&lt;-</span> net <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;race&quot;</span>) <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;sex&quot;</span>) <span class="sc">+</span></span>
+<span id="cb25-358"><a href="#cb25-358" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nodematch</span>(<span class="st">&quot;relig&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;age&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;edu_num&quot;</span>)</span>
 <span id="cb25-359"><a href="#cb25-359" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-360"><a href="#cb25-360" aria-hidden="true" tabindex="-1"></a><span class="co"># Fórmula del Modelo</span></span>
-<span id="cb25-361"><a href="#cb25-361" aria-hidden="true" tabindex="-1"></a>ergm_formula <span class="ot">&lt;-</span> net <span class="sc">~</span> edges <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;race&quot;</span>) <span class="sc">+</span> <span class="fu">nodematch</span>(<span class="st">&quot;sex&quot;</span>) <span class="sc">+</span></span>
-<span id="cb25-362"><a href="#cb25-362" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nodematch</span>(<span class="st">&quot;relig&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;age&quot;</span>) <span class="sc">+</span> <span class="fu">absdiff</span>(<span class="st">&quot;edu_num&quot;</span>)</span>
-<span id="cb25-363"><a href="#cb25-363" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-364"><a href="#cb25-364" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calibración Rápida de Densidad (Max 5 Iteraciones)</span></span>
-<span id="cb25-365"><a href="#cb25-365" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="fl">0.03</span></span>
-<span id="cb25-366"><a href="#cb25-366" aria-hidden="true" tabindex="-1"></a>current_edges <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">4.0</span> <span class="co"># Ajustamos el intercepto inicial para densidad más alta</span></span>
-<span id="cb25-367"><a href="#cb25-367" aria-hidden="true" tabindex="-1"></a>step_size <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
-<span id="cb25-368"><a href="#cb25-368" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-369"><a href="#cb25-369" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Calibrando parámetro &#39;edges&#39; para densidad ~0.03...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb25-370"><a href="#cb25-370" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-371"><a href="#cb25-371" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
-<span id="cb25-372"><a href="#cb25-372" aria-hidden="true" tabindex="-1"></a>    coefs_target[<span class="st">&quot;edges&quot;</span>] <span class="ot">&lt;-</span> current_edges</span>
+<span id="cb25-360"><a href="#cb25-360" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Calibración Rápida de Densidad (Max 5 Iteraciones)</span></span>
+<span id="cb25-361"><a href="#cb25-361" aria-hidden="true" tabindex="-1"></a>target_density <span class="ot">&lt;-</span> <span class="fl">0.03</span></span>
+<span id="cb25-362"><a href="#cb25-362" aria-hidden="true" tabindex="-1"></a>current_edges <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fl">4.0</span> <span class="co"># Ajustamos el intercepto inicial para densidad más alta</span></span>
+<span id="cb25-363"><a href="#cb25-363" aria-hidden="true" tabindex="-1"></a>step_size <span class="ot">&lt;-</span> <span class="fl">0.5</span></span>
+<span id="cb25-364"><a href="#cb25-364" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-365"><a href="#cb25-365" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Calibrando parámetro &#39;edges&#39; para densidad ~0.03...</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb25-366"><a href="#cb25-366" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-367"><a href="#cb25-367" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
+<span id="cb25-368"><a href="#cb25-368" aria-hidden="true" tabindex="-1"></a>    coefs_target[<span class="st">&quot;edges&quot;</span>] <span class="ot">&lt;-</span> current_edges</span>
+<span id="cb25-369"><a href="#cb25-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-370"><a href="#cb25-370" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simular 1 red</span></span>
+<span id="cb25-371"><a href="#cb25-371" aria-hidden="true" tabindex="-1"></a>    sim_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-372"><a href="#cb25-372" aria-hidden="true" tabindex="-1"></a>    current_density <span class="ot">&lt;-</span> <span class="fu">network.density</span>(sim_net)</span>
 <span id="cb25-373"><a href="#cb25-373" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-374"><a href="#cb25-374" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Simular 1 red</span></span>
-<span id="cb25-375"><a href="#cb25-375" aria-hidden="true" tabindex="-1"></a>    sim_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb25-376"><a href="#cb25-376" aria-hidden="true" tabindex="-1"></a>    current_density <span class="ot">&lt;-</span> <span class="fu">network.density</span>(sim_net)</span>
-<span id="cb25-377"><a href="#cb25-377" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-378"><a href="#cb25-378" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Iter %d: Edges Coef = %.2f -&gt; Densidad = %.5f</span><span class="sc">\n</span><span class="st">&quot;</span>, i, current_edges, current_density))</span>
-<span id="cb25-379"><a href="#cb25-379" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-380"><a href="#cb25-380" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajuste simple de búsqueda</span></span>
-<span id="cb25-381"><a href="#cb25-381" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_density <span class="sc">&lt;</span> target_density) {</span>
-<span id="cb25-382"><a href="#cb25-382" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">+</span> step_size <span class="co"># Subir probabilidad</span></span>
-<span id="cb25-383"><a href="#cb25-383" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb25-384"><a href="#cb25-384" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">-</span> step_size <span class="co"># Bajar probabilidad</span></span>
-<span id="cb25-385"><a href="#cb25-385" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb25-386"><a href="#cb25-386" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reducimos paso para refinar</span></span>
-<span id="cb25-387"><a href="#cb25-387" aria-hidden="true" tabindex="-1"></a>    step_size <span class="ot">&lt;-</span> step_size <span class="sc">*</span> <span class="fl">0.6</span></span>
-<span id="cb25-388"><a href="#cb25-388" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb25-389"><a href="#cb25-389" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb25-390"><a href="#cb25-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-374"><a href="#cb25-374" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">&quot;Iter %d: Edges Coef = %.2f -&gt; Densidad = %.5f</span><span class="sc">\n</span><span class="st">&quot;</span>, i, current_edges, current_density))</span>
+<span id="cb25-375"><a href="#cb25-375" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-376"><a href="#cb25-376" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Ajuste simple de búsqueda</span></span>
+<span id="cb25-377"><a href="#cb25-377" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (current_density <span class="sc">&lt;</span> target_density) {</span>
+<span id="cb25-378"><a href="#cb25-378" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">+</span> step_size <span class="co"># Subir probabilidad</span></span>
+<span id="cb25-379"><a href="#cb25-379" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb25-380"><a href="#cb25-380" aria-hidden="true" tabindex="-1"></a>        current_edges <span class="ot">&lt;-</span> current_edges <span class="sc">-</span> step_size <span class="co"># Bajar probabilidad</span></span>
+<span id="cb25-381"><a href="#cb25-381" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb25-382"><a href="#cb25-382" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reducimos paso para refinar</span></span>
+<span id="cb25-383"><a href="#cb25-383" aria-hidden="true" tabindex="-1"></a>    step_size <span class="ot">&lt;-</span> step_size <span class="sc">*</span> <span class="fl">0.6</span></span>
+<span id="cb25-384"><a href="#cb25-384" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-385"><a href="#cb25-385" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-386"><a href="#cb25-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-387"><a href="#cb25-387" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-388"><a href="#cb25-388" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2. Visualización de red simulada</span></span>
+<span id="cb25-389"><a href="#cb25-389" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-390"><a href="#cb25-390" aria-hidden="true" tabindex="-1"></a>Genial, ahora que tenemos los coeficientes calibrados, podemos generar la red final.</span>
 <span id="cb25-391"><a href="#cb25-391" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-392"><a href="#cb25-392" aria-hidden="true" tabindex="-1"></a><span class="fu">### 3.2. Visualización de la Red</span></span>
-<span id="cb25-393"><a href="#cb25-393" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-394"><a href="#cb25-394" aria-hidden="true" tabindex="-1"></a>Genial, ahora que tenemos los coeficientes calibrados, podemos generar la red final.</span>
-<span id="cb25-395"><a href="#cb25-395" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-398"><a href="#cb25-398" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-399"><a href="#cb25-399" aria-hidden="true" tabindex="-1"></a>final_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">seed =</span> <span class="dv">111</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb25-400"><a href="#cb25-400" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Densidad Final:&quot;</span>, <span class="fu">network.density</span>(final_net), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb25-401"><a href="#cb25-401" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb25-402"><a href="#cb25-402" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-403"><a href="#cb25-403" aria-hidden="true" tabindex="-1"></a>Finalmente, visualizamos la red resultante. Los nodos están coloreados por raza, mostrando cómo la homofilia genera agrupamientos (&quot;clusters&quot;) naturales en la red social sintética.</span>
-<span id="cb25-404"><a href="#cb25-404" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-407"><a href="#cb25-407" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-408"><a href="#cb25-408" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: viz-ergm</span></span>
-<span id="cb25-409"><a href="#cb25-409" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
-<span id="cb25-410"><a href="#cb25-410" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
-<span id="cb25-411"><a href="#cb25-411" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: &quot;Red simulada (N=200): Componente Principal y Distribución de Grado&quot;</span></span>
-<span id="cb25-412"><a href="#cb25-412" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
-<span id="cb25-413"><a href="#cb25-413" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-414"><a href="#cb25-414" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
-<span id="cb25-415"><a href="#cb25-415" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(intergraph)</span>
-<span id="cb25-416"><a href="#cb25-416" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-417"><a href="#cb25-417" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Convertir a igraph</span></span>
-<span id="cb25-418"><a href="#cb25-418" aria-hidden="true" tabindex="-1"></a>g_sim <span class="ot">&lt;-</span> <span class="fu">asIgraph</span>(final_net)</span>
+<span id="cb25-394"><a href="#cb25-394" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-395"><a href="#cb25-395" aria-hidden="true" tabindex="-1"></a>final_net <span class="ot">&lt;-</span> <span class="fu">simulate</span>(ergm_formula, <span class="at">coef =</span> coefs_target, <span class="at">seed =</span> <span class="dv">111</span>, <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb25-396"><a href="#cb25-396" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Densidad Final:&quot;</span>, <span class="fu">network.density</span>(final_net), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb25-397"><a href="#cb25-397" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-398"><a href="#cb25-398" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-399"><a href="#cb25-399" aria-hidden="true" tabindex="-1"></a>Finalmente, visualizamos la red resultante. Los nodos están coloreados por raza, mostrando cómo la homofilia genera agrupamientos (&quot;clusters&quot;) naturales en la red social sintética.</span>
+<span id="cb25-400"><a href="#cb25-400" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-403"><a href="#cb25-403" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-404"><a href="#cb25-404" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: viz-ergm</span></span>
+<span id="cb25-405"><a href="#cb25-405" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb25-406"><a href="#cb25-406" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb25-407"><a href="#cb25-407" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: &quot;Red simulada (N=200): Componente Principal y Distribución de Grado&quot;</span></span>
+<span id="cb25-408"><a href="#cb25-408" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
+<span id="cb25-409"><a href="#cb25-409" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-410"><a href="#cb25-410" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(igraph)</span>
+<span id="cb25-411"><a href="#cb25-411" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(intergraph)</span>
+<span id="cb25-412"><a href="#cb25-412" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-413"><a href="#cb25-413" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Convertir a igraph</span></span>
+<span id="cb25-414"><a href="#cb25-414" aria-hidden="true" tabindex="-1"></a>g_sim <span class="ot">&lt;-</span> <span class="fu">asIgraph</span>(final_net)</span>
+<span id="cb25-415"><a href="#cb25-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-416"><a href="#cb25-416" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extraer Componente Gigante</span></span>
+<span id="cb25-417"><a href="#cb25-417" aria-hidden="true" tabindex="-1"></a>comps <span class="ot">&lt;-</span> <span class="fu">decompose</span>(g_sim, <span class="at">mode =</span> <span class="st">&quot;weak&quot;</span>)</span>
+<span id="cb25-418"><a href="#cb25-418" aria-hidden="true" tabindex="-1"></a>g_main <span class="ot">&lt;-</span> comps[[<span class="fu">which.max</span>(<span class="fu">sapply</span>(comps, vcount))]]</span>
 <span id="cb25-419"><a href="#cb25-419" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-420"><a href="#cb25-420" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Extraer Componente Gigante</span></span>
-<span id="cb25-421"><a href="#cb25-421" aria-hidden="true" tabindex="-1"></a>comps <span class="ot">&lt;-</span> <span class="fu">decompose</span>(g_sim, <span class="at">mode =</span> <span class="st">&quot;weak&quot;</span>)</span>
-<span id="cb25-422"><a href="#cb25-422" aria-hidden="true" tabindex="-1"></a>g_main <span class="ot">&lt;-</span> comps[[<span class="fu">which.max</span>(<span class="fu">sapply</span>(comps, vcount))]]</span>
-<span id="cb25-423"><a href="#cb25-423" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-424"><a href="#cb25-424" aria-hidden="true" tabindex="-1"></a><span class="co"># Colores por Raza (en el componente)</span></span>
-<span id="cb25-425"><a href="#cb25-425" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(g_main)<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
-<span id="cb25-426"><a href="#cb25-426" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_main)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">~</span> <span class="st">&quot;lightblue&quot;</span>, <span class="co"># White</span></span>
-<span id="cb25-427"><a href="#cb25-427" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_main)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;tomato&quot;</span>, <span class="co"># Black</span></span>
-<span id="cb25-428"><a href="#cb25-428" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_main)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">~</span> <span class="st">&quot;gold&quot;</span>, <span class="co"># Hispanic</span></span>
-<span id="cb25-429"><a href="#cb25-429" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;gray&quot;</span></span>
-<span id="cb25-430"><a href="#cb25-430" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-431"><a href="#cb25-431" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-432"><a href="#cb25-432" aria-hidden="true" tabindex="-1"></a><span class="co"># Layout: Dividimos el espacio gráfico</span></span>
-<span id="cb25-433"><a href="#cb25-433" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
-<span id="cb25-434"><a href="#cb25-434" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-435"><a href="#cb25-435" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plot 1: Red (Giant Component) ---</span></span>
-<span id="cb25-436"><a href="#cb25-436" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_main,</span>
-<span id="cb25-437"><a href="#cb25-437" aria-hidden="true" tabindex="-1"></a>    <span class="at">layout =</span> <span class="fu">layout_with_fr</span>(g_main),</span>
-<span id="cb25-438"><a href="#cb25-438" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.size =</span> <span class="dv">5</span>,</span>
-<span id="cb25-439"><a href="#cb25-439" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
-<span id="cb25-440"><a href="#cb25-440" aria-hidden="true" tabindex="-1"></a>    <span class="at">edge.color =</span> <span class="fu">adjustcolor</span>(<span class="st">&quot;black&quot;</span>, <span class="at">alpha.f =</span> <span class="fl">0.3</span>),</span>
-<span id="cb25-441"><a href="#cb25-441" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">&quot;Simulación ERGM (Componente Principal), N=&quot;</span>, <span class="fu">vcount</span>(g_main))</span>
+<span id="cb25-420"><a href="#cb25-420" aria-hidden="true" tabindex="-1"></a><span class="co"># Colores por Raza (en el componente)</span></span>
+<span id="cb25-421"><a href="#cb25-421" aria-hidden="true" tabindex="-1"></a><span class="fu">V</span>(g_main)<span class="sc">$</span>color <span class="ot">&lt;-</span> <span class="fu">case_when</span>(</span>
+<span id="cb25-422"><a href="#cb25-422" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_main)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;1&quot;</span> <span class="sc">~</span> <span class="st">&quot;lightblue&quot;</span>, <span class="co"># White</span></span>
+<span id="cb25-423"><a href="#cb25-423" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_main)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;2&quot;</span> <span class="sc">~</span> <span class="st">&quot;tomato&quot;</span>, <span class="co"># Black</span></span>
+<span id="cb25-424"><a href="#cb25-424" aria-hidden="true" tabindex="-1"></a>    <span class="fu">V</span>(g_main)<span class="sc">$</span>race <span class="sc">==</span> <span class="st">&quot;3&quot;</span> <span class="sc">~</span> <span class="st">&quot;gold&quot;</span>, <span class="co"># Hispanic</span></span>
+<span id="cb25-425"><a href="#cb25-425" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;gray&quot;</span></span>
+<span id="cb25-426"><a href="#cb25-426" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-427"><a href="#cb25-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-428"><a href="#cb25-428" aria-hidden="true" tabindex="-1"></a><span class="co"># Layout: Dividimos el espacio gráfico</span></span>
+<span id="cb25-429"><a href="#cb25-429" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb25-430"><a href="#cb25-430" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-431"><a href="#cb25-431" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plot 1: Red (Giant Component) ---</span></span>
+<span id="cb25-432"><a href="#cb25-432" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(g_main,</span>
+<span id="cb25-433"><a href="#cb25-433" aria-hidden="true" tabindex="-1"></a>    <span class="at">layout =</span> <span class="fu">layout_with_fr</span>(g_main),</span>
+<span id="cb25-434"><a href="#cb25-434" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.size =</span> <span class="dv">5</span>,</span>
+<span id="cb25-435"><a href="#cb25-435" aria-hidden="true" tabindex="-1"></a>    <span class="at">vertex.label =</span> <span class="cn">NA</span>,</span>
+<span id="cb25-436"><a href="#cb25-436" aria-hidden="true" tabindex="-1"></a>    <span class="at">edge.color =</span> <span class="fu">adjustcolor</span>(<span class="st">&quot;black&quot;</span>, <span class="at">alpha.f =</span> <span class="fl">0.3</span>),</span>
+<span id="cb25-437"><a href="#cb25-437" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="fu">paste</span>(<span class="st">&quot;Simulación ERGM (Componente Principal), N=&quot;</span>, <span class="fu">vcount</span>(g_main))</span>
+<span id="cb25-438"><a href="#cb25-438" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-439"><a href="#cb25-439" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>,</span>
+<span id="cb25-440"><a href="#cb25-440" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>),</span>
+<span id="cb25-441"><a href="#cb25-441" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="at">cex =</span> <span class="fl">0.8</span></span>
 <span id="cb25-442"><a href="#cb25-442" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-443"><a href="#cb25-443" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">&quot;topleft&quot;</span>,</span>
-<span id="cb25-444"><a href="#cb25-444" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend =</span> <span class="fu">c</span>(<span class="st">&quot;White&quot;</span>, <span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>),</span>
-<span id="cb25-445"><a href="#cb25-445" aria-hidden="true" tabindex="-1"></a>    <span class="at">col =</span> <span class="fu">c</span>(<span class="st">&quot;lightblue&quot;</span>, <span class="st">&quot;tomato&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="at">cex =</span> <span class="fl">0.8</span></span>
-<span id="cb25-446"><a href="#cb25-446" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-443"><a href="#cb25-443" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-444"><a href="#cb25-444" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plot 2: Distribución de Grados ---</span></span>
+<span id="cb25-445"><a href="#cb25-445" aria-hidden="true" tabindex="-1"></a>deg <span class="ot">&lt;-</span> <span class="fu">degree</span>(g_sim)</span>
+<span id="cb25-446"><a href="#cb25-446" aria-hidden="true" tabindex="-1"></a>mean_deg <span class="ot">&lt;-</span> <span class="fu">mean</span>(deg)</span>
 <span id="cb25-447"><a href="#cb25-447" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-448"><a href="#cb25-448" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Plot 2: Distribución de Grados ---</span></span>
-<span id="cb25-449"><a href="#cb25-449" aria-hidden="true" tabindex="-1"></a>deg <span class="ot">&lt;-</span> <span class="fu">degree</span>(g_sim)</span>
-<span id="cb25-450"><a href="#cb25-450" aria-hidden="true" tabindex="-1"></a>mean_deg <span class="ot">&lt;-</span> <span class="fu">mean</span>(deg)</span>
-<span id="cb25-451"><a href="#cb25-451" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-452"><a href="#cb25-452" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(deg,</span>
-<span id="cb25-453"><a href="#cb25-453" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="dv">15</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>, <span class="at">border =</span> <span class="st">&quot;white&quot;</span>,</span>
-<span id="cb25-454"><a href="#cb25-454" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">&quot;Distribución de Grados&quot;</span>,</span>
-<span id="cb25-455"><a href="#cb25-455" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">&quot;Grado (Número de conexiones)&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Frecuencia&quot;</span></span>
-<span id="cb25-456"><a href="#cb25-456" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-457"><a href="#cb25-457" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> mean_deg, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb25-458"><a href="#cb25-458" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(mean_deg, <span class="fu">max</span>(<span class="fu">table</span>(deg)) <span class="sc">*</span> <span class="fl">0.9</span>,</span>
-<span id="cb25-459"><a href="#cb25-459" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="st">&quot;Media:&quot;</span>, <span class="fu">round</span>(mean_deg, <span class="dv">1</span>)),</span>
-<span id="cb25-460"><a href="#cb25-460" aria-hidden="true" tabindex="-1"></a>    <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">cex =</span> <span class="fl">0.9</span></span>
-<span id="cb25-461"><a href="#cb25-461" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-462"><a href="#cb25-462" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-448"><a href="#cb25-448" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(deg,</span>
+<span id="cb25-449"><a href="#cb25-449" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="dv">15</span>, <span class="at">col =</span> <span class="st">&quot;steelblue&quot;</span>, <span class="at">border =</span> <span class="st">&quot;white&quot;</span>,</span>
+<span id="cb25-450"><a href="#cb25-450" aria-hidden="true" tabindex="-1"></a>    <span class="at">main =</span> <span class="st">&quot;Distribución de Grados&quot;</span>,</span>
+<span id="cb25-451"><a href="#cb25-451" aria-hidden="true" tabindex="-1"></a>    <span class="at">xlab =</span> <span class="st">&quot;Grado (Número de conexiones)&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;Frecuencia&quot;</span></span>
+<span id="cb25-452"><a href="#cb25-452" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-453"><a href="#cb25-453" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">v =</span> mean_deg, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">lwd =</span> <span class="dv">2</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb25-454"><a href="#cb25-454" aria-hidden="true" tabindex="-1"></a><span class="fu">text</span>(mean_deg, <span class="fu">max</span>(<span class="fu">table</span>(deg)) <span class="sc">*</span> <span class="fl">0.9</span>,</span>
+<span id="cb25-455"><a href="#cb25-455" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="st">&quot;Media:&quot;</span>, <span class="fu">round</span>(mean_deg, <span class="dv">1</span>)),</span>
+<span id="cb25-456"><a href="#cb25-456" aria-hidden="true" tabindex="-1"></a>    <span class="at">pos =</span> <span class="dv">4</span>, <span class="at">col =</span> <span class="st">&quot;red&quot;</span>, <span class="at">cex =</span> <span class="fl">0.9</span></span>
+<span id="cb25-457"><a href="#cb25-457" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-458"><a href="#cb25-458" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
