@@ -28,7 +28,7 @@ El **Blau space** es un espacio multidimensional donde cada individuo se represe
 
 (iii) la estructura de oportunidades inducida por las distribuciones marginales de atributos.
 
-![](figs/fig1-blau-space.png){fig-cap="Figure 1. Example networks in two-dimensional Blau space."}
+![Figure 1. Social distance in two-dimensional Blau space.](figs/fig1-blau-space.png){width="90%"}
 
 ### 1.2. Término Contextual
 
@@ -382,7 +382,7 @@ for (i in 1:5) {
 Genial, ahora que tenemos los coeficientes calibrados, podemos generar la red final.
 
 ```{r}
-final_net <- simulate(ergm_formula, coef = coefs_target, verbose = FALSE)
+final_net <- simulate(ergm_formula, coef = coefs_target, seed = 111, verbose = FALSE)
 cat("Densidad Final:", network.density(final_net), "\n")
 ```
 
@@ -430,7 +430,7 @@ legend("topleft",
 )
 
 # --- Plot 2: Distribución de Grados ---
-deg <- degree(g_main)
+deg <- degree(g_sim)
 mean_deg <- mean(deg)
 
 hist(deg,
