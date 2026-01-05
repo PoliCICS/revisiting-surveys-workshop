@@ -296,19 +296,17 @@ cat(sprintf("SEX EFFECT (Male -> Female):   +%.2f puntos\n", delta_female))
 
 ## 3. Parte B: Simulación de Redes Completas (ERGM)
 
-Si bien la imputación en Blau Space nos permite calcular un $Wy$ para cada individuo, no produce una red explícita de "quién es amigo de quién" a nivel global. Para generar una topología de red completa que respete los principios de homofilia estimados, utilizamos un **Exponential Random Graph Model (ERGM)**.
+Si bien la imputación en Blau Space nos permite calcular un $(Wy)$ para cada individuo, no produce una red explícita de "quién es amigo de quién" a nivel global. 
 
-### 3.1. Por qué ERGM y el Factor de Densidad
+Para generar una topología de red completa que respete los principios de homofilia estimados, utilizamos un **Exponential Random Graph Model (ERGM)**, que nos permite simular grafos donde la probabilidad de un lazo depende de:
 
-El ERGM nos permite simular grafos donde la probabilidad de un lazo depende de:
+1.  **Homofilia paramétrica**: exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.
 
-1.  **Homofilia paramétrica**: Usamos exactamente los mismos coeficientes ($\boldsymbol{\beta}$) de la Sección 2.1.
+2.  **Densidad (Edges)**: nos dice cuántos lazos existen en total, así que ajustamos el parámetro `edges` (intercepto) hasta alcanzar la densidad observada en redes reales.
 
-2.  **Densidad (Edges)**: Un desafío clave es que las fórmulas de distancia de Smith et al. predicen probabilidades relativas. Para fijar la escala absoluta (cuántos lazos existen en total), necesitamos ajustar el parámetro `edges` (intercepto) hasta alcanzar la densidad observada en encuestas similares.
+Fijaremos una **densidad de 0.03** (aprox. 30 lazos por cada 200 pares posibles).
 
-En este ejercicio, fijaremos una **densidad objetivo de 0.03** (aprox. 30 lazos por cada 1000 pares posibles, consistente con redes personales dispersas).
-
-### 3.2. Simulación y Calibración
+### 3.1. Simulación y Calibración
 
 Usaremos una sub-muestra de **N=200** individuos para agilizar la simulación computacional. Utilizaremos un proceso iterativo para encontrar el intercepto que produce la densidad deseada.
 
@@ -376,46 +374,73 @@ for (i in 1:5) {
     # Reducimos paso para refinar
     step_size <- step_size * 0.6
 }
+```
 
-# 5. Simulación Final
-cat("\nGenerando red final con parámetros calibrados...\n")
+
+### 3.2. Visualización de la Red
+
+Genial, ahora que tenemos los coeficientes calibrados, podemos generar la red final.
+
+```{r}
 final_net <- simulate(ergm_formula, coef = coefs_target, verbose = FALSE)
 cat("Densidad Final:", network.density(final_net), "\n")
 ```
 
-### 3.3. Visualización de la Red
-
-Finalmente, visualizamos la estructura resultante. Los nodos están coloreados por raza, mostrando cómo la homofilia genera agrupamientos ("clusters") naturales en la red social sintética.
+Finalmente, visualizamos la red resultante. Los nodos están coloreados por raza, mostrando cómo la homofilia genera agrupamientos ("clusters") naturales en la red social sintética.
 
 ```{r}
 #| label: viz-ergm
-#| fig-cap: "Red simulada mediante ERGM (N=200) basada en parámetros de homofilia."
+#| message: false
+#| warning: false
+#| fig-cap: "Red simulada (N=200): Componente Principal y Distribución de Grado"
+#| fig-height: 8
 
 library(igraph)
 library(intergraph)
 
-# Convertir a igraph
+# 1. Convertir a igraph
 g_sim <- asIgraph(final_net)
 
-# Colores por Raza
-# Asumimos coding de clean: 1=White, 2=Black, 3=Hispanic, etc.
-# Ajustar según datos reales si es necesario
-V(g_sim)$color <- case_when(
-    V(g_sim)$race == "1" ~ "lightblue", # White
-    V(g_sim)$race == "2" ~ "tomato", # Black
-    V(g_sim)$race == "3" ~ "gold", # Hispanic
+# 2. Extraer Componente Gigante
+comps <- decompose(g_sim, mode = "weak")
+g_main <- comps[[which.max(sapply(comps, vcount))]]
+
+# Colores por Raza (en el componente)
+V(g_main)$color <- case_when(
+    V(g_main)$race == "1" ~ "lightblue", # White
+    V(g_main)$race == "2" ~ "tomato", # Black
+    V(g_main)$race == "3" ~ "gold", # Hispanic
     TRUE ~ "gray"
 )
 
-par(mar = c(0, 0, 0, 0))
-plot(g_sim,
-    layout = layout_with_fr(g_sim),
+# Layout: Dividimos el espacio gráfico
+par(mfrow = c(2, 1), mar = c(4, 4, 2, 1))
+
+# --- Plot 1: Red (Giant Component) ---
+plot(g_main,
+    layout = layout_with_fr(g_main),
     vertex.size = 5,
     vertex.label = NA,
-    edge.color = adjustcolor("black", alpha.f = 0.3)
+    edge.color = adjustcolor("black", alpha.f = 0.3),
+    main = paste("Simulación ERGM (Componente Principal), N=", vcount(g_main))
 )
 legend("topleft",
     legend = c("White", "Black", "Hispanic"),
     col = c("lightblue", "tomato", "gold"), pch = 19, bty = "n", cex = 0.8
+)
+
+# --- Plot 2: Distribución de Grados ---
+deg <- degree(g_main)
+mean_deg <- mean(deg)
+
+hist(deg,
+    breaks = 15, col = "steelblue", border = "white",
+    main = "Distribución de Grados",
+    xlab = "Grado (Número de conexiones)", ylab = "Frecuencia"
+)
+abline(v = mean_deg, col = "red", lwd = 2, lty = 2)
+text(mean_deg, max(table(deg)) * 0.9,
+    paste("Media:", round(mean_deg, 1)),
+    pos = 4, col = "red", cex = 0.9
 )
 ```
