@@ -1,9 +1,8 @@
-# ==============================================================================
 # DESAFÍO: ¿DÓNDE IMPORTA EL CONTEXTO?
-# Plantilla para el Alumno
-# ==============================================================================
 
-# 1. PREPARACIÓN (NO EDITAR) ---------------------------------------------------
+# ==============================================================================
+# 1. PREPARACIÓN ---------------------------------------------------
+# ==============================================================================
 # Cargamos las librerías necesarias. Si no las tienes, descomenta y corre:
 # install.packages(c("haven", "dplyr", "spdep", "broom"))
 
@@ -14,39 +13,17 @@ library(broom)
 
 # Cargamos los datos limpios (ANES 2016)
 DATA_PATH <- "data/anes_timeseries_2016.dta"
-if (!file.exists(DATA_PATH)) stop("Error: No se encuentra el archivo 'anes_timeseries_2016.dta'. Asegúrate de estar en la carpeta correcta del proyecto.")
-
 anes_raw <- read_dta(DATA_PATH)
 
-message("Datos cargados correctamente. N = ", nrow(anes_raw))
-
 # ==============================================================================
-# 2. SELECCIÓN DE TU VARIABLE (¡EDITAR AQUÍ!)
+# 2. SELECCIÓN DE TU VARIABLE
 # ==============================================================================
 
-# INSTRUCCIONES:
-# 1. Elige UN código de variable de la lista de abajo.
-# 2. Reemplaza "V16xxxx" en la línea 'my_variable_code' con el código elegido.
-
-# --- Lista de Variables Disponibles ---
-# V161126 : Liberal - Conservative Self-placement
-# V161139 : Current Economy Assessment
-# V161154 : Willingness to use Force (International)
-# V161201 : Environment vs. Jobs Tradeoff
-# V161522 : Satisfaction with Life
-# V161137 : Income Gap vs 20 years ago
-# V161188 : Importance of Gun Access
-# V161209 : Federal Budget: Welfare Programs
-# V161212 : Federal Budget: Environment
-
-
-# >>>>>>>>> EDITA ESTA LÍNEA <<<<<<<<<
-my_variable_code <- "V161209" # Ejemplo: Welfare Programs. ¡Cámbialo por el que quieras probar!
-# >>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<
-
+# >>>>>>>>> Tu variable <<<<<<<<<
+my_variable_code <- "V161126" # Ejemplo: Liberal - Conservative Self-placement.
 
 # ==============================================================================
-# 3. LIMPIEZA DE DATOS (AUTOMÁTICO - NO EDITAR)
+# 3. LIMPIEZA DE DATOS (NO EDITAR)
 # ==============================================================================
 message("Limpiando datos y seleccionando tu variable: ", my_variable_code, "...")
 
@@ -59,7 +36,7 @@ model_df <- anes_raw %>%
         gender_raw = V161342,
         race_raw = V161310x,
         relig_raw = V161265x,
-        target_raw = all_of(my_variable_code) # Selecciona tu variable dinámicamente
+        target_raw = all_of(my_variable_code) # Selecciona Tu variable
     ) %>%
     filter(weight > 0) %>%
     mutate(
@@ -79,7 +56,7 @@ model_df <- anes_raw %>%
         relig_none = if_else(relig_raw == 8, 1, 0),
         relig_other = if_else(relig_raw %in% c(5, 7), 1, 0),
 
-        # Limpieza de TU variable (Asumimos que -9, -8, etc son NA)
+        # Limpieza de TU variable (Asumimos que -9, -8, etc son NA) <-- REVISA ESTO
         target_clean = if_else(target_raw < 0, NA_real_, as.numeric(target_raw))
     ) %>%
     # Filtramos casos completos
@@ -89,9 +66,8 @@ model_df <- anes_raw %>%
 message("Datos listos. N Final para análisis: ", nrow(model_df))
 
 # ==============================================================================
-# 4. IMPUTACIÓN DE LA RED SOCIAL (LA "MAGIA" DE SMITH 2014)
+# 4. IMPUTACIÓN DE LA RED SOCIAL
 # ==============================================================================
-message("Calculando distancias sociales e imputando red (puede tardar unos segundos)...")
 
 # 1. Definimos las distancias entre todos los individuos
 X_age <- model_df$age
@@ -144,14 +120,12 @@ W_listw <- nb2listw(neighbors, glist = weights_list, style = "W", zero.policy = 
 # Wy es el promedio de la variable 'target' en los 100 vecinos de cada persona
 model_df$Wy <- lag.listw(W_listw, model_df$target_clean)
 
-message("Red imputada y variable contextual (Wy) creada.")
-
 # ==============================================================================
 # 5. RESULTADOS: ¿ES SIGNIFICATIVO EL CONTEXTO?
 # ==============================================================================
 
 # Ajustamos dos modelos:
-# Modelo 1: Solo Demografía (¿Quienes somos explica qué pensamos?)
+# Modelo 1: Solo Demografía (¿Quienes somos explica la variable?)
 fmla_base <- target_clean ~ age + educ + female + race_black + race_hispanic + race_asian + relig_catholic + relig_none
 
 # Modelo 2: Demografía + CONTEXTO (Wy)
@@ -162,19 +136,8 @@ m_context <- lm(fmla_context, data = model_df)
 # Extraemos y mostramos el resultado clave
 res_tidy <- tidy(m_context) %>% filter(term == "Wy")
 
-cat("\n======================================================\n")
-cat("RESULTADOS PARA LA VARIABLE:", my_variable_code, "\n")
-cat("======================================================\n")
 cat("Coeficiente Contextual (Rho):", round(res_tidy$estimate, 3), "\n")
 cat("P-Value (Significancia):     ", format.pval(res_tidy$p.value, digits = 4), "\n")
-cat("------------------------------------------------------\n")
 
-if (res_tidy$p.value < 0.05) {
-    cat("CONCLUSIÓN: ¡SÍ! El contexto ES significativo.\n")
-    cat("Tus opiniones dependen de quiénes te rodean.\n")
-} else {
-    cat("CONCLUSIÓN: NO. El contexto NO es significativo.\n")
-    cat("¡Has encontrado una variable 'inmune' a la presión social! (O al menos a esta red).\n")
-    cat(">> ENVÍA ESTE RESULTADO AL PROFESOR <<\n")
-}
-cat("======================================================\n")
+# Si res_tidy$p.value < 0.05 == FALSE, entonces tu variable no presenta término
+# de contexto social significativo.

@@ -4085,12 +4085,7 @@ window.Quarto = {
     <h2 id="toc-title">En esta página</h2>
    
   <ul>
-  <li><a href="#extensiones-otros-datos-con-ego-nets" id="toc-extensiones-otros-datos-con-ego-nets" class="nav-link active" data-scroll-target="#extensiones-otros-datos-con-ego-nets">1. Extensiones: Otros Datos con EGO-Nets</a>
-  <ul class="collapse">
-  <li><a href="#américa-latina" id="toc-américa-latina" class="nav-link" data-scroll-target="#américa-latina">1.1. América Latina</a></li>
-  <li><a href="#europa" id="toc-europa" class="nav-link" data-scroll-target="#europa">1.2. Europa</a></li>
-  <li><a href="#global-y-otros" id="toc-global-y-otros" class="nav-link" data-scroll-target="#global-y-otros">1.3. Global y Otros</a></li>
-  </ul></li>
+  <li><a href="#extensiones-otros-datos-con-ego-nets" id="toc-extensiones-otros-datos-con-ego-nets" class="nav-link active" data-scroll-target="#extensiones-otros-datos-con-ego-nets">1. Extensiones: Otros Datos con EGO-Nets</a></li>
   <li><a href="#desafío-práctico-dónde-importa-el-contexto" id="toc-desafío-práctico-dónde-importa-el-contexto" class="nav-link" data-scroll-target="#desafío-práctico-dónde-importa-el-contexto">2. Desafío Práctico: ¿Dónde importa el contexto?</a>
   <ul class="collapse">
   <li><a href="#pool-de-variables" id="toc-pool-de-variables" class="nav-link" data-scroll-target="#pool-de-variables">Pool de Variables</a></li>
@@ -4138,23 +4133,48 @@ window.Quarto = {
 
 <section id="extensiones-otros-datos-con-ego-nets" class="level2">
 <h2 class="anchored" data-anchor-id="extensiones-otros-datos-con-ego-nets">1. Extensiones: Otros Datos con EGO-Nets</h2>
-<p>Hasta ahora hemos confiado en los parámetros de la <strong>General Social Survey (GSS)</strong> de EEUU. Pero, ¿es esta la única fuente? Afortunadamente, no.</p>
-<p>Existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (“EGO-nets”), permitiendo calcular parámetros <span class="math inline">\(\boldsymbol{\beta}\)</span> específicos para otros contextos culturales.</p>
-<section id="américa-latina" class="level3">
-<h3 class="anchored" data-anchor-id="américa-latina">1.1. América Latina</h3>
-<p><strong>1. ESTUDIO LONGITUDINAL SOCIAL DE CHILE (ELSOC)</strong> * <strong>Región</strong>: Chile (América Latina) * <strong>Sitio Web</strong>: <a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH">Harvard Dataverse (ELSOC)</a> | <a href="https://methodological-manual-elsoc.netlify.app/networks-and-attitudes-module">Manual Metodológico</a> * <strong>Características</strong>: * Tipo: Panel Longitudinal (Anual). * Módulo de Redes: Ola 4 (2019). * Generador de Nombres: “Important Matters” (Réplica exacta de GSS). * Tamaño Red: Max 5 alters. * Atributos: Sexo, Edad, Educación, Religión, Ideología Política, Barrio. * <strong>Idoneidad</strong>: <strong>ALTA</strong>. Es el equivalente más cercano a la metodología GSS en el Sur Global. Ideal para comparaciones directas de homofilia.</p>
-</section>
-<section id="europa" class="level3">
-<h3 class="anchored" data-anchor-id="europa">1.2. Europa</h3>
-<p><strong>2. SHARE (Survey of Health, Ageing and Retirement in Europe)</strong> * <strong>Región</strong>: 28 Países Europeos + Israel * <strong>Sitio Web</strong>: <a href="https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/">SHARE Project</a> * <strong>Características</strong>: * Población: Adultos 50+ y parejas. * Módulo de Redes: Olas 4, 6 y 8. * Generador: Saturación (“Discutir cosas importantes” + “Más cercanos”). * Tamaño Red: Hasta 7 alters. * <strong>Idoneidad</strong>: <strong>ALTA (Contexto Específico)</strong>. Excelente para estudiar envejecimiento y soporte social.</p>
-<p><strong>3. GERMAN GENERAL SOCIAL SURVEY (ALLBUS)</strong> * <strong>Región</strong>: Alemania * <strong>Sitio Web</strong>: <a href="https://search.gesis.org/research_data/ZA5282">GESIS ALLBUS</a> * <strong>Características</strong>: * Frecuencia: Cada 10 años aprox (2000, 2010, 2021). * Generador: “Important Matters”. * <strong>Idoneidad</strong>: <strong>ALTA</strong>. La “hermana” directa de la GSS de EEUU.</p>
-</section>
-<section id="global-y-otros" class="level3">
-<h3 class="anchored" data-anchor-id="global-y-otros">1.3. Global y Otros</h3>
-<p><strong>4. COMPARATIVE NATIONAL ELECTIONS PROJECT (CNEP)</strong> * <strong>Región</strong>: Global (30+ países en 5 continentes) * <strong>Sitio Web</strong>: <a href="https://u.osu.edu/cnep/">CNEP OSU</a> * <strong>Características</strong>: * Foco: Actitudes políticas. * Generador: “Discusión Política” (¿Con quién hablas de política?). * <strong>Idoneidad</strong>: <strong>MEDIA/ALTA</strong> (Difusión Política). Ideal para mecanismos de información, aunque la red es temáticamente específica.</p>
-<p><strong>5. CHINESE GENERAL SOCIAL SURVEY (CGSS)</strong> * <strong>Región</strong>: China * <strong>Características</strong>: * Generador: A menudo usa “Spring Festival Greeters” (Saludos de Año Nuevo) como proxy cultural de lazos fuertes. * <strong>Idoneidad</strong>: <strong>MEDIA</strong>. Requiere ajustes metodológicos por el generador de nombres distinto.</p>
-<p><strong>6. CANADIAN GENERAL SOCIAL SURVEY (GSS - Canada)</strong> * <strong>Región</strong>: Canadá * <strong>Características</strong>: * Ciclos: 2008, 2013, 2020. * Acceso: Restringido (RDC) para la red completa; archivos públicos (PUMF) suprimen detalles. * <strong>Idoneidad</strong>: <strong>MEDIA</strong>. Datos de alta calidad, pero el acceso es una barrera importante.</p>
-</section>
+<p>Hasta ahora hemos confiado en los parámetros de la <strong>General Social Survey (GSS)</strong> de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (“EGO-nets”), permitiendo calcular parámetros <span class="math inline">\(\boldsymbol{\beta}\)</span> específicos para otros contextos.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Estudio (País/Región)</th>
+<th style="text-align: left;">Características Principales</th>
+<th style="text-align: left;">Idoneidad</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><a href="https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH"><strong>ELSOC</strong></a> (Chile)</td>
+<td style="text-align: left;"><strong>Panel Longitudinal</strong>. Módulo Redes (Ola 4). Generador “Important Matters” (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol.</td>
+<td style="text-align: left;"><strong>ALTA</strong>. Réplica exacta GSS en Sur Global. Ideal comparación parámetros.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><a href="https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/"><strong>SHARE</strong></a> (Europa + Israel)</td>
+<td style="text-align: left;"><strong>Población 50+</strong>. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters.</td>
+<td style="text-align: left;"><strong>ALTA (Específica)</strong>. Ideal para envejecimiento y soporte social.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><a href="https://search.gesis.org/research_data/ZA5282"><strong>ALLBUS</strong></a> (Alemania)</td>
+<td style="text-align: left;"><strong>Transversal Repetida</strong>. Cada ~10 años. Generador “Important Matters”.</td>
+<td style="text-align: left;"><strong>ALTA</strong>. La “hermana” alemana de la GSS.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><a href="https://u.osu.edu/cnep/"><strong>CNEP</strong></a> (Global)</td>
+<td style="text-align: left;"><strong>Foco Político</strong>. 30+ países. Generador “Discusión Política”. Max 5 alters.</td>
+<td style="text-align: left;"><strong>MEDIA</strong>. Excelente para difusión política, pero red temática específica.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><strong>CGSS</strong> (China)</td>
+<td style="text-align: left;"><strong>Transversal</strong>. Generador “Saludos Año Nuevo” (Proxy lazos fuertes).</td>
+<td style="text-align: left;"><strong>MEDIA</strong>. Requiere ajustes metodológicos por el generador distinto.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><a href="https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&amp;Id=30687"><strong>GSS Canada</strong></a> (Canadá)</td>
+<td style="text-align: left;">Ciclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC).</td>
+<td style="text-align: left;"><strong>MEDIA</strong>. Alta calidad pero difícil acceso a la red completa.</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="desafío-práctico-dónde-importa-el-contexto" class="level2">
 <h2 class="anchored" data-anchor-id="desafío-práctico-dónde-importa-el-contexto">2. Desafío Práctico: ¿Dónde importa el contexto?</h2>
@@ -4182,53 +4202,54 @@ window.Quarto = {
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;"><strong>V161126</strong></td>
+<td style="text-align: left;">V161126</td>
 <td style="text-align: left;">Liberal - Conservative Self-placement</td>
 <td style="text-align: left;">1 (Ext. Liberal) - 7 (Ext. Conservative)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>V161139</strong></td>
+<td style="text-align: left;">V161139</td>
 <td style="text-align: left;">Current Economy Assessment</td>
 <td style="text-align: left;">1 (Very Good) - 5 (Very Bad)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>V161154</strong></td>
+<td style="text-align: left;">V161154</td>
 <td style="text-align: left;">Willingness to use Force (International)</td>
 <td style="text-align: left;">1 (Ext. Willing) - 5 (Not at all)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>V161201</strong></td>
+<td style="text-align: left;">V161201</td>
 <td style="text-align: left;">Environment vs. Jobs Tradeoff</td>
 <td style="text-align: left;">1 (Regulate) - 7 (No Regulation)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>V161522</strong></td>
+<td style="text-align: left;">V161522</td>
 <td style="text-align: left;">Satisfaction with Life</td>
 <td style="text-align: left;">1 (Ext. Satisfied) - 5 (Not at all)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>V161137</strong></td>
+<td style="text-align: left;">V161137</td>
 <td style="text-align: left;">Income Gap vs 20 years ago</td>
 <td style="text-align: left;">1 (Larger) - 3 (Smaller/Same)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>V161188</strong></td>
+<td style="text-align: left;">V161188</td>
 <td style="text-align: left;">Importance of Gun Access</td>
 <td style="text-align: left;">1 (Ext. Important) - 5 (Not at all)</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;"><strong>V161209</strong></td>
-<td style="text-align: left;">Federal Budget: <strong>Welfare Programs</strong></td>
+<td style="text-align: left;">V161209</td>
+<td style="text-align: left;">Federal Budget: Welfare Programs</td>
 <td style="text-align: left;">1 (Increase) - 3 (Decrease)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;"><strong>V161212</strong></td>
-<td style="text-align: left;">Federal Budget: <strong>Environment</strong></td>
+<td style="text-align: left;">V161212</td>
+<td style="text-align: left;">Federal Budget: Environment</td>
 <td style="text-align: left;">1 (Increase) - 3 (Decrease)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Pista:</strong> No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!</p>
+<p>No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!</p>
+<p>Puedes usar esta <a href="scripts/student_challenge_template.R">plantilla</a> para correr tu modelo.</p>
 
 
 <!-- -->
@@ -4694,96 +4715,52 @@ window.Quarto = {
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> &quot;2025-01-08&quot;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. Extensiones: Otros Datos con EGO-Nets</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>Hasta ahora hemos confiado en los parámetros de la **General Social Survey (GSS)** de EEUU. Pero, ¿es esta la única fuente? Afortunadamente, no.</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">## 1. Extensiones: Otros Datos con EGO-Nets</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>Existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (&quot;EGO-nets&quot;), permitiendo calcular parámetros $\boldsymbol{\beta}$ específicos para otros contextos culturales.</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>Hasta ahora hemos confiado en los parámetros de la **General Social Survey (GSS)** de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (&quot;EGO-nets&quot;), permitiendo calcular parámetros $\boldsymbol{\beta}$ específicos para otros contextos.</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.1. América Latina</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>**1. ESTUDIO LONGITUDINAL SOCIAL DE CHILE (ELSOC)**</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Región**: Chile (América Latina)</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Sitio Web**: <span class="co">[</span><span class="ot">Harvard Dataverse (ELSOC)</span><span class="co">](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH)</span> | <span class="co">[</span><span class="ot">Manual Metodológico</span><span class="co">](https://methodological-manual-elsoc.netlify.app/networks-and-attitudes-module)</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Características**:</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Tipo: Panel Longitudinal (Anual).</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Módulo de Redes: Ola 4 (2019).</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Generador de Nombres: &quot;Important Matters&quot; (Réplica exacta de GSS).</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Tamaño Red: Max 5 alters.</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Atributos: Sexo, Edad, Educación, Religión, Ideología Política, Barrio.</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Idoneidad**: **ALTA**. Es el equivalente más cercano a la metodología GSS en el Sur Global. Ideal para comparaciones directas de homofilia.</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.2. Europa</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>**2. SHARE (Survey of Health, Ageing and Retirement in Europe)**</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Región**: 28 Países Europeos + Israel</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Sitio Web**: <span class="co">[</span><span class="ot">SHARE Project</span><span class="co">](https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/)</span></span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Características**:</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Población: Adultos 50+ y parejas.</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Módulo de Redes: Olas 4, 6 y 8.</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Generador: Saturación (&quot;Discutir cosas importantes&quot; + &quot;Más cercanos&quot;).</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Tamaño Red: Hasta 7 alters.</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Idoneidad**: **ALTA (Contexto Específico)**. Excelente para estudiar envejecimiento y soporte social.</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Estudio (País/Región) <span class="pp">|</span> Características Principales <span class="pp">|</span> Idoneidad <span class="pp">|</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">**ELSOC**</span><span class="co">](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH)</span> (Chile) <span class="pp">|</span> **Panel Longitudinal**. Módulo Redes (Ola 4). Generador &quot;Important Matters&quot; (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol. | **ALTA**. Réplica exacta GSS en Sur Global. Ideal comparación parámetros. <span class="pp">|</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">**SHARE**</span><span class="co">](https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/)</span> (Europa + Israel) <span class="pp">|</span> **Población 50+**. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters. | **ALTA (Específica)**. Ideal para envejecimiento y soporte social. <span class="pp">|</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">**ALLBUS**</span><span class="co">](https://search.gesis.org/research_data/ZA5282)</span> (Alemania) <span class="pp">|</span> **Transversal Repetida**. Cada ~10 años. Generador &quot;Important Matters&quot;. | **ALTA**. La &quot;hermana&quot; alemana de la GSS. <span class="pp">|</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">**CNEP**</span><span class="co">](https://u.osu.edu/cnep/)</span> (Global) <span class="pp">|</span> **Foco Político**. 30+ países. Generador &quot;Discusión Política&quot;. Max 5 alters. | **MEDIA**. Excelente para difusión política, pero red temática específica. <span class="pp">|</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **CGSS** (China) | **Transversal**. Generador &quot;Saludos Año Nuevo&quot; (Proxy lazos fuertes). | **MEDIA**. Requiere ajustes metodológicos por el generador distinto. <span class="pp">|</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">**GSS Canada**</span><span class="co">](https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&amp;Id=30687)</span> (Canadá) <span class="pp">|</span> Ciclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC). <span class="pp">|</span> **MEDIA**. Alta calidad pero difícil acceso a la red completa. <span class="pp">|</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Desafío Práctico: ¿Dónde importa el contexto?</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>Hemos visto que el contexto social influye en la identidad política (Democrat Scale). Pero, ¿influye en todo? </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>Te invitamos a participar en un pequeño desafío de predicción.</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>**El Desafío:**</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>A continuación presentamos un &quot;pool&quot; de variables de la ANES 2016. Tu misión es aplicar la metodología que aprendiste (imputar $W$ y estimar el modelo contextual) para responder:</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **¿Qué variable crees tú que NO debería tener un efecto contextual significativo?**</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>Elige una variable, corre el modelo, y envía tus resultados (el coeficiente <span class="in">`Wy`</span> y su p-valor) a **an.oliveram@udd.cl**.</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pool de Variables</span></span>
 <span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>**3. GERMAN GENERAL SOCIAL SURVEY (ALLBUS)**</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Región**: Alemania</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Sitio Web**: <span class="co">[</span><span class="ot">GESIS ALLBUS</span><span class="co">](https://search.gesis.org/research_data/ZA5282)</span></span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Características**:</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Frecuencia: Cada 10 años aprox (2000, 2010, 2021).</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Generador: &quot;Important Matters&quot;.</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Idoneidad**: **ALTA**. La &quot;hermana&quot; directa de la GSS de EEUU.</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.3. Global y Otros</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>**4. COMPARATIVE NATIONAL ELECTIONS PROJECT (CNEP)**</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Región**: Global (30+ países en 5 continentes)</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Sitio Web**: <span class="co">[</span><span class="ot">CNEP OSU</span><span class="co">](https://u.osu.edu/cnep/)</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Características**:</span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Foco: Actitudes políticas.</span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Generador: &quot;Discusión Política&quot; (¿Con quién hablas de política?).</span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Idoneidad**: **MEDIA/ALTA** (Difusión Política). Ideal para mecanismos de información, aunque la red es temáticamente específica.</span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>**5. CHINESE GENERAL SOCIAL SURVEY (CGSS)**</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Región**: China</span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Características**:</span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Generador: A menudo usa &quot;Spring Festival Greeters&quot; (Saludos de Año Nuevo) como proxy cultural de lazos fuertes.</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Idoneidad**: **MEDIA**. Requiere ajustes metodológicos por el generador de nombres distinto.</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>**6. CANADIAN GENERAL SOCIAL SURVEY (GSS - Canada)**</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Región**: Canadá</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Características**:</span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Ciclos: 2008, 2013, 2020.</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="ss">    *   </span>Acceso: Restringido (RDC) para la red completa; archivos públicos (PUMF) suprimen detalles.</span>
-<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="ss">*   </span>**Idoneidad**: **MEDIA**. Datos de alta calidad, pero el acceso es una barrera importante.</span>
-<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a><span class="fu">## 2. Desafío Práctico: ¿Dónde importa el contexto?</span></span>
-<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a>Hemos visto que el contexto social influye en la identidad política (Democrat Scale). Pero, ¿influye en todo? </span>
-<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>Te invitamos a participar en un pequeño desafío de predicción.</span>
-<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>**El Desafío:**</span>
-<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>A continuación presentamos un &quot;pool&quot; de variables de la ANES 2016. Tu misión es aplicar la metodología que aprendiste (imputar $W$ y estimar el modelo contextual) para responder:</span>
-<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a><span class="at">&gt; **¿Qué variable crees tú que NO debería tener un efecto contextual significativo?**</span></span>
-<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>Elige una variable, corre el modelo, y envía tus resultados (el coeficiente <span class="in">`Wy`</span> y su p-valor) a **an.oliveram@udd.cl**.</span>
-<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pool de Variables</span></span>
-<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Código <span class="pp">|</span> Descripción <span class="pp">|</span> Escala <span class="pp">|</span></span>
-<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
-<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161126** <span class="pp">|</span> Liberal - Conservative Self-placement <span class="pp">|</span> 1 (Ext. Liberal) - 7 (Ext. Conservative) <span class="pp">|</span></span>
-<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161139** <span class="pp">|</span> Current Economy Assessment <span class="pp">|</span> 1 (Very Good) - 5 (Very Bad) <span class="pp">|</span></span>
-<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161154** <span class="pp">|</span> Willingness to use Force (International) <span class="pp">|</span> 1 (Ext. Willing) - 5 (Not at all) <span class="pp">|</span></span>
-<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161201** <span class="pp">|</span> Environment vs. Jobs Tradeoff <span class="pp">|</span> 1 (Regulate) - 7 (No Regulation) <span class="pp">|</span></span>
-<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161522** <span class="pp">|</span> Satisfaction with Life <span class="pp">|</span> 1 (Ext. Satisfied) - 5 (Not at all) <span class="pp">|</span></span>
-<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161137** <span class="pp">|</span> Income Gap vs 20 years ago <span class="pp">|</span> 1 (Larger) - 3 (Smaller/Same) <span class="pp">|</span></span>
-<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161188** <span class="pp">|</span> Importance of Gun Access <span class="pp">|</span> 1 (Ext. Important) - 5 (Not at all) <span class="pp">|</span></span>
-<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161209** | Federal Budget: **Welfare Programs** <span class="pp">|</span> 1 (Increase) - 3 (Decrease) <span class="pp">|</span></span>
-<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> **V161212** | Federal Budget: **Environment** <span class="pp">|</span> 1 (Increase) - 3 (Decrease) <span class="pp">|</span></span>
-<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>**Pista:** No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Código <span class="pp">|</span> Descripción <span class="pp">|</span> Escala <span class="pp">|</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">| :---</span> <span class="pp">|</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161126 <span class="pp">|</span> Liberal - Conservative Self-placement <span class="pp">|</span> 1 (Ext. Liberal) - 7 (Ext. Conservative) <span class="pp">|</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161139 <span class="pp">|</span> Current Economy Assessment <span class="pp">|</span> 1 (Very Good) - 5 (Very Bad) <span class="pp">|</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161154 <span class="pp">|</span> Willingness to use Force (International) <span class="pp">|</span> 1 (Ext. Willing) - 5 (Not at all) <span class="pp">|</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161201 <span class="pp">|</span> Environment vs. Jobs Tradeoff <span class="pp">|</span> 1 (Regulate) - 7 (No Regulation) <span class="pp">|</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161522 <span class="pp">|</span> Satisfaction with Life <span class="pp">|</span> 1 (Ext. Satisfied) - 5 (Not at all) <span class="pp">|</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161137 <span class="pp">|</span> Income Gap vs 20 years ago <span class="pp">|</span> 1 (Larger) - 3 (Smaller/Same) <span class="pp">|</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161188 <span class="pp">|</span> Importance of Gun Access <span class="pp">|</span> 1 (Ext. Important) - 5 (Not at all) <span class="pp">|</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161209 <span class="pp">|</span> Federal Budget: Welfare Programs <span class="pp">|</span> 1 (Increase) - 3 (Decrease) <span class="pp">|</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> V161212 <span class="pp">|</span> Federal Budget: Environment <span class="pp">|</span> 1 (Increase) - 3 (Decrease) <span class="pp">|</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>Puedes usar esta <span class="co">[</span><span class="ot">plantilla</span><span class="co">](scripts/student_challenge_template.R)</span> para correr tu modelo.</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 

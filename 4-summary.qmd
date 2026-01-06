@@ -4,67 +4,21 @@ author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
 
+
+
 ## 1. Extensiones: Otros Datos con EGO-Nets
 
-Hasta ahora hemos confiado en los parámetros de la **General Social Survey (GSS)** de EEUU. Pero, ¿es esta la única fuente? Afortunadamente, no.
+Hasta ahora hemos confiado en los parámetros de la **General Social Survey (GSS)** de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales ("EGO-nets"), permitiendo calcular parámetros $\boldsymbol{\beta}$ específicos para otros contextos.
 
-Existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales ("EGO-nets"), permitiendo calcular parámetros $\boldsymbol{\beta}$ específicos para otros contextos culturales.
+| Estudio (País/Región) | Características Principales | Idoneidad |
+| :--- | :--- | :--- |
+| [**ELSOC**](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH) (Chile) | **Panel Longitudinal**. Módulo Redes (Ola 4). Generador "Important Matters" (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol. | **ALTA**. Réplica exacta GSS en Sur Global. Ideal comparación parámetros. |
+| [**SHARE**](https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/) (Europa + Israel) | **Población 50+**. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters. | **ALTA (Específica)**. Ideal para envejecimiento y soporte social. |
+| [**ALLBUS**](https://search.gesis.org/research_data/ZA5282) (Alemania) | **Transversal Repetida**. Cada ~10 años. Generador "Important Matters". | **ALTA**. La "hermana" alemana de la GSS. |
+| [**CNEP**](https://u.osu.edu/cnep/) (Global) | **Foco Político**. 30+ países. Generador "Discusión Política". Max 5 alters. | **MEDIA**. Excelente para difusión política, pero red temática específica. |
+| **CGSS** (China) | **Transversal**. Generador "Saludos Año Nuevo" (Proxy lazos fuertes). | **MEDIA**. Requiere ajustes metodológicos por el generador distinto. |
+| [**GSS Canada**](https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=30687) (Canadá) | Ciclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC). | **MEDIA**. Alta calidad pero difícil acceso a la red completa. |
 
-### 1.1. América Latina
-
-**1. ESTUDIO LONGITUDINAL SOCIAL DE CHILE (ELSOC)**
-*   **Región**: Chile (América Latina)
-*   **Sitio Web**: [Harvard Dataverse (ELSOC)](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH) | [Manual Metodológico](https://methodological-manual-elsoc.netlify.app/networks-and-attitudes-module)
-*   **Características**:
-    *   Tipo: Panel Longitudinal (Anual).
-    *   Módulo de Redes: Ola 4 (2019).
-    *   Generador de Nombres: "Important Matters" (Réplica exacta de GSS).
-    *   Tamaño Red: Max 5 alters.
-    *   Atributos: Sexo, Edad, Educación, Religión, Ideología Política, Barrio.
-*   **Idoneidad**: **ALTA**. Es el equivalente más cercano a la metodología GSS en el Sur Global. Ideal para comparaciones directas de homofilia.
-
-### 1.2. Europa
-
-**2. SHARE (Survey of Health, Ageing and Retirement in Europe)**
-*   **Región**: 28 Países Europeos + Israel
-*   **Sitio Web**: [SHARE Project](https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/)
-*   **Características**:
-    *   Población: Adultos 50+ y parejas.
-    *   Módulo de Redes: Olas 4, 6 y 8.
-    *   Generador: Saturación ("Discutir cosas importantes" + "Más cercanos").
-    *   Tamaño Red: Hasta 7 alters.
-*   **Idoneidad**: **ALTA (Contexto Específico)**. Excelente para estudiar envejecimiento y soporte social.
-
-**3. GERMAN GENERAL SOCIAL SURVEY (ALLBUS)**
-*   **Región**: Alemania
-*   **Sitio Web**: [GESIS ALLBUS](https://search.gesis.org/research_data/ZA5282)
-*   **Características**:
-    *   Frecuencia: Cada 10 años aprox (2000, 2010, 2021).
-    *   Generador: "Important Matters".
-*   **Idoneidad**: **ALTA**. La "hermana" directa de la GSS de EEUU.
-
-### 1.3. Global y Otros
-
-**4. COMPARATIVE NATIONAL ELECTIONS PROJECT (CNEP)**
-*   **Región**: Global (30+ países en 5 continentes)
-*   **Sitio Web**: [CNEP OSU](https://u.osu.edu/cnep/)
-*   **Características**:
-    *   Foco: Actitudes políticas.
-    *   Generador: "Discusión Política" (¿Con quién hablas de política?).
-*   **Idoneidad**: **MEDIA/ALTA** (Difusión Política). Ideal para mecanismos de información, aunque la red es temáticamente específica.
-
-**5. CHINESE GENERAL SOCIAL SURVEY (CGSS)**
-*   **Región**: China
-*   **Características**:
-    *   Generador: A menudo usa "Spring Festival Greeters" (Saludos de Año Nuevo) como proxy cultural de lazos fuertes.
-*   **Idoneidad**: **MEDIA**. Requiere ajustes metodológicos por el generador de nombres distinto.
-
-**6. CANADIAN GENERAL SOCIAL SURVEY (GSS - Canada)**
-*   **Región**: Canadá
-*   **Características**:
-    *   Ciclos: 2008, 2013, 2020.
-    *   Acceso: Restringido (RDC) para la red completa; archivos públicos (PUMF) suprimen detalles.
-*   **Idoneidad**: **MEDIA**. Datos de alta calidad, pero el acceso es una barrera importante.
 
 ## 2. Desafío Práctico: ¿Dónde importa el contexto?
 
@@ -83,14 +37,16 @@ Elige una variable, corre el modelo, y envía tus resultados (el coeficiente `Wy
 
 | Código | Descripción | Escala |
 | :--- | :--- | :--- |
-| **V161126** | Liberal - Conservative Self-placement | 1 (Ext. Liberal) - 7 (Ext. Conservative) |
-| **V161139** | Current Economy Assessment | 1 (Very Good) - 5 (Very Bad) |
-| **V161154** | Willingness to use Force (International) | 1 (Ext. Willing) - 5 (Not at all) |
-| **V161201** | Environment vs. Jobs Tradeoff | 1 (Regulate) - 7 (No Regulation) |
-| **V161522** | Satisfaction with Life | 1 (Ext. Satisfied) - 5 (Not at all) |
-| **V161137** | Income Gap vs 20 years ago | 1 (Larger) - 3 (Smaller/Same) |
-| **V161188** | Importance of Gun Access | 1 (Ext. Important) - 5 (Not at all) |
-| **V161209** | Federal Budget: **Welfare Programs** | 1 (Increase) - 3 (Decrease) |
-| **V161212** | Federal Budget: **Environment** | 1 (Increase) - 3 (Decrease) |
+| V161126 | Liberal - Conservative Self-placement | 1 (Ext. Liberal) - 7 (Ext. Conservative) |
+| V161139 | Current Economy Assessment | 1 (Very Good) - 5 (Very Bad) |
+| V161154 | Willingness to use Force (International) | 1 (Ext. Willing) - 5 (Not at all) |
+| V161201 | Environment vs. Jobs Tradeoff | 1 (Regulate) - 7 (No Regulation) |
+| V161522 | Satisfaction with Life | 1 (Ext. Satisfied) - 5 (Not at all) |
+| V161137 | Income Gap vs 20 years ago | 1 (Larger) - 3 (Smaller/Same) |
+| V161188 | Importance of Gun Access | 1 (Ext. Important) - 5 (Not at all) |
+| V161209 | Federal Budget: Welfare Programs | 1 (Increase) - 3 (Decrease) |
+| V161212 | Federal Budget: Environment | 1 (Increase) - 3 (Decrease) |
 
-**Pista:** No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!
+No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!
+
+Puedes usar esta [plantilla](scripts/student_challenge_template.R) para correr tu modelo.
