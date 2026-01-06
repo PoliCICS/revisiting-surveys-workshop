@@ -14,18 +14,18 @@ website:
         menu:
           - text: Introducción
             href: 1-introduction.qmd
-          - text: Calculando la Fuerza de Homofilia
+          - text: Calculando la Fuerza Homofílica
             href: 2-homophily-strength.qmd
-          - text: Redes desde Encuestas
-            href: 2-network-from-surveys.qmd
+          - text: Imputando Contexto Social a las encuestas
+            href: 3-network-from-surveys.qmd
           - text: Ising & Psicometría
             href: 3-ising.qmd
     right:
       - text: Recursos
         menu:
-          - text: Empezar
+          - text: Get Started
             href: getstarted.qmd
-          - text: Limpieza GSS (Referencia)
+          - text: Limpieza GSS 2004
             href: gss-cleaning.qmd
           - text: Limpieza ANES 2016
             href: anes-cleaning.qmd
