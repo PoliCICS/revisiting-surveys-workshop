@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Revisitando las encuestas"
+  title: "Revisitando las Encuestas"
   repo-url: https://github.com/PoliCICS/revisiting-surveys-workshop
   repo-actions: [edit, source]
   navbar:
