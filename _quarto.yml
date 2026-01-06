@@ -20,6 +20,8 @@ website:
             href: 3-network-from-surveys.qmd
           - text: Ising & Psicometría
             href: 3-ising.qmd
+          - text: Conclusiones
+            href: 4-summary.qmd
     right:
       - text: Recursos
         menu:

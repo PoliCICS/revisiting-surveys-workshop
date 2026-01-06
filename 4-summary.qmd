@@ -4,15 +4,15 @@ author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
 
-## 1. Extensiones: Otros Datos con EGO-Nets
+## 1. Otras encuestas con EGO-Nets
 
 Hasta ahora hemos confiado en los parámetros de la **General Social Survey (GSS)** de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales ("EGO-nets"), permitiendo calcular parámetros $\boldsymbol{\beta}$ específicos para otros contextos.
 
-| Estudio (País/Región) | Características Principales | Idoneidad |
+| Estudio | Características Principales | Similitud con GSS |
 | :--- | :--- | :--- |
 | [**ELSOC**](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/LD4BPH) (Chile) | Panel Longitudinal. Módulo Redes (Ola 4). Generador "Important Matters" (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol. | **ALTA**. Réplica exacta GSS en Sur Global. Ideal comparación parámetros. |
-| [**SHARE**](https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/) (Europa + Israel) | Población 50+. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters. | **ALTA (Específica)**. Ideal para envejecimiento y soporte social. |
-| [**ALLBUS**](https://search.gesis.org/research_data/ZA5282) (Alemania) | Transversal Repetida. Cada ~10 años. Generador "Important Matters". | **ALTA**. La "hermana" alemana de la GSS. |
+| [**SHARE**](https://www.uantwerpen.be/en/research-groups/csb/data/featured-datasets/share/) (Europa) | Población 50+. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters. | **ALTA**. Ideal para envejecimiento y soporte social. |
+| [**ALLBUS**](https://search.gesis.org/research_data/ZA5282) (Alemania) | Transversal Repetida. Cada ~10 años. Generador "Important Matters". | **ALTA**. La hermana alemana de la GSS. |
 | [**CNEP**](https://u.osu.edu/cnep/) (Global) | Foco Político. 30+ países. Generador "Discusión Política". Max 5 alters. | **MEDIA**. Excelente para difusión política, pero red temática específica. |
 | [**CGSS**](http://cgss.ruc.edu.cn/English/About_CGSS/Overview.htm) (China) | Transversal. Generador "Saludos Año Nuevo" (Proxy lazos fuertes). | **MEDIA**. Requiere ajustes metodológicos por el generador distinto. |
 | [**GSS Canada**](https://www23.statcan.gc.ca/imdb/p2SV.pl?Function=getSurvey&Id=30687) (Canadá) | Ciclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC). | **MEDIA**. Alta calidad pero difícil acceso a la red completa. |
@@ -22,16 +22,15 @@ Hasta ahora hemos confiado en los parámetros de la **General Social Survey (GSS
 
 Hemos visto que el contexto social influye en la identidad política (Democrat Scale). Pero, ¿influye en todo? 
 
-Te invitamos a participar en un pequeño desafío de predicción.
+**Desafío:**
 
-**El Desafío:**
-A continuación presentamos un "pool" de variables de la ANES 2016. Tu misión es aplicar la metodología que aprendiste (imputar $W$ y estimar el modelo contextual) para responder:
+A continuación presentamos un pool de variables de la ANES 2016. Tu misión es aplicar la metodología que aprendiste (imputar $W$ y estimar el modelo contextual) para responder:
 
 > **¿Qué variable crees tú que NO debería tener un efecto contextual significativo?**
 
-Elige una variable, corre el modelo, y envía tus resultados (el coeficiente `Wy` y su p-valor) a **an.oliveram@udd.cl**.
+Elige una variable, corre el modelo, y envía tus resultados (el coeficiente `Wy` y su p-valor) al correo *an.oliveram@udd.cl*.
 
-### Pool de Variables
+### Variables
 
 | Código | Descripción | Escala |
 | :--- | :--- | :--- |
@@ -45,6 +44,6 @@ Elige una variable, corre el modelo, y envía tus resultados (el coeficiente `Wy
 | V161209 | Federal Budget: Welfare Programs | 1 (Increase) - 3 (Decrease) |
 | V161212 | Federal Budget: Environment | 1 (Increase) - 3 (Decrease) |
 
-No todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!
+No todas las respuestas parecen ser tribales (algunas responden a necesidades materiales directas o valores universales). ¡Suerte!
 
 Puedes usar esta [plantilla](scripts/student_challenge_template.R) para correr tu modelo.

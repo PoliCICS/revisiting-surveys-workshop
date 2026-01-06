@@ -1,5 +1,5 @@
 ---
-title: "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad"
+title: "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad"
 ---
 
 Bienvenido al sitio web del workshop **"Revisitando las encuestas"**.
@@ -11,6 +11,7 @@ Este workshop ofrece una introducción práctica a metodologías avanzadas para 
 2.  [Calculando la Fuerza Homofílica](2-homophily-strength.qmd): Replicación de Smith & McPherson (2014).
 3.  [Imputando Contexto Social a las encuestas](3-network-from-surveys.qmd): Imputación de redes latentes.
 4.  [Ising & Psicometría](3-ising.qmd): Modelos de redes psicométricas.
+5.  [Conclusiones](4-summary.qmd): Desafíos y cierre.
 
 ### Recursos
 -   [Get started](getstarted.qmd): Instalación y configuración.
