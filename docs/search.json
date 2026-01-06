@@ -142,28 +142,28 @@
   {
     "objectID": "0-index.html",
     "href": "0-index.html",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
     "section": "",
     "text": "Bienvenido al sitio web del workshop “Revisitando las encuestas”.\nEste workshop ofrece una introducción práctica a metodologías avanzadas para el análisis de encuestas desde la perspectiva de las ciencias de la complejidad. Exploraremos cómo imputar estructuras de red a datos de encuestas y cómo aplicar modelos de redes tipo Ising a datos psicométricos."
   },
   {
     "objectID": "0-index.html#objetivos",
     "href": "0-index.html#objetivos",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
     "section": "Objetivos",
     "text": "Objetivos\n\nComprender las encuestas como sistemas complejos.\nAprender a imputar redes sociales latentes en encuestas (metodología Smith & McPherson).\nIntroducir el análisis de redes psicométricas (Ising models)."
   },
   {
     "objectID": "0-index.html#información-del-curso",
     "href": "0-index.html#información-del-curso",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
     "section": "Información del Curso",
     "text": "Información del Curso\n\nDocentes: Aníbal Olivera & Jorge Fábrega\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 15:50"
   },
   {
     "objectID": "0-index.html#requisitos-previos",
     "href": "0-index.html#requisitos-previos",
-    "title": "Revisitando las encuestas: Una mirada desde las ciencias de la complejidad",
+    "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
     "section": "Requisitos Previos",
     "text": "Requisitos Previos\n\nR y RStudio instalados.\nQuarto instalado.\nConocimientos básicos de R.\n\nPara comenzar, por favor visita la sección Get started."
   },
@@ -172,21 +172,21 @@
     "href": "4-summary.html",
     "title": "Conclusiones y Desafíos Futuros",
     "section": "",
-    "text": "Hasta ahora hemos confiado en los parámetros de la General Social Survey (GSS) de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (“EGO-nets”), permitiendo calcular parámetros \\(\\boldsymbol{\\beta}\\) específicos para otros contextos.\n\n\n\nEstudio (País/Región)\nCaracterísticas Principales\nIdoneidad\n\n\n\n\nELSOC (Chile)\nPanel Longitudinal. Módulo Redes (Ola 4). Generador “Important Matters” (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol.\nALTA. Réplica exacta GSS en Sur Global. Ideal comparación parámetros.\n\n\nSHARE (Europa + Israel)\nPoblación 50+. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters.\nALTA (Específica). Ideal para envejecimiento y soporte social.\n\n\nALLBUS (Alemania)\nTransversal Repetida. Cada ~10 años. Generador “Important Matters”.\nALTA. La “hermana” alemana de la GSS.\n\n\nCNEP (Global)\nFoco Político. 30+ países. Generador “Discusión Política”. Max 5 alters.\nMEDIA. Excelente para difusión política, pero red temática específica.\n\n\nCGSS (China)\nTransversal. Generador “Saludos Año Nuevo” (Proxy lazos fuertes).\nMEDIA. Requiere ajustes metodológicos por el generador distinto.\n\n\nGSS Canada (Canadá)\nCiclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC).\nMEDIA. Alta calidad pero difícil acceso a la red completa."
+    "text": "Hasta ahora hemos confiado en los parámetros de la General Social Survey (GSS) de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (“EGO-nets”), permitiendo calcular parámetros \\(\\boldsymbol{\\beta}\\) específicos para otros contextos.\n\n\n\nEstudio\nCaracterísticas Principales\nSimilitud con GSS\n\n\n\n\nELSOC (Chile)\nPanel Longitudinal. Módulo Redes (Ola 4). Generador “Important Matters” (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol.\nALTA. Réplica exacta GSS en Sur Global. Ideal comparación parámetros.\n\n\nSHARE (Europa)\nPoblación 50+. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters.\nALTA. Ideal para envejecimiento y soporte social.\n\n\nALLBUS (Alemania)\nTransversal Repetida. Cada ~10 años. Generador “Important Matters”.\nALTA. La hermana alemana de la GSS.\n\n\nCNEP (Global)\nFoco Político. 30+ países. Generador “Discusión Política”. Max 5 alters.\nMEDIA. Excelente para difusión política, pero red temática específica.\n\n\nCGSS (China)\nTransversal. Generador “Saludos Año Nuevo” (Proxy lazos fuertes).\nMEDIA. Requiere ajustes metodológicos por el generador distinto.\n\n\nGSS Canada (Canadá)\nCiclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC).\nMEDIA. Alta calidad pero difícil acceso a la red completa."
   },
   {
-    "objectID": "4-summary.html#extensiones-otros-datos-con-ego-nets",
-    "href": "4-summary.html#extensiones-otros-datos-con-ego-nets",
+    "objectID": "4-summary.html#otras-encuestas-con-ego-nets",
+    "href": "4-summary.html#otras-encuestas-con-ego-nets",
     "title": "Conclusiones y Desafíos Futuros",
     "section": "",
-    "text": "Hasta ahora hemos confiado en los parámetros de la General Social Survey (GSS) de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (“EGO-nets”), permitiendo calcular parámetros \\(\\boldsymbol{\\beta}\\) específicos para otros contextos.\n\n\n\nEstudio (País/Región)\nCaracterísticas Principales\nIdoneidad\n\n\n\n\nELSOC (Chile)\nPanel Longitudinal. Módulo Redes (Ola 4). Generador “Important Matters” (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol.\nALTA. Réplica exacta GSS en Sur Global. Ideal comparación parámetros.\n\n\nSHARE (Europa + Israel)\nPoblación 50+. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters.\nALTA (Específica). Ideal para envejecimiento y soporte social.\n\n\nALLBUS (Alemania)\nTransversal Repetida. Cada ~10 años. Generador “Important Matters”.\nALTA. La “hermana” alemana de la GSS.\n\n\nCNEP (Global)\nFoco Político. 30+ países. Generador “Discusión Política”. Max 5 alters.\nMEDIA. Excelente para difusión política, pero red temática específica.\n\n\nCGSS (China)\nTransversal. Generador “Saludos Año Nuevo” (Proxy lazos fuertes).\nMEDIA. Requiere ajustes metodológicos por el generador distinto.\n\n\nGSS Canada (Canadá)\nCiclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC).\nMEDIA. Alta calidad pero difícil acceso a la red completa."
+    "text": "Hasta ahora hemos confiado en los parámetros de la General Social Survey (GSS) de EEUU. Pero existen varios estudios de alta calidad alrededor del mundo que incluyen módulos de redes personales (“EGO-nets”), permitiendo calcular parámetros \\(\\boldsymbol{\\beta}\\) específicos para otros contextos.\n\n\n\nEstudio\nCaracterísticas Principales\nSimilitud con GSS\n\n\n\n\nELSOC (Chile)\nPanel Longitudinal. Módulo Redes (Ola 4). Generador “Important Matters” (GSS). Max 5 alters. Atributos: Sexo, Edad, Educ, Relig, Ideol.\nALTA. Réplica exacta GSS en Sur Global. Ideal comparación parámetros.\n\n\nSHARE (Europa)\nPoblación 50+. Olas 4, 6, 8. Generador Saturación (Importante + Cercano). Max 7 alters.\nALTA. Ideal para envejecimiento y soporte social.\n\n\nALLBUS (Alemania)\nTransversal Repetida. Cada ~10 años. Generador “Important Matters”.\nALTA. La hermana alemana de la GSS.\n\n\nCNEP (Global)\nFoco Político. 30+ países. Generador “Discusión Política”. Max 5 alters.\nMEDIA. Excelente para difusión política, pero red temática específica.\n\n\nCGSS (China)\nTransversal. Generador “Saludos Año Nuevo” (Proxy lazos fuertes).\nMEDIA. Requiere ajustes metodológicos por el generador distinto.\n\n\nGSS Canada (Canadá)\nCiclos 2008, 2013, 2020. Acceso restringido a microdatos de red completos (RDC).\nMEDIA. Alta calidad pero difícil acceso a la red completa."
   },
   {
     "objectID": "4-summary.html#desafío-práctico-dónde-importa-el-contexto",
     "href": "4-summary.html#desafío-práctico-dónde-importa-el-contexto",
     "title": "Conclusiones y Desafíos Futuros",
     "section": "2. Desafío Práctico: ¿Dónde importa el contexto?",
-    "text": "2. Desafío Práctico: ¿Dónde importa el contexto?\nHemos visto que el contexto social influye en la identidad política (Democrat Scale). Pero, ¿influye en todo?\nTe invitamos a participar en un pequeño desafío de predicción.\nEl Desafío: A continuación presentamos un “pool” de variables de la ANES 2016. Tu misión es aplicar la metodología que aprendiste (imputar \\(W\\) y estimar el modelo contextual) para responder:\n\n¿Qué variable crees tú que NO debería tener un efecto contextual significativo?\n\nElige una variable, corre el modelo, y envía tus resultados (el coeficiente Wy y su p-valor) a an.oliveram@udd.cl.\n\nPool de Variables\n\n\n\n\n\n\n\n\nCódigo\nDescripción\nEscala\n\n\n\n\nV161126\nLiberal - Conservative Self-placement\n1 (Ext. Liberal) - 7 (Ext. Conservative)\n\n\nV161139\nCurrent Economy Assessment\n1 (Very Good) - 5 (Very Bad)\n\n\nV161154\nWillingness to use Force (International)\n1 (Ext. Willing) - 5 (Not at all)\n\n\nV161201\nEnvironment vs. Jobs Tradeoff\n1 (Regulate) - 7 (No Regulation)\n\n\nV161522\nSatisfaction with Life\n1 (Ext. Satisfied) - 5 (Not at all)\n\n\nV161137\nIncome Gap vs 20 years ago\n1 (Larger) - 3 (Smaller/Same)\n\n\nV161188\nImportance of Gun Access\n1 (Ext. Important) - 5 (Not at all)\n\n\nV161209\nFederal Budget: Welfare Programs\n1 (Increase) - 3 (Decrease)\n\n\nV161212\nFederal Budget: Environment\n1 (Increase) - 3 (Decrease)\n\n\n\nNo todas las respuestas políticas son tribales. Algunas responden a necesidades materiales directas o valores universales que cruzan las fronteras de los grupos sociales. ¡Suerte!\nPuedes usar esta plantilla para correr tu modelo."
+    "text": "2. Desafío Práctico: ¿Dónde importa el contexto?\nHemos visto que el contexto social influye en la identidad política (Democrat Scale). Pero, ¿influye en todo?\nDesafío:\nA continuación presentamos un pool de variables de la ANES 2016. Tu misión es aplicar la metodología que aprendiste (imputar \\(W\\) y estimar el modelo contextual) para responder:\n\n¿Qué variable crees tú que NO debería tener un efecto contextual significativo?\n\nElige una variable, corre el modelo, y envía tus resultados (el coeficiente Wy y su p-valor) al correo an.oliveram@udd.cl.\n\nVariables\n\n\n\n\n\n\n\n\nCódigo\nDescripción\nEscala\n\n\n\n\nV161126\nLiberal - Conservative Self-placement\n1 (Ext. Liberal) - 7 (Ext. Conservative)\n\n\nV161139\nCurrent Economy Assessment\n1 (Very Good) - 5 (Very Bad)\n\n\nV161154\nWillingness to use Force (International)\n1 (Ext. Willing) - 5 (Not at all)\n\n\nV161201\nEnvironment vs. Jobs Tradeoff\n1 (Regulate) - 7 (No Regulation)\n\n\nV161522\nSatisfaction with Life\n1 (Ext. Satisfied) - 5 (Not at all)\n\n\nV161137\nIncome Gap vs 20 years ago\n1 (Larger) - 3 (Smaller/Same)\n\n\nV161188\nImportance of Gun Access\n1 (Ext. Important) - 5 (Not at all)\n\n\nV161209\nFederal Budget: Welfare Programs\n1 (Increase) - 3 (Decrease)\n\n\nV161212\nFederal Budget: Environment\n1 (Increase) - 3 (Decrease)\n\n\n\nNo todas las respuestas parecen ser tribales (algunas responden a necesidades materiales directas o valores universales). ¡Suerte!\nPuedes usar esta plantilla para correr tu modelo."
   },
   {
     "objectID": "2-homophily-strength.html",
