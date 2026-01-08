@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - scripts/**
 
 website:
   title: "Revisitando las Encuestas"

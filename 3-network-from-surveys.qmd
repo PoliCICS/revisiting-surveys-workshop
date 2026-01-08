@@ -88,6 +88,7 @@ library(dplyr)
 library(tidyr)
 library(spdep)
 library(spatialreg)
+library(texreg)
 
 # Cargar datos limpios
 final_df <- readRDS("data/anes_2016_derived/anes_clean.rds")
@@ -101,6 +102,16 @@ Construimos una matriz de pesos espaciales $W$ basada en la similitud demográfi
 #| message: false
 
 # Demográficos
+vars_model <- c(
+    "y", "age", "educ", "female", "race_raw", "relig_raw",
+    "race_black", "race_hispanic", "race_asian", "race_native", "race_other",
+    "relig_catholic", "relig_jewish", "relig_none", "relig_other"
+)
+
+final_df <- final_df %>%
+    select(all_of(vars_model)) %>%
+    drop_na()
+
 X_age <- final_df$age
 X_educ <- final_df$educ
 X_sex <- final_df$female
@@ -153,8 +164,10 @@ for (i in 1:N) {
     top_k_indices <- candidates[1:K]
     top_k_weights <- row_w[top_k_indices]
 
-    neighbors[[i]] <- top_k_indices
-    weights_list[[i]] <- top_k_weights
+    # Ordenar índices para evitar error dgRMatrix en impacts()
+    sort_idx <- order(top_k_indices)
+    neighbors[[i]] <- top_k_indices[sort_idx]
+    weights_list[[i]] <- top_k_weights[sort_idx]
 }
 
 class(neighbors) <- "nb"
@@ -175,9 +188,9 @@ Estimamos dos modelos para explicar la simpatía por el Partido Demócrata ($Y$)
 
 $$ y = X \beta + \epsilon $$
 
-2.  **Modelo 2 (Contexto):** Demografía + Lag Espacial ($W y$).
+2.  **Modelo 2 (Contexto):** Modelo de autocorrelación espacial (SAR/Spatial Lag).
 
-$$ y = \rho (W y) + X \beta + \epsilon $$
+$$ y = \rho (W y) + X \beta + \epsilon, \quad \varepsilon \sim M V N\left(0, \sigma^2 I\right). $$
 
 ```{r}
 #| label: estimate-models
@@ -194,30 +207,41 @@ fmla_base <- y ~ age + educ + female +
 # Modelo 1: OLS
 m1 <- lm(fmla_base, data = final_df)
 
-# Modelo 2: Lag Espacial (Estimación robusta via OLS con Lag manual)
-Wy <- lag.listw(W_listw, final_df$y)
-final_df$Wy <- Wy
-fmla_lag <- update(fmla_base, ~ . + Wy)
-m2_ols <- lm(fmla_lag, data = final_df)
+# Modelo 2: SAR (Spatial Autoregressive)
+m2_sar <- spatialreg::lagsarlm(
+    formula     = fmla_base,
+    data        = final_df,
+    listw       = W_listw,
+    method      = "eigen",
+    zero.policy = TRUE,
+    na.action   = na.fail
+)
 
-# Resultados con Stargazer ( Compacto )
-stargazer(m1, m2_ols,
-    type = "html",
-    title = "Democrat Scale (ANES 2016)",
-    column.labels = c("Base", "Contextual"),
-    dep.var.labels = "Democrat Scale (0-100)",
-    covariate.labels = c(
-        "Age", "Education", "Female",
-        "Black", "Hispanic", "Asian", "Native American", "Other race",
-        "Catholic", "Jewish", "None", "Other religion",
-        "Spatial parameter"
+# Resultados con texreg (htmlreg)
+htmlreg(list(m1, m2_sar),
+    custom.model.names = c("Base (OLS)", "Contextual (SAR)"),
+    caption = "Democrat Scale (ANES 2016) - OLS vs SAR",
+    # Mapeo de coeficientes para visualización limpia
+    custom.coef.map = list(
+        "(Intercept)" = "Intercept",
+        "age" = "Age",
+        "educ" = "Education",
+        "female" = "Female",
+        "race_black" = "Black",
+        "race_hispanic" = "Hispanic",
+        "race_asian" = "Asian",
+        "race_native" = "Native American",
+        "race_other" = "Other race",
+        "relig_catholic" = "Catholic",
+        "relig_jewish" = "Jewish",
+        "relig_none" = "None",
+        "relig_other" = "Other religion",
+        "rho" = "Spatial parameter (rho)"
     ),
-    star.cutoffs = c(0.10, 0.05, 0.01),
-    keep.stat = c("n", "rsq"),
-    report = "vc*", # Solo coeficientes y estrellas
-    notes = "Reference categories: Race = White; Religion = Protestant.",
-    notes.align = "l",
-    no.space = TRUE
+    center = TRUE,
+    doctype = FALSE,
+    include.rsquared = TRUE, include.adjrs = FALSE, include.nobs = TRUE,
+    include.rmse = FALSE # Ocultar métricas secundarias
 )
 ```
 
@@ -227,30 +251,58 @@ stargazer(m1, m2_ols,
 #| label: compare-coefs
 #| echo: false
 
+# 1. Coeficientes SAR vs OLS
 c1 <- coef(m1)
-c2 <- coef(m2_ols)
+c2 <- coef(m2_sar)
 
-cat("--- Comparación de Efectos ---\n")
-cat(sprintf("Spatial Rho (Contexto): %.3f\n\n", c2["Wy"]))
+cat("--- Parámetro de Dependencia Espacial (Rho) ---\n")
+rho_val <- m2_sar$rho
+cat(sprintf("Rho: %.3f\n\n", rho_val))
 
+# 2. Impactos (Efectos Totales)
+# En un modelo SAR, los coeficientes (Beta) solo miden el impacto inmediato (Directo).
+# Pero el término (rho * Wy) genera un feedback: el cambio en 'i' afecta a sus vecinos,
+# quienes a su vez re-afectan a 'i'.
+# Los "Impactos Totales" capturan la suma de estos efectos directos + indirectos (spillover).
+
+set.seed(123)
+imp <- spatialreg::impacts(m2_sar, listw = W_listw, R = 200)
+
+# Mostramos solo el resumen de efectos Totales para variables clave
+imp_summary <- summary(imp, zstats = TRUE, short = TRUE)
+
+# Extraer y combinar solo Estimaciones y P-values para una visualización limpia
+# La estructura de imp_summary$res es una lista con componentes direct/indirect/total
+mat_impacts <- imp_summary$res$total
+mat_pvals <- imp_summary$pzmat
+
+# Crear una tabla combinada personalizada
+# Filtramos solo columnas de interés 'Total' de estimaciones y sus p-values
+# (Nota: pzmat trae p-values para Direct, Indirect, Total en orden)
+df_impacts_print <- data.frame(
+    Directo = imp_summary$res$direct,
+    Indirecto = imp_summary$res$indirect,
+    Total = imp_summary$res$total,
+    P_Total = imp_summary$pzmat[, "Total"]
+)
+
+cat("Impactos Promedio (con p-valor para Efecto Total):\n")
+print(round(df_impacts_print, 4))
+
+cat("\n--- Comparación Simplificada de Coeficientes ---\n")
+# Precaución interpretativa: Comparar Beta OLS vs Beta SAR es una aproximación.
 df_comp <- data.frame(
     Variable = c("Black", "Hispanic", "Catholic", "Female"),
     Model1 = c(c1["race_black"], c1["race_hispanic"], c1["relig_catholic"], c1["female"]),
     Model2 = c(c2["race_black"], c2["race_hispanic"], c2["relig_catholic"], c2["female"])
 )
 
-# Calcular reducciones
 df_comp$Diff_Abs <- df_comp$Model1 - df_comp$Model2
 df_comp$Pct_Reduction <- (df_comp$Diff_Abs / df_comp$Model1) * 100
 
-# Seleccionar columnas para mostrar
-df_print <- df_comp[, c("Variable", "Model1", "Model2", "Pct_Reduction")]
-
-# Mostrar tabla formateada
-knitr::kable(df_print,
+knitr::kable(df_comp[, c("Variable", "Model1", "Model2", "Pct_Reduction")],
     digits = 2,
-    row.names = FALSE,
-    col.names = c("Variable", "Coef M1", "Coef M2", "% Reducción")
+    col.names = c("Variable", "Beta OLS", "Beta SAR", "% Reducción")
 )
 ```
 
@@ -271,13 +323,18 @@ Para ilustrar la magnitud del efecto contextual, compararemos el cambio predicho
 #| echo: true
 
 # 1. Obtener coeficientes del Modelo 2 (Contextual)
-coefs <- coef(m2_ols)
+coefs <- coef(m2_sar)
 
-# --- Efecto Contextual ---
-# Comparamos moverse del percentil 10 al 90 de `Wy`
-Wy_p10 <- quantile(final_df$Wy, 0.10, na.rm = TRUE)
-Wy_p90 <- quantile(final_df$Wy, 0.90, na.rm = TRUE)
-delta_context <- coefs["Wy"] * (Wy_p90 - Wy_p10)
+# --- Efecto Contextual (Simulación aproximada) ---
+# En SAR: Efecto global de cambiar Wy es complejo.
+# Aproximación simple usando el Rho estimado y la distribución observada de Wy (lag)
+Wy_pred <- lag.listw(W_listw, final_df$y) # Wy imputado ex-post
+rho_est <- m2_sar$rho
+
+# Comparamos moverse del percentil 10 al 90 de ese `Wy` latente
+Wy_p10 <- quantile(Wy_pred, 0.10, na.rm = TRUE)
+Wy_p90 <- quantile(Wy_pred, 0.90, na.rm = TRUE)
+delta_context <- rho_est * (Wy_p90 - Wy_p10)
 
 cat(sprintf("CONTEXT EFFECT (P10 -> P90 Wy): +%.2f puntos\n", delta_context))
 
