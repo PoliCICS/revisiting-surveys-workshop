@@ -37,6 +37,8 @@ donde $\mathbf{d}_{ij}$ es un vector de distancias sociodemográficas entre el e
 
 ### Case-control design
 
+Para calcular $\boldsymbol{\beta}$, necesitamos una variable respuesta $Y_{ij}$ que indique si existe un lazo entre el ego $i$ y el alter $j$. Sin embargo, no nos podemos fiar de $Y_{ij}=0$.
+
 Nuestra unidad de análisis son díadas $(i,j)$, donde $i$ indexa al *ego* y $j$ al *alter*. Conceptualmente, la variable respuesta se define sobre el universo de pares potenciales:
 
 $$
@@ -85,11 +87,6 @@ Y_{ij} =
 0 & \text{si } (i,j) \text{ proviene del muestreo de controles }
 \end{cases}
 $$
-
-> **Implementación pedagógica vs. replicación robusta**  
-> En esta implementación pedagófica utilizamos una versión simplificada de *random pairing* para construir controles. Una replicación estricta del enfoque del paper requiere:  
-> (i) ponderación con **pesos poblacionales** (*population weights*) en el muestreo/ensamble de pares, y  
-> (ii) un **bootstrap a nivel de encuestado** (*respondent-level bootstrap*) para obtener errores estándar que reflejen la dependencia inducida por observaciones díadicas.  
 
 Además, existe una asimetría estructural: los **casos** (ego–confidant) están naturalmente “anidados” en el ego, mientras que los **controles** quedan “cruzados” entre muchos respondentes. Esa estructura dificulta imponer una sola jerarquía clara de anidamiento para un modelo multinivel estándar, y por ello el paper recurre a una estrategia de inferencia basada en **bootstrap a nivel de encuestado**: re-muestrean respondentes, reconstruyen casos y controles dentro de cada iteración (incluyendo *random matching with replacement* para controles), re-estiman el modelo y obtienen errores estándar desde la variabilidad de los coeficientes a través de iteraciones
 
