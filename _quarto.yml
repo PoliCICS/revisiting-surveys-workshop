@@ -27,8 +27,6 @@ website:
     right:
       - text: Recursos
         menu:
-          - text: Get Started
-            href: getstarted.qmd
           - text: Limpieza GSS 2004
             href: gss-cleaning.qmd
           - text: Limpieza ANES 2016

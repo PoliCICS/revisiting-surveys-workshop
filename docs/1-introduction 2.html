@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Aníbal Olivera">
 
-<title>Empezar – Revisitando las Encuestas</title>
+<title>Introducción – Revisitando las Encuestas</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3921,10 +3922,6 @@ vertical-align: -.125em;
     </a>
     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="nav-menu-recursos">    
         <li>
-    <a class="dropdown-item" href="./getstarted.html">
- <span class="dropdown-text">Get Started</span></a>
-  </li>  
-        <li>
     <a class="dropdown-item" href="./gss-cleaning.html">
  <span class="dropdown-text">Limpieza GSS 2004</span></a>
   </li>  
@@ -3949,12 +3946,11 @@ vertical-align: -.125em;
     <h2 id="toc-title">En esta página</h2>
    
   <ul>
-  <li><a href="#instalación" id="toc-instalación" class="nav-link active" data-scroll-target="#instalación">Instalación</a></li>
-  <li><a href="#restaurar-entorno-renv" id="toc-restaurar-entorno-renv" class="nav-link" data-scroll-target="#restaurar-entorno-renv">Restaurar Entorno (renv)</a></li>
-  <li><a href="#verificar-instalación" id="toc-verificar-instalación" class="nav-link" data-scroll-target="#verificar-instalación">Verificar Instalación</a></li>
-  <li><a href="#estructura-del-repositorio" id="toc-estructura-del-repositorio" class="nav-link" data-scroll-target="#estructura-del-repositorio">Estructura del Repositorio</a></li>
+  <li><a href="#las-encuestas-como-sistemas" id="toc-las-encuestas-como-sistemas" class="nav-link active" data-scroll-target="#las-encuestas-como-sistemas">Las Encuestas como Sistemas</a></li>
+  <li><a href="#ideas-clave" id="toc-ideas-clave" class="nav-link" data-scroll-target="#ideas-clave">Ideas Clave</a></li>
+  <li><a href="#comencemos-get-started" id="toc-comencemos-get-started" class="nav-link" data-scroll-target="#comencemos-get-started">Comencemos (Get Started)</a></li>
   </ul>
-<div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/getstarted.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/getstarted.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/1-introduction.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/1-introduction.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></nav>
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
@@ -3965,14 +3961,26 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Empezar</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Código</button></div></div>
+<div class="quarto-title-block"><div><h1 class="title">Introducción</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Código</button></div></div>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>Aníbal Olivera </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Fecha de publicación</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">8 de enero de 2025</p>
+    </div>
+  </div>
   
     
   </div>
@@ -3982,40 +3990,26 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="instalación" class="level2">
-<h2 class="anchored" data-anchor-id="instalación">Instalación</h2>
-<p>Para seguir este workshop, necesitarás tener instalado el siguiente software:</p>
-<ol type="1">
-<li><a href="https://cran.r-project.org/">R</a></li>
-<li><a href="https://posit.co/download/rstudio-desktop/">RStudio</a></li>
-<li><a href="https://quarto.org/docs/get-started/">Quarto</a></li>
-</ol>
+<section id="las-encuestas-como-sistemas" class="level2">
+<h2 class="anchored" data-anchor-id="las-encuestas-como-sistemas">Las Encuestas como Sistemas</h2>
+<p>Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas.</p>
 </section>
-<section id="restaurar-entorno-renv" class="level2">
-<h2 class="anchored" data-anchor-id="restaurar-entorno-renv">Restaurar Entorno (renv)</h2>
-<p>Este proyecto utiliza <code>renv</code> para gestionar las dependencias de R y asegurar la reproducibilidad.</p>
-<ol type="1">
-<li>Abre el proyecto <code>revisiting-surveys.Rproj</code> en RStudio.</li>
-<li>Ejecuta el siguiente comando en la consola de R para instalar las librerías necesarias:</li>
-</ol>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="verificar-instalación" class="level2">
-<h2 class="anchored" data-anchor-id="verificar-instalación">Verificar Instalación</h2>
-<p>Para verificar que todo funciona correctamente, intenta renderizar este sitio web:</p>
-<ol type="1">
-<li>En RStudio, ve a la pestaña <strong>Build</strong>.</li>
-<li>Haz clic en <strong>Render Website</strong>.</li>
-</ol>
-<p>Si el proceso termina con éxito, ¡estás listo para comenzar!</p>
-</section>
-<section id="estructura-del-repositorio" class="level2">
-<h2 class="anchored" data-anchor-id="estructura-del-repositorio">Estructura del Repositorio</h2>
+<section id="ideas-clave" class="level2">
+<h2 class="anchored" data-anchor-id="ideas-clave">Ideas Clave</h2>
 <ul>
-<li><code>replication-smith2014-table3/</code>: Código base para la replicación de Smith &amp; McPherson (2014).</li>
-<li><code>files/</code>: Archivos de datos y ejemplos para descargar.</li>
-<li><code>docs/</code>: Sitio web renderizado (no editar manualmente).</li>
+<li><strong>Contexto Social:</strong> Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).</li>
+<li><strong>Propiedades Emergentes:</strong> Patrones macroscópicos que surgen de interacciones microscópicas no triviales.</li>
+<li><strong>Recuperación de Estructura:</strong> ¿Podemos “reconstruir” la red social subyacente a partir de datos de encuestas transversal?</li>
 </ul>
+</section>
+<section id="comencemos-get-started" class="level2">
+<h2 class="anchored" data-anchor-id="comencemos-get-started">Comencemos (Get Started)</h2>
+<p>Para trabajar en este workshop, utilizaremos Posit Cloud para asegurar que todos tengamos el mismo entorno de R.</p>
+<ol type="1">
+<li><p><strong>Repositorio</strong>: El código fuente vive en <code>github.com/PoliCICS/revisiting-surveys-workshop</code>. Desde ahí puedes ver el código fuente y el enlace a este <code>html</code> (ver README).</p></li>
+<li><p><strong>Acceso a Posit Cloud</strong>: Envía un correo a <code>anibal.olivera.m@gmail.com</code> solicitando acceso. Recibirás una invitación para unirte al espacio de trabajo del curso.</p></li>
+<li><p><strong>Alternativa Local</strong> (Opcional): Si prefieres trabajar localmente, puedes clonar el repositorio o descargar el ZIP desde GitHub, pero asegúrate de tener instaladas las librerías necesarias (por ejemplo <code>spatialreg</code>, <code>spdep</code>, <code>ergm</code>, <code>IsingFit</code>, <code>qgraph</code>, etc.)</p></li>
+</ol>
 
 
 <!-- -->
@@ -4474,47 +4468,35 @@ vertical-align: -.125em;
     }
   });
   </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Empezar&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">## Instalación</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>Para seguir este workshop, necesitarás tener instalado el siguiente software:</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span><span class="co">[</span><span class="ot">R</span><span class="co">](https://cran.r-project.org/)</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span><span class="co">[</span><span class="ot">RStudio</span><span class="co">](https://posit.co/download/rstudio-desktop/)</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span><span class="co">[</span><span class="ot">Quarto</span><span class="co">](https://quarto.org/docs/get-started/)</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Restaurar Entorno (renv)</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>Este proyecto utiliza <span class="in">`renv`</span> para gestionar las dependencias de R y asegurar la reproducibilidad.</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>Abre el proyecto <span class="in">`revisiting-surveys.Rproj`</span> en RStudio.</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Ejecuta el siguiente comando en la consola de R para instalar las librerías necesarias:</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="in">```r</span></span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>renv<span class="sc">::</span><span class="fu">restore</span>()</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">## Verificar Instalación</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>Para verificar que todo funciona correctamente, intenta renderizar este sitio web:</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>En RStudio, ve a la pestaña **Build**.</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>Haz clic en **Render Website**.</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>Si el proceso termina con éxito, ¡estás listo para comenzar!</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="fu">## Estructura del Repositorio</span></span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`replication-smith2014-table3/`</span>: Código base para la replicación de Smith &amp; McPherson (2014).</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`files/`</span>: Archivos de datos y ejemplos para descargar.</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span><span class="in">`docs/`</span>: Sitio web renderizado (no editar manualmente).</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> &quot;Introducción&quot;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> &quot;Aníbal Olivera&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> &quot;2025-01-08&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Las Encuestas como Sistemas</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas.</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ideas Clave</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Contexto Social:** Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Propiedades Emergentes:** Patrones macroscópicos que surgen de interacciones microscópicas no triviales.</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="ss">-   </span>**Recuperación de Estructura:** ¿Podemos &quot;reconstruir&quot; la red social subyacente a partir de datos de encuestas transversal?</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Comencemos (Get Started)</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>Para trabajar en este workshop, utilizaremos Posit Cloud para asegurar que todos tengamos el mismo entorno de R.</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="ss">1.  </span>**Repositorio**: El código fuente vive en <span class="in">`github.com/PoliCICS/revisiting-surveys-workshop`</span>. Desde ahí puedes ver el código fuente y el enlace a este <span class="in">`html`</span> (ver README).</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="ss">2.  </span>**Acceso a Posit Cloud**: Envía un correo a <span class="in">`anibal.olivera.m@gmail.com`</span> solicitando acceso. Recibirás una invitación para unirte al espacio de trabajo del curso.</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>**Alternativa Local** (Opcional): Si prefieres trabajar localmente, puedes clonar el repositorio o descargar el ZIP desde GitHub, pero asegúrate de tener instaladas las librerías necesarias (por ejemplo  <span class="in">`spatialreg`</span>, <span class="in">`spdep`</span>, <span class="in">`ergm`</span>, <span class="in">`IsingFit`</span>, <span class="in">`qgraph`</span>, etc.)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal><i class="bi"></i></button></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
 
 
 
 
-<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/getstarted.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/getstarted.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></div></div></footer></body></html>
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/edit/main/1-introduction.qmd" class="toc-action"><i class="bi bi-github"></i>Editar esta página</a></li><li><a href="https://github.com/PoliCICS/revisiting-surveys-workshop/blob/main/1-introduction.qmd" class="toc-action"><i class="bi empty"></i>Ver el código</a></li></ul></div></div></div></footer></body></html>

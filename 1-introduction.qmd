@@ -13,7 +13,13 @@ Tradicionalmente, las encuestas se analizan asumiendo independencia entre observ
 -   **Contexto Social:** Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).
 -   **Propiedades Emergentes:** Patrones macroscópicos que surgen de interacciones microscópicas no triviales.
 -   **Recuperación de Estructura:** ¿Podemos "reconstruir" la red social subyacente a partir de datos de encuestas transversal?
+    
+## Comencemos (Get Started)
 
-## Motivación
+Para trabajar en este workshop, utilizaremos Posit Cloud para asegurar que todos tengamos el mismo entorno de R.
 
-En este workshop, desafiaremos la visión atomista de las encuestas y propondremos métodos para reincorporar la estructura relacional en el análisis estadística.
+1.  **Repositorio**: El código fuente vive en `github.com/PoliCICS/revisiting-surveys-workshop`. Desde ahí puedes ver el código fuente y el enlace a este `html` (ver README).
+
+2.  **Acceso a Posit Cloud**: Envía un correo a `anibal.olivera.m@gmail.com` solicitando acceso. Recibirás una invitación para unirte al espacio de trabajo del curso.
+
+3.  **Alternativa Local** (Opcional): Si prefieres trabajar localmente, puedes clonar el repositorio o descargar el ZIP desde GitHub, pero asegúrate de tener instaladas las librerías necesarias (por ejemplo  `spatialreg`, `spdep`, `ergm`, `IsingFit`, `qgraph`, etc.)
