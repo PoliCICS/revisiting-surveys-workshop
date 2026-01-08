@@ -88,7 +88,7 @@
     "href": "0-index.html",
     "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
     "section": "",
-    "text": "Bienvenido al sitio web del workshop “Revisitando las encuestas”.\nEste workshop ofrece una introducción práctica a metodologías avanzadas para el análisis de encuestas desde la perspectiva de las ciencias de la complejidad. Exploraremos cómo imputar estructuras de red a datos de encuestas y cómo aplicar modelos de redes tipo Ising a datos psicométricos."
+    "text": "Bienvenido al sitio web del workshop “Revisitando las encuestas”.\nEsta serie de presentaciones ofrece una introducción práctica a las nuevas extensiones con que se han estado estudiando las encuestas últimamente, enfocados principalmente en herramientas de Teoría de Redes."
   },
   {
     "objectID": "0-index.html#objetivos",
@@ -98,32 +98,39 @@
     "text": "Objetivos\n\nComprender las encuestas como sistemas complejos.\nAprender a imputar redes sociales latentes en encuestas (metodología Smith & McPherson).\nIntroducir el análisis de redes psicométricas (Ising models)."
   },
   {
-    "objectID": "0-index.html#información-del-curso",
-    "href": "0-index.html#información-del-curso",
+    "objectID": "0-index.html#información-del-las-presentaciones",
+    "href": "0-index.html#información-del-las-presentaciones",
     "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Información del Curso",
-    "text": "Información del Curso\n\nDocentes: Aníbal Olivera & Jorge Fábrega\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 15:50"
+    "section": "Información del las presentaciones",
+    "text": "Información del las presentaciones\n\nDocentes: Jorge Fábrega & Aníbal Olivera\nFechas:\n\nJueves 8 de Enero: 14:30 – 15:50\nViernes 9 de Enero: 09:00 – 15:50"
   },
   {
-    "objectID": "0-index.html#requisitos-previos",
-    "href": "0-index.html#requisitos-previos",
+    "objectID": "0-index.html#requisitos-previos-realización-local",
+    "href": "0-index.html#requisitos-previos-realización-local",
     "title": "Revisitando las Encuestas: Una mirada desde las ciencias de la complejidad",
-    "section": "Requisitos Previos",
-    "text": "Requisitos Previos\n\nR y RStudio instalados.\nQuarto instalado.\nConocimientos básicos de R.\n\nPara comenzar, por favor visita la sección Introducción."
+    "section": "Requisitos Previos (realización local)",
+    "text": "Requisitos Previos (realización local)\n\nR y RStudio instalados.\nQuarto instalado.\nConocimientos básicos de R.\n\nPara comenzar, por favor visita la sección Introducción."
   },
   {
     "objectID": "1-introduction.html",
     "href": "1-introduction.html",
     "title": "Introducción",
     "section": "",
-    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
+    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, el supuesto i.i.d. (independientes e idénticamente distribuidas) se viola cuando las encuestas contienen items de “generación de nombres”.\nSi representas tu dataset a nivel de díadas (ego–alter), el mismo ego \\(i\\) aparece en varias filas: \\((i, j_1), (i, j_2), \\dots, (i, j_{k_i})\\).\n¿Entonces “todas” las encuestas ego violan i.i.d.?\nDepende de la unidad de análisis: • Si se analiza a nivel díada (ego–alter): en general no se puede asumir independencia entre filas, por lo anterior. • Si se analiza a nivel ego (una fila por encuestado): es mucho más razonable tratar a los egos como i.i.d. entre sí (sujeto a diseño muestral/pesos), porque cada ego es una unidad muestral primaria.\n\n\n\nExample of real ego-networks.\n\n\nEso induce correlación entre observaciones porque esas filas comparten características no observadas del ego (p. ej., sociabilidad, propensión a nominar, sesgo de reporte, “grado” latente, etc.)."
   },
   {
-    "objectID": "1-introduction.html#las-encuestas-como-sistemas",
-    "href": "1-introduction.html#las-encuestas-como-sistemas",
+    "objectID": "1-introduction.html#revisitando-las-ego-redes",
+    "href": "1-introduction.html#revisitando-las-ego-redes",
     "title": "Introducción",
     "section": "",
-    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas."
+    "text": "Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, el supuesto i.i.d. (independientes e idénticamente distribuidas) se viola cuando las encuestas contienen items de “generación de nombres”.\nSi representas tu dataset a nivel de díadas (ego–alter), el mismo ego \\(i\\) aparece en varias filas: \\((i, j_1), (i, j_2), \\dots, (i, j_{k_i})\\).\n¿Entonces “todas” las encuestas ego violan i.i.d.?\nDepende de la unidad de análisis: • Si se analiza a nivel díada (ego–alter): en general no se puede asumir independencia entre filas, por lo anterior. • Si se analiza a nivel ego (una fila por encuestado): es mucho más razonable tratar a los egos como i.i.d. entre sí (sujeto a diseño muestral/pesos), porque cada ego es una unidad muestral primaria.\n\n\n\nExample of real ego-networks.\n\n\nEso induce correlación entre observaciones porque esas filas comparten características no observadas del ego (p. ej., sociabilidad, propensión a nominar, sesgo de reporte, “grado” latente, etc.)."
+  },
+  {
+    "objectID": "1-introduction.html#contexto-social",
+    "href": "1-introduction.html#contexto-social",
+    "title": "Introducción",
+    "section": "Contexto Social",
+    "text": "Contexto Social\nEl libro Le Suicide de Émile Durkheim (1897) muestra que las características del entorno social afectaban los índices de comportamiento individual, incluso cuando ese comportamiento individual era intensamente personal.\n\nLas tasas de suicidio varían de manera estable según características del entorno social: grado de integración social, nivel de regulación normativa, tipo de vínculos colectivos predominantes.\nSu argumento desplaza la explicación desde motivos individuales (tristeza, locura, temperamento) hacia “hechos sociales” externos y coercitivos.\nDemuestra empíricamente que distintos contextos sociales producen distintos tipos y niveles de suicidio: mayor en protestantes que en católicos, mayor en períodos de anomia económica, menor en grupos con fuerte integración familiar o comunitaria, mayor entre quienes están débilmente insertos en redes sociales estables.\nEl punto decisivo es que Durkheim no niega que el acto sea individual, voluntario y profundamente personal. Lo que muestra es que la probabilidad de que ese acto ocurra está socialmente estructurada."
   },
   {
     "objectID": "1-introduction.html#ideas-clave",
@@ -133,11 +140,11 @@
     "text": "Ideas Clave\n\nContexto Social: Las respuestas no ocurren en el vacío; dependen del entorno social del encuestado (familia, amigos, red laboral).\nPropiedades Emergentes: Patrones macroscópicos que surgen de interacciones microscópicas no triviales.\nRecuperación de Estructura: ¿Podemos “reconstruir” la red social subyacente a partir de datos de encuestas transversal?"
   },
   {
-    "objectID": "1-introduction.html#comencemos-get-started",
-    "href": "1-introduction.html#comencemos-get-started",
+    "objectID": "1-introduction.html#get-started",
+    "href": "1-introduction.html#get-started",
     "title": "Introducción",
-    "section": "Comencemos (Get Started)",
-    "text": "Comencemos (Get Started)\nPara trabajar en este workshop, utilizaremos Posit Cloud para asegurar que todos tengamos el mismo entorno de R.\n\nRepositorio: El código fuente vive en github.com/PoliCICS/revisiting-surveys-workshop. Desde ahí puedes ver el código fuente y el enlace a este html (ver README).\nAcceso a Posit Cloud: Envía un correo a anibal.olivera.m@gmail.com solicitando acceso. Recibirás una invitación para unirte al espacio de trabajo del curso.\nAlternativa Local (Opcional): Si prefieres trabajar localmente, puedes clonar el repositorio o descargar el ZIP desde GitHub, pero asegúrate de tener instaladas las librerías necesarias (por ejemplo spatialreg, spdep, ergm, IsingFit, qgraph, etc.)"
+    "section": "Get Started",
+    "text": "Get Started\nPara trabajar en este workshop, utilizaremos Posit Cloud para asegurar que todos tengamos el mismo entorno de R.\n\nRepositorio: El código fuente vive en github.com/PoliCICS/revisiting-surveys-workshop. Desde ahí puedes ver el código fuente y el enlace a este html (ver README).\nAcceso a Posit Cloud: Envía un correo a anibal.olivera.m@gmail.com solicitando acceso. Recibirás una invitación para unirte al espacio de trabajo del curso.\nAlternativa Local (Opcional): Si prefieres trabajar localmente, puedes clonar el repositorio o descargar el ZIP desde GitHub, pero asegúrate de tener instaladas las librerías necesarias (por ejemplo spatialreg, spdep, ergm, IsingFit, qgraph, etc.)"
   },
   {
     "objectID": "3-ising.html",

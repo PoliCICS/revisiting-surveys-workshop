@@ -4,9 +4,34 @@ author: "Aníbal Olivera"
 date: "2025-01-08"
 ---
 
-## Las Encuestas como Sistemas
+## Revisitando las Ego-redes
 
-Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, desde las ciencias de la complejidad, entendemos que los individuos están inmersos en estructuras sociales que condicionan sus respuestas.
+Tradicionalmente, las encuestas se analizan asumiendo independencia entre observaciones (encuestados). Sin embargo, el supuesto **i.i.d.** (independientes e idénticamente distribuidas) se viola cuando las encuestas contienen items de "generación de nombres". 
+
+Si representas tu dataset a nivel de díadas (ego–alter), el mismo ego $i$ aparece en varias filas: $(i, j_1), (i, j_2), \dots, (i, j_{k_i})$.
+
+¿Entonces “todas” las encuestas ego violan i.i.d.?
+
+Depende de la unidad de análisis:
+	•	Si se analiza a nivel díada (ego–alter): en general **no** se puede asumir independencia entre filas, por lo anterior.
+	•	Si se analiza a nivel ego (una fila por encuestado): es mucho más razonable tratar a los egos como i.i.d. entre sí (sujeto a diseño muestral/pesos), porque cada ego es una unidad muestral primaria.
+
+![Example of real ego-networks.](figs/fig1-ego-networks.png){width="50%"}
+
+Eso induce correlación entre observaciones porque esas filas comparten características no observadas del ego (p. ej., sociabilidad, propensión a nominar, sesgo de reporte, “grado” latente, etc.).
+
+## Contexto Social
+
+El libro *Le Suicide* de Émile Durkheim (1897) muestra que las características del entorno social *afectaban* los índices de comportamiento individual, incluso cuando ese comportamiento individual era *intensamente personal*.
+
+- Las tasas de suicidio varían de manera estable según características del entorno social: grado de integración social, nivel de regulación normativa, tipo de vínculos colectivos predominantes.
+
+- Su argumento desplaza la explicación desde motivos individuales (tristeza, locura, temperamento) hacia “hechos sociales” externos y coercitivos. 
+
+- Demuestra empíricamente que distintos contextos sociales producen distintos tipos y niveles de suicidio: mayor en protestantes que en católicos, mayor en períodos de anomia económica, menor en grupos con fuerte integración familiar o comunitaria, mayor entre quienes están débilmente insertos en redes sociales estables.
+
+- El punto decisivo es que Durkheim no niega que el acto sea individual, voluntario y profundamente personal. Lo que muestra es que la probabilidad de que ese acto ocurra está socialmente estructurada.
+
 
 ## Ideas Clave
 
@@ -14,7 +39,7 @@ Tradicionalmente, las encuestas se analizan asumiendo independencia entre observ
 -   **Propiedades Emergentes:** Patrones macroscópicos que surgen de interacciones microscópicas no triviales.
 -   **Recuperación de Estructura:** ¿Podemos "reconstruir" la red social subyacente a partir de datos de encuestas transversal?
     
-## Comencemos (Get Started)
+## Get Started
 
 Para trabajar en este workshop, utilizaremos Posit Cloud para asegurar que todos tengamos el mismo entorno de R.
 
