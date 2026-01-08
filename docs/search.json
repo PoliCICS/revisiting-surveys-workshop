@@ -133,6 +133,13 @@
     "text": "Contexto Social\nEl libro Le Suicide de Émile Durkheim (1897) muestra que las características del entorno social afectaban los índices de comportamiento individual, incluso cuando ese comportamiento individual era intensamente personal.\n\nLas tasas de suicidio varían de manera estable según características del entorno social: grado de integración social, nivel de regulación normativa, tipo de vínculos colectivos predominantes.\nSu argumento desplaza la explicación desde motivos individuales (tristeza, locura, temperamento) hacia “hechos sociales” externos y coercitivos.\nDemuestra empíricamente que distintos contextos sociales producen distintos tipos y niveles de suicidio: mayor en protestantes que en católicos, mayor en períodos de anomia económica, menor en grupos con fuerte integración familiar o comunitaria, mayor entre quienes están débilmente insertos en redes sociales estables.\nEl punto decisivo es que Durkheim no niega que el acto sea individual, voluntario y profundamente personal. Lo que muestra es que la probabilidad de que ese acto ocurra está socialmente estructurada."
   },
   {
+    "objectID": "1-introduction.html#dificultades-con-ego-nets",
+    "href": "1-introduction.html#dificultades-con-ego-nets",
+    "title": "Introducción",
+    "section": "Dificultades con Ego-nets",
+    "text": "Dificultades con Ego-nets\nSabemos que no es factible medir propiedades de red directamente para sistemas grandes (ej., un país: requeriría un censo de lazos entre cientos de millones de personas). Por eso se recurre a técnicas de muestreo de redes vía encuestas (ego networks).\nPero incluso las encuestas ego-net suelen tener limitaciones:\n\nCarga operativa y costos: módulos de ego-net suelen alargar el cuestionario y encarecer el trabajo de campo\nRiesgos de privacidad: pedir información alters eleva sensibilidad ética.\nComparabilidad cultural y semántica: hablar de asuntos importantes o discutir política puede significar cosas distintas entre países.\nDado el volumen de contactos cotidianos, incluso recuperar información significativa sobre una fracción pequeña de contactos es una tarea difícil; por eso la práctica estándar es pedir los contactos más importantes."
+  },
+  {
     "objectID": "1-introduction.html#ideas-clave",
     "href": "1-introduction.html#ideas-clave",
     "title": "Introducción",

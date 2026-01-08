@@ -34,6 +34,19 @@ El libro *Le Suicide* de Émile Durkheim (1897) muestra que las características
 
 - El punto decisivo es que Durkheim no niega que el acto sea individual, voluntario y profundamente personal. Lo que muestra es que la probabilidad de que ese acto ocurra está socialmente estructurada.
 
+## Dificultades con Ego-nets
+
+Sabemos que no es factible medir propiedades de red *directamente* para sistemas grandes (ej., un país: requeriría un censo de lazos entre cientos de millones de personas). Por eso se recurre a técnicas de muestreo de redes vía encuestas (ego networks).
+
+Pero incluso las encuestas ego-net suelen tener limitaciones:
+
+- Carga operativa y costos: módulos de ego-net suelen alargar el cuestionario y encarecer el trabajo de campo
+
+- Riesgos de privacidad: pedir información alters eleva sensibilidad ética.
+
+- Comparabilidad cultural y semántica: *hablar de asuntos importantes* o *discutir política* puede significar cosas distintas entre países.
+
+- Dado el volumen de contactos cotidianos, incluso recuperar información *significativa* sobre una fracción pequeña de contactos es una tarea difícil; por eso la práctica estándar es pedir los contactos *más importantes*.
 
 ## Ideas Clave
 
