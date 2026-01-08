@@ -15,6 +15,26 @@ El objetivo inferencial es estimar la homofilia relativa al azar: el efecto de l
 Trabajamos con datos de la General Social Survey (**GSS** 1985 y 2004), específicamente el módulo de redes de discusión (*core discussion network / important matters module*), donde cada encuestado -ego- nomina hasta un número acotado de confidentes -alters-. Para detalles de acceso a los microdatos: 
 [[https://gss.norc.org/get-the-data/stata.html](https://gss.norc.org/get-the-data/stata.html)].
 
+### Blau space
+
+Espacio de Blau es una forma de representar la “ubicación social” de las personas en un espacio multidimensional construido a partir de atributos sociodemográficos. 
+
+La idea central es tratar cada variable (p. ej., edad, educación, sexo, raza, religión) como una dimensión de un espacio $M$-dimensional, de modo que cada individuo i queda descrito por un vector de coordenadas $s_i = (s_{i1}, s_{i2}, \dots, s_{iM})$ en un espacio euclídeo $\mathbb{R}^M$.
+
+Una operacionalización estándar de distancia es la euclidiana:
+$$
+d_{ij} = \sqrt{ \sum_{m=1}^M (s_{im} - s_{jm})^2 },
+$$
+
+Donde cada coordenada $s_{im}$ representa una dimensión social. Intuitivamente, a mayor $d_{ij}$, mayor es la separación sociodemográfica entre dos personas. El espacio de Blau es útil porque conecta datos de encuestas **tradicionales** con una estructura relacional *plausible*. 
+
+Así que lo que queremos es algo del estilo
+$$
+\text{logit}\big(\Pr(Y_{ij}=1)\big) = \alpha + \boldsymbol{\beta}^\top \mathbf{d}_{ij}
+$$
+
+donde $\mathbf{d}_{ij}$ es un vector de distancias sociodemográficas entre el ego $i$ y el alter $j$ y $\boldsymbol{\beta}$ son los coeficientes de pendiente que cuantifican “cuánto cae” la probabilidad de un lazo al aumentar la distancia social: **fuerza homofílica**.
+
 ### Case-control design
 
 Nuestra unidad de análisis son díadas $(i,j)$, donde $i$ indexa al *ego* y $j$ al *alter*. Conceptualmente, la variable respuesta se define sobre el universo de pares potenciales:
