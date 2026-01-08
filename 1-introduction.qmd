@@ -16,7 +16,7 @@ Depende de la unidad de análisis:
 	•	Si se analiza a nivel díada (ego–alter): en general **no** se puede asumir independencia entre filas, por lo anterior.
 	•	Si se analiza a nivel ego (una fila por encuestado): es mucho más razonable tratar a los egos como i.i.d. entre sí (sujeto a diseño muestral/pesos), porque cada ego es una unidad muestral primaria.
 
-![Example of real ego-networks.](figs/fig1-ego-networks.png){width="50%"}
+![Example of real ego-networks.](figs/fig2-ego.png){width="50%"}
 
 Eso induce correlación entre observaciones porque esas filas comparten características no observadas del ego (p. ej., sociabilidad, propensión a nominar, sesgo de reporte, “grado” latente, etc.).
 
