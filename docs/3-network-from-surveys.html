@@ -4157,8 +4157,8 @@ window.Quarto = {
 <p>Supongamos que estimas el siguiente modelo: <span class="math display">\[
 y_i=\beta_0+\beta_1 \text { Educación }_i+\varepsilon_i
 \]</span></p>
-<p>donde <span class="math inline">\(Y_i\)</span> es la actitud política, gusto cultural, consumo, etc. La interpretación estándar es que si <span class="math inline">\(\hat{\beta}_1&gt;0\)</span>, se concluye que “la educación influye (?) en la actitud <span class="math inline">\(Y\)</span>.”</p>
-<p>Ahora, considera el mundo que ellos simulan:</p>
+<p>donde <span class="math inline">\(y_i\)</span> es la actitud política, gusto cultural, consumo, etc. La interpretación puede ser que si <span class="math inline">\(\hat{\beta}_1&gt;0\)</span>, se concluye que “la educación influye en la actitud <span class="math inline">\(y_i\)</span>.”</p>
+<p>Ahora, DellaPosta et al. (2015) simulan un mundo donde:</p>
 <ol type="1">
 <li><p>No hay efecto causal directo: <span class="math display">\[
 \text { Educación }_i \nrightarrow y_i
@@ -4206,14 +4206,14 @@ y_i(t+1)=f\left(y_j(t): j \in N(i)\right)
 <li><p>Tomamos los coeficientes estimados en el paso 1 y los aplicamos a una encuesta focal #2 que es:</p>
 <ul>
 <li><strong>distinta</strong> de la encuesta de datos ego-network,</li>
-<li>presenta un outcome <span class="math inline">\(Y_i\)</span> de interés,</li>
+<li>presenta un outcome <span class="math inline">\(y_i\)</span> de interés,</li>
 <li>que tiene las mismas covariables <span class="math inline">\(X_i\)</span> (edad, educación, raza, religión, género, etc.) y</li>
 <li>que es representativa de la <strong>misma población</strong>.</li>
 </ul>
 <p>Después de obtener los coeficientes, calculamos la probabilidad de interacción <span class="math inline">\(W_{ij}\)</span> entre <span class="math inline">\(i\)</span> y <span class="math inline">\(j\)</span>, basada en sus distancias sociales, así como los coeficientes del paso 1.</p></li>
 <li><p>Construimos el contexto social a ser imputado: <span class="math display">\[
-(WY)_i=\sum_{j=1}^{n} W_{ij}\,Y_j.
-\]</span> El término <span class="math inline">\((WY)_i\)</span> es el promedio ponderado de <span class="math inline">\(Y\)</span> en los “alters imputados” de <span class="math inline">\(i\)</span>, ponderado por propensión homofílica a interactuar (cercanía en Blau space).</p></li>
+(W y)_i=\sum_{j=1}^{n} W_{ij}\,y_j.
+\]</span> El término <span class="math inline">\((W y)_i\)</span> es el promedio ponderado de <span class="math inline">\(y\)</span> en los “alters imputados” de <span class="math inline">\(i\)</span>, ponderado por propensión homofílica a interactuar (cercanía en Blau space).</p></li>
 <li><p>Estimamos un modelo de autocorrelación espacial sobre la encuesta focal: <span class="math display">\[
 y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).
 \]</span> donde <span class="math inline">\(\rho\)</span> captura asociación entre outcome individual y el “clima” del entorno social imputado producido por <span class="math inline">\(W\)</span>.</p></li>
@@ -5819,9 +5819,9 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>y_i=\beta_0+\beta_1 \text { Educación }_i+\varepsilon_i</span>
 <span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>donde $Y_i$ es la actitud política, gusto cultural, consumo, etc. La interpretación estándar es que si $\hat{\beta}_1&gt;0$, se concluye que &quot;la educación influye (?) en la actitud $Y$.&quot;</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>donde $y_i$ es la actitud política, gusto cultural, consumo, etc. La interpretación puede ser que si $\hat{\beta}_1&gt;0$, se concluye que &quot;la educación influye en la actitud $y_i$.&quot;</span>
 <span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>Ahora, considera el mundo que ellos simulan:</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>Ahora, DellaPosta et al. (2015) simulan un mundo donde:</span>
 <span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>No hay efecto causal directo:</span>
 <span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>$$</span>
@@ -5871,7 +5871,7 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-74"><a href="#cb28-74" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-75"><a href="#cb28-75" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Tomamos los coeficientes estimados en el paso 1 y los aplicamos a una encuesta focal #2 que es:</span>
 <span id="cb28-76"><a href="#cb28-76" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>**distinta** de la encuesta de datos ego-network,</span>
-<span id="cb28-77"><a href="#cb28-77" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>presenta un outcome $Y_i$ de interés,</span>
+<span id="cb28-77"><a href="#cb28-77" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>presenta un outcome $y_i$ de interés,</span>
 <span id="cb28-78"><a href="#cb28-78" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>que tiene las mismas covariables $X_i$ (edad, educación, raza, religión, género, etc.) y </span>
 <span id="cb28-79"><a href="#cb28-79" aria-hidden="true" tabindex="-1"></a><span class="ss">    - </span>que es representativa de la **misma población**.</span>
 <span id="cb28-80"><a href="#cb28-80" aria-hidden="true" tabindex="-1"></a></span>
@@ -5879,9 +5879,9 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-82"><a href="#cb28-82" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-83"><a href="#cb28-83" aria-hidden="true" tabindex="-1"></a><span class="ss">3.  </span>Construimos el contexto social a ser imputado:</span>
 <span id="cb28-84"><a href="#cb28-84" aria-hidden="true" tabindex="-1"></a>    $$</span>
-<span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a>    (WY)_i=\sum_{j=1}^{n} W_{ij}\,Y_j.</span>
+<span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a>    (W y)_i=\sum_{j=1}^{n} W_{ij}\,y_j.</span>
 <span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a>    $$</span>
-<span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a>   El término $(WY)_i$ es el promedio ponderado de $Y$ en los “alters imputados” de $i$, ponderado por propensión homofílica a interactuar (cercanía en Blau space).</span>
+<span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a>   El término $(W y)_i$ es el promedio ponderado de $y$ en los “alters imputados” de $i$, ponderado por propensión homofílica a interactuar (cercanía en Blau space).</span>
 <span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Estimamos un modelo de autocorrelación espacial sobre la encuesta focal:</span>
 <span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a>   $$</span>

@@ -22,9 +22,9 @@ $$
 y_i=\beta_0+\beta_1 \text { Educación }_i+\varepsilon_i
 $$
 
-donde $Y_i$ es la actitud política, gusto cultural, consumo, etc. La interpretación estándar es que si $\hat{\beta}_1>0$, se concluye que "la educación influye (?) en la actitud $Y$."
+donde $y_i$ es la actitud política, gusto cultural, consumo, etc. La interpretación puede ser que si $\hat{\beta}_1>0$, se concluye que "la educación influye en la actitud $y_i$."
 
-Ahora, considera el mundo que ellos simulan:
+Ahora, DellaPosta et al. (2015) simulan un mundo donde:
 
 1. No hay efecto causal directo:
 $$
@@ -74,7 +74,7 @@ McPherson, M., & Smith, J. A. (2019). Network Effects in Blau Space: Imputing So
 
 2. Tomamos los coeficientes estimados en el paso 1 y los aplicamos a una encuesta focal #2 que es:
     - **distinta** de la encuesta de datos ego-network,
-    - presenta un outcome $Y_i$ de interés,
+    - presenta un outcome $y_i$ de interés,
     - que tiene las mismas covariables $X_i$ (edad, educación, raza, religión, género, etc.) y 
     - que es representativa de la **misma población**.
 
@@ -82,9 +82,9 @@ McPherson, M., & Smith, J. A. (2019). Network Effects in Blau Space: Imputing So
 
 3.  Construimos el contexto social a ser imputado:
     $$
-    (WY)_i=\sum_{j=1}^{n} W_{ij}\,Y_j.
+    (W y)_i=\sum_{j=1}^{n} W_{ij}\,y_j.
     $$
-   El término $(WY)_i$ es el promedio ponderado de $Y$ en los “alters imputados” de $i$, ponderado por propensión homofílica a interactuar (cercanía en Blau space).
+   El término $(W y)_i$ es el promedio ponderado de $y$ en los “alters imputados” de $i$, ponderado por propensión homofílica a interactuar (cercanía en Blau space).
 
 4. Estimamos un modelo de autocorrelación espacial sobre la encuesta focal:
    $$
