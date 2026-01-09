@@ -8,27 +8,89 @@ date: "2025-01-08"
 
 En la práctica es importante considerar los entornos sociales: conversaciones cotidianas, exposición repetida a puntos de vista, normas locales, etc. En otras palabras, *dos individuos con demografías similares pueden diferir en sus actitudes si viven en “mundos sociales” distintos*.
 
-Levantar encuestas con información de redes personales, para tener información de esta **exposición diferencial** entre los encuestados, es desafiante. Este módulo busca *imputar contexto social en encuestas que no midieron redes personales*, basándose en la homofilia en el *espacio de Blau*. Para ello, se utiliza la metodología presentada en:
+### 1.1 Los peligros de interpretar regresiones tradicionales
+
+**¿**Qué pasa si los datos observados en una encuesta son el resultado de procesos de *difusión* en redes con homofilia **?** 
+
+En el paper de DellaPosta et al. (2015) *Why Do Liberals Drink Lattes?* [[https://doi.org/10.1086/681254](https://doi.org/10.1086/681254)] muestran que incluso **sin ningún efecto causal** directo de una variable sociodemográfica (ej. educación, ideología) sobre una conducta o preferencia (ej. consumo cultural), una regresión estándar puede producir coeficientes grandes y significativos, simplemente porque:
+
+- las personas interactúan principalmente con otros similares (homofilia), y
+- las conductas/actitudes se difunden a través de esas interacciones.
+
+Supongamos que estimas el siguiente modelo:
+$$
+y_i=\beta_0+\beta_1 \text { Educación }_i+\varepsilon_i
+$$
+
+donde $Y_i$ es la actitud política, gusto cultural, consumo, etc. La interpretación estándar es que si $\hat{\beta}_1>0$, se concluye que "la educación influye (?) en la actitud $Y$."
+
+Ahora, considera el mundo que ellos simulan:
+
+1. No hay efecto causal directo:
+$$
+\text { Educación }_i \nrightarrow y_i
+$$
+
+2. La educación solo afecta con quién interactúas:
+- Alta educación → interactúas con gente similar.
+- Baja educación → lo mismo.
+
+3. Las actitudes se actualizan por influencia social:
+$$
+y_i(t+1)=f\left(y_j(t): j \in N(i)\right)
+$$
+
+4. Como las redes son homofílicas:
+- Los altamente educados terminan compartiendo actitudes entre sí.
+- Lo mismo ocurre en otros grupos.
+
+**¿**Qué observa el investigador **?**
+
+No ve la red ni la dinámica, solo una foto final:
+
+- Personas con alta educación $\rightarrow$ valores similares de $y$.
+
+- Personas con baja educación $\rightarrow$ valores distintos.
+
+Y cuando corre la regresión obtiene $\hat{\beta}_1$ grande, y significativo. 
+
+Pero el supuesto implícito *las observaciones son independientes condicionalmente a las covariables* es falso porque $y_i$ depende de $y_j$: la regresión confunde un efecto individual, con un **proceso relacional y contextual**.
+
+### Pasos para imputar contexto social
+
+Este módulo busca **imputar contexto social en encuestas que no midieron redes personales**. Para ello, se utiliza la metodología presentada en:
 
 McPherson, M., & Smith, J. A. (2019). Network Effects in Blau Space: Imputing Social Context from Survey Data. *Socius*, 5. [[10.1177/2378023119868591](https://doi.org/10.1177/2378023119868591)].
 
-El principio es el siguiente: si podemos aproximar la propensión a formar lazos como una función de distancias sociodemográficas, entonces podemos reconstruir, de manera probabilística, un “vecindario social plausible” alrededor de cada respondente y derivar variables de exposición (por ejemplo, el promedio de una actitud política en su entorno imputado). Estas variables de contexto se incorporan luego en modelos de resultados (*outcome models*) para evaluar cuánto “explica” el mundo social probable del encuestado.
+![Figure 1. Example networks in two-dimensional Blau space.](figs/fig1-blau-space.png){width="85%"}
 
-La meta metodológica es mostrar que el “término contextual” no solo puede ser estadísticamente significativo, sino también **reducir** en magnitud varios coeficientes demográficos, sugiriendo que una fracción de las brechas demográficas opera a través de diferencias en el mundo social probable del encuestado.
+1. Estimar fuerza homofílica en una encuesta #1 que es *representativa de una población* con datos Ego-network:
+   Al estimar 
+    $$
+    \operatorname{logit}\left(\operatorname{Pr}\left(Y_{i j}=1\right)\right)=\alpha+\boldsymbol{\beta}^{\top} \mathbf{d}_{i j}+\boldsymbol{\gamma}^{\top}\left(\mathbf{d}_{i j} \cdot \mathbb{I}_{2004}\right)
+    $$
 
-### 1.1. Blau Space y Estructura de Oportunidades
+   obtenemos los coeficientes $\hat{\boldsymbol{\beta}}, \hat{\boldsymbol{\gamma}}$, interpretados como “fuerza homofílica” por dimensión. (Nosotros usaremos $\hat{\boldsymbol{\beta}_{\text{tot}}}=\hat{\boldsymbol{\beta}}+\hat{\boldsymbol{\gamma}}$).
 
-El **Blau space** es un espacio multidimensional donde cada individuo se representa por sus coordenadas sociodemográficas (edad, educación, raza/etnicidad, religión, género, etc.). La probabilidad de interacción entre dos individuos depende de:
+2. Tomamos los coeficientes estimados en el paso 1 y los aplicamos a una encuesta focal #2 que es:
+    - **distinta** de la encuesta de datos ego-network,
+    - presenta un outcome $Y_i$ de interés,
+    - que tiene las mismas covariables $X_i$ (edad, educación, raza, religión, género, etc.) y 
+    - que es representativa de la **misma población**.
 
-1.   **Distancia social**: cuán cerca están en ese espacio (homofilia) según un vector de distancias sociodemográficas $\mathbf{d}_{ij}$ entre individuos $i$ y $j$:
-- Para variables categóricas: $d^{\mathrm{cat}}_{ij} = \mathbb{I}(x^{\mathrm{cat}}_i \neq x^{\mathrm{cat}}_j)$.
-- Para variables continuas: $d^{\mathrm{cont}}_{ij} = |x^{\mathrm{cont}}_i - x^{\mathrm{cont}}_j|$.
+    Después de obtener los coeficientes, calculamos la probabilidad de interacción $W_{ij}$ entre $i$ y $j$, basada en sus distancias sociales, así como los coeficientes del paso 1.
 
-2.   **Fuerza homofílica**: la fuerza homofílica de cada dimensión social (parametrizada por $\boldsymbol{\beta}$), que determina cuán rápido decae la probabilidad de interacción con la distancia.
+3.  Construimos el contexto social a ser imputado:
+    $$
+    (WY)_i=\sum_{j=1}^{n} W_{ij}\,Y_j.
+    $$
+   El término $(WY)_i$ es el promedio ponderado de $Y$ en los “alters imputados” de $i$, ponderado por propensión homofílica a interactuar (cercanía en Blau space).
 
-3.   **Estructura de oportunidades**: la estructura de oportunidades inducida por las distribuciones marginales de atributos.
-
-![Figure 1. Example networks in two-dimensional Blau space.](figs/fig1-blau-space.png){width="90%"}
+4. Estimamos un modelo de autocorrelación espacial sobre la encuesta focal:
+   $$
+   Y_i = \eta X_i + \Delta (WY)_i + \varepsilon_i,
+   $$
+   donde $\Delta$ captura asociación entre outcome individual y el “clima” del entorno social imputado producido por $W$.
 
 ### 1.2. Término Contextual
 
@@ -46,10 +108,10 @@ $$
 
 que inducen una distribución sobre potenciales alters $j$ que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos $W$ que representa “vecindad social” imputada (no geográfica),
 $$
-W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}},
+W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}}.
 $$
 
-y luego calculamos el término contextual:
+Los valores en la matriz $W$ reflejan los tipos de personas que $i$ es probablemente conocer, dados las distancias sociales entre $i$ y las demás personas en la población. Finalmente, calculamos el término contextual:
 
 $$
 (Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,
@@ -186,11 +248,11 @@ Estimamos dos modelos para explicar la simpatía por el Partido Demócrata ($Y$)
 
 1.  **Modelo 1 (Base):** Solo predictores demográficos ($X$).
 
-$$ y = X \beta + \epsilon $$
+$$ y = X \beta + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2). $$
 
 2.  **Modelo 2 (Contexto):** Modelo de autocorrelación espacial (SAR/Spatial Lag).
 
-$$ y = \rho (W y) + X \beta + \epsilon, \quad \varepsilon \sim M V N\left(0, \sigma^2 I\right). $$
+$$ y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right). $$
 
 ```{r}
 #| label: estimate-models
