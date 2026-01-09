@@ -403,7 +403,51 @@ df_impacts_print <- data.frame(
 )
 
 # Impactos Promedio (con p-valor para Efecto Total):
-knitr::kable(df_impacts_print, digits = 4)
+cat("\n**Impactos Promedio (con p-valor para Efecto Total):**\n")
+print(knitr::kable(df_impacts_print, digits = 4))
+
+cat("\n**Comparación: Beta OLS vs Impacto Total SAR**\n")
+
+# Recuperamos coeficientes OLS (m1)
+c_ols <- coef(m1)
+
+# Variables clave a comparar (nombres en OLS / Modelo)
+vars_comp_ols <- c("race_black", "race_hispanic", "relig_catholic", "female")
+
+# Extraer vector de totales
+vec_total <- as.vector(imp_summary$res$total)
+
+# Obtener nombres de variables del modelo SAR (excluyendo Intercept y Rho)
+names_sar_model <- names(coef(m2_sar))
+names_clean <- names_sar_model[!names_sar_model %in% c("(Intercept)", "rho", "lambda")]
+
+# Asegurar que longitudes coincidan antes de asignar (seguridad)
+if (length(vec_total) == length(names_clean)) {
+    names(vec_total) <- names_clean
+} else {
+    warning("Longitud de impactos y variables no coincide. Revisar nombres.")
+}
+
+# Nombres para mostrar en tabla
+names_display <- c("Black", "Hispanic", "Catholic", "Female")
+
+# Construir tabla
+df_compare_total <- data.frame(
+    Variable = names_display,
+    Beta_OLS = c_ols[vars_comp_ols],
+    SAR_Total = vec_total[vars_comp_ols]
+)
+
+# Calcular diferencia y reducción
+df_compare_total$Diff_Abs <- df_compare_total$Beta_OLS - df_compare_total$SAR_Total
+df_compare_total$Pct_Reduction <- (df_compare_total$Diff_Abs / df_compare_total$Beta_OLS) * 100
+
+# Mostrar tabla final
+print(knitr::kable(df_compare_total,
+    digits = 2,
+    row.names = FALSE,
+    col.names = c("Variable", "Beta OLS", "SAR Total Impact", "Diff", "% Reducción")
+))
 ```
 
 ## 3. Interludio: Simulación de Redes Completas
