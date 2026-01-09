@@ -4420,12 +4420,12 @@ y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 
 <span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;relig_jewish&quot;</span> <span class="ot">=</span> <span class="st">&quot;Jewish&quot;</span>,</span>
 <span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;relig_none&quot;</span> <span class="ot">=</span> <span class="st">&quot;None&quot;</span>,</span>
 <span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;relig_other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Other religion&quot;</span>,</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;rho&quot;</span> <span class="ot">=</span> <span class="st">&quot;Spatial parameter (rho)&quot;</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;rho&quot;</span> <span class="ot">=</span> <span class="st">&quot;Spatial parameter&quot;</span></span>
 <span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>    ),</span>
 <span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">center =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">doctype =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">include.rsquared =</span> <span class="cn">TRUE</span>, <span class="at">include.adjrs =</span> <span class="cn">FALSE</span>, <span class="at">include.nobs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">include.rmse =</span> <span class="cn">FALSE</span> <span class="co"># Ocultar métricas secundarias</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">include.rmse =</span> <span class="cn">FALSE</span>, <span class="at">se =</span> <span class="cn">FALSE</span></span>
 <span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <table class="texreg" style="margin: 10px auto;border-collapse: collapse;border-spacing: 0px;caption-side: bottom;color: #000000;border-top: 2px solid #000000;">
@@ -4734,7 +4734,7 @@ Other religion
 </tr>
 <tr>
 <td style="padding-left: 5px;padding-right: 5px;">
-Spatial parameter (rho)
+Spatial parameter
 </td>
 <td style="padding-left: 5px;padding-right: 5px;">
  
@@ -5093,41 +5093,40 @@ LR test: p-value
 <span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Variables clave a comparar (nombres en OLS / Modelo)</span></span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>vars_comp_ols <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;race_black&quot;</span>, <span class="st">&quot;race_hispanic&quot;</span>, <span class="st">&quot;relig_catholic&quot;</span>, <span class="st">&quot;female&quot;</span>)</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Corrección Robusta para Nombres de Impactos ---</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Extraer vector de totales</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>vec_total <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(imp_summary<span class="sc">$</span>res<span class="sc">$</span>total)</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener nombres de variables del modelo SAR (excluyendo Intercept y Rho)</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>names_sar_model <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">coef</span>(m2_sar))</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>names_clean <span class="ot">&lt;-</span> names_sar_model[<span class="sc">!</span>names_sar_model <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;(Intercept)&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;lambda&quot;</span>)]</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Asegurar que longitudes coincidan antes de asignar (seguridad)</span></span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(vec_total) <span class="sc">==</span> <span class="fu">length</span>(names_clean)) {</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(vec_total) <span class="ot">&lt;-</span> names_clean</span>
-<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">&quot;Longitud de impactos y variables no coincide. Revisar nombres.&quot;</span>)</span>
-<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Nombres para mostrar en tabla</span></span>
-<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>names_display <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Catholic&quot;</span>, <span class="st">&quot;Female&quot;</span>)</span>
-<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Construir tabla</span></span>
-<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>df_compare_total <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> names_display,</span>
-<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">Beta_OLS =</span> c_ols[vars_comp_ols],</span>
-<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">SAR_Total =</span> vec_total[vars_comp_ols] <span class="co"># Ahora indexamos directo por nombre variable</span></span>
-<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular diferencia y reducción</span></span>
-<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>df_compare_total<span class="sc">$</span>Diff_Abs <span class="ot">&lt;-</span> df_compare_total<span class="sc">$</span>Beta_OLS <span class="sc">-</span> df_compare_total<span class="sc">$</span>SAR_Total</span>
-<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>df_compare_total<span class="sc">$</span>Pct_Reduction <span class="ot">&lt;-</span> (df_compare_total<span class="sc">$</span>Diff_Abs <span class="sc">/</span> df_compare_total<span class="sc">$</span>Beta_OLS) <span class="sc">*</span> <span class="dv">100</span></span>
-<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla final</span></span>
-<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(df_compare_total,</span>
-<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
-<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Beta OLS&quot;</span>, <span class="st">&quot;SAR Total Impact&quot;</span>, <span class="st">&quot;Diff&quot;</span>, <span class="st">&quot;% Reducción&quot;</span>)</span>
-<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Extraer vector de totales</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>vec_total <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(imp_summary<span class="sc">$</span>res<span class="sc">$</span>total)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Obtener nombres de variables del modelo SAR (excluyendo Intercept y Rho)</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>names_sar_model <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">coef</span>(m2_sar))</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>names_clean <span class="ot">&lt;-</span> names_sar_model[<span class="sc">!</span>names_sar_model <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;(Intercept)&quot;</span>, <span class="st">&quot;rho&quot;</span>, <span class="st">&quot;lambda&quot;</span>)]</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Asegurar que longitudes coincidan antes de asignar (seguridad)</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">length</span>(vec_total) <span class="sc">==</span> <span class="fu">length</span>(names_clean)) {</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(vec_total) <span class="ot">&lt;-</span> names_clean</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(<span class="st">&quot;Longitud de impactos y variables no coincide. Revisar nombres.&quot;</span>)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Nombres para mostrar en tabla</span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>names_display <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;Black&quot;</span>, <span class="st">&quot;Hispanic&quot;</span>, <span class="st">&quot;Catholic&quot;</span>, <span class="st">&quot;Female&quot;</span>)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Construir tabla</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>df_compare_total <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">Variable =</span> names_display,</span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">Beta_OLS =</span> c_ols[vars_comp_ols],</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">SAR_Total =</span> vec_total[vars_comp_ols]</span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Calcular diferencia y reducción</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>df_compare_total<span class="sc">$</span>Diff_Abs <span class="ot">&lt;-</span> df_compare_total<span class="sc">$</span>Beta_OLS <span class="sc">-</span> df_compare_total<span class="sc">$</span>SAR_Total</span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>df_compare_total<span class="sc">$</span>Pct_Reduction <span class="ot">&lt;-</span> (df_compare_total<span class="sc">$</span>Diff_Abs <span class="sc">/</span> df_compare_total<span class="sc">$</span>Beta_OLS) <span class="sc">*</span> <span class="dv">100</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Mostrar tabla final</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(knitr<span class="sc">::</span><span class="fu">kable</span>(df_compare_total,</span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">digits =</span> <span class="dv">2</span>,</span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">&quot;Variable&quot;</span>, <span class="st">&quot;Beta OLS&quot;</span>, <span class="st">&quot;SAR Total Impact&quot;</span>, <span class="st">&quot;Diff&quot;</span>, <span class="st">&quot;% Reducción&quot;</span>)</span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <table class="caption-top table">
 <thead>
@@ -6096,12 +6095,12 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-304"><a href="#cb28-304" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;relig_jewish&quot;</span> <span class="ot">=</span> <span class="st">&quot;Jewish&quot;</span>,</span>
 <span id="cb28-305"><a href="#cb28-305" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;relig_none&quot;</span> <span class="ot">=</span> <span class="st">&quot;None&quot;</span>,</span>
 <span id="cb28-306"><a href="#cb28-306" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;relig_other&quot;</span> <span class="ot">=</span> <span class="st">&quot;Other religion&quot;</span>,</span>
-<span id="cb28-307"><a href="#cb28-307" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;rho&quot;</span> <span class="ot">=</span> <span class="st">&quot;Spatial parameter (rho)&quot;</span></span>
+<span id="cb28-307"><a href="#cb28-307" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;rho&quot;</span> <span class="ot">=</span> <span class="st">&quot;Spatial parameter&quot;</span></span>
 <span id="cb28-308"><a href="#cb28-308" aria-hidden="true" tabindex="-1"></a>    ),</span>
 <span id="cb28-309"><a href="#cb28-309" aria-hidden="true" tabindex="-1"></a>    <span class="at">center =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb28-310"><a href="#cb28-310" aria-hidden="true" tabindex="-1"></a>    <span class="at">doctype =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb28-311"><a href="#cb28-311" aria-hidden="true" tabindex="-1"></a>    <span class="at">include.rsquared =</span> <span class="cn">TRUE</span>, <span class="at">include.adjrs =</span> <span class="cn">FALSE</span>, <span class="at">include.nobs =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb28-312"><a href="#cb28-312" aria-hidden="true" tabindex="-1"></a>    <span class="at">include.rmse =</span> <span class="cn">FALSE</span> <span class="co"># Ocultar métricas secundarias</span></span>
+<span id="cb28-312"><a href="#cb28-312" aria-hidden="true" tabindex="-1"></a>    <span class="at">include.rmse =</span> <span class="cn">FALSE</span>, <span class="at">se =</span> <span class="cn">FALSE</span></span>
 <span id="cb28-313"><a href="#cb28-313" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb28-314"><a href="#cb28-314" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb28-315"><a href="#cb28-315" aria-hidden="true" tabindex="-1"></a></span>

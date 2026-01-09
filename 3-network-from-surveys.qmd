@@ -298,12 +298,12 @@ htmlreg(list(m1, m2_sar),
         "relig_jewish" = "Jewish",
         "relig_none" = "None",
         "relig_other" = "Other religion",
-        "rho" = "Spatial parameter (rho)"
+        "rho" = "Spatial parameter"
     ),
     center = TRUE,
     doctype = FALSE,
     include.rsquared = TRUE, include.adjrs = FALSE, include.nobs = TRUE,
-    include.rmse = FALSE # Ocultar métricas secundarias
+    include.rmse = FALSE, se = FALSE
 )
 ```
 
