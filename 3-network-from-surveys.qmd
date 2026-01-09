@@ -321,36 +321,6 @@ cat("--- Parámetro de Dependencia Espacial (Rho) ---\n")
 rho_val <- m2_sar$rho
 cat(sprintf("Rho: %.3f\n\n", rho_val))
 
-# 2. Impactos (Efectos Totales)
-# En un modelo SAR, los coeficientes (Beta) solo miden el impacto inmediato (Directo).
-# Pero el término (rho * Wy) genera un feedback: el cambio en 'i' afecta a sus vecinos,
-# quienes a su vez re-afectan a 'i'.
-# Los "Impactos Totales" capturan la suma de estos efectos directos + indirectos (spillover).
-
-set.seed(123)
-imp <- spatialreg::impacts(m2_sar, listw = W_listw, R = 200)
-
-# Mostramos solo el resumen de efectos Totales para variables clave
-imp_summary <- summary(imp, zstats = TRUE, short = TRUE)
-
-# Extraer y combinar solo Estimaciones y P-values para una visualización limpia
-# La estructura de imp_summary$res es una lista con componentes direct/indirect/total
-mat_impacts <- imp_summary$res$total
-mat_pvals <- imp_summary$pzmat
-
-# Crear una tabla combinada personalizada
-# Filtramos solo columnas de interés 'Total' de estimaciones y sus p-values
-# (Nota: pzmat trae p-values para Direct, Indirect, Total en orden)
-df_impacts_print <- data.frame(
-    Directo = imp_summary$res$direct,
-    Indirecto = imp_summary$res$indirect,
-    Total = imp_summary$res$total,
-    P_Total = imp_summary$pzmat[, "Total"]
-)
-
-cat("Impactos Promedio (con p-valor para Efecto Total):\n")
-print(round(df_impacts_print, 4))
-
 cat("\n--- Comparación Simplificada de Coeficientes ---\n")
 # Precaución interpretativa: Comparar Beta OLS vs Beta SAR es una aproximación.
 df_comp <- data.frame(
@@ -407,6 +377,62 @@ cat(sprintf("RACE EFFECT (White -> Black):  +%.2f puntos\n", delta_race_black))
 # --- Efecto Demográfico --- (Sex: Male -> Female)
 delta_female <- coefs["female"]
 cat(sprintf("SEX EFFECT (Male -> Female):   +%.2f puntos\n", delta_female))
+```
+
+
+En un modelo SAR, los coeficientes solo miden el impacto inmediato (**directo**). Pero el término $\rho (Wy)$ genera un feedback: el cambio en $i$ afecta a sus vecinos, quienes a su vez re-afectan a $i$. Los "Impactos Totales" capturan la suma de estos efectos directos + indirectos (spillover).
+
+```{r}
+#| label: impacts
+#| echo: true
+#| results: asis
+
+# 2. Impactos (Efectos Totales)
+set.seed(123)
+imp <- spatialreg::impacts(m2_sar, listw = W_listw, R = 200)
+
+# Mostramos solo el resumen de efectos Totales para variables clave
+imp_summary <- summary(imp, zstats = TRUE, short = TRUE)
+
+# Extraer y combinar solo Estimaciones y P-values para una visualización limpia
+mat_impacts <- imp_summary$res$total
+mat_pvals <- imp_summary$pzmat
+
+# Generamos una tabla con los resultados
+df_impacts_print <- data.frame(
+    Directo = imp_summary$res$direct,
+    Indirecto = imp_summary$res$indirect,
+    Total = imp_summary$res$total,
+    p_Total = imp_summary$pzmat[, "Total"]
+)
+
+cat("Impactos Promedio (con p-valor para Efecto Total):\n")
+print(round(df_impacts_print, 4))
+
+cat("\n--- Comparación: Beta OLS vs Impacto Total SAR ---\n")
+# Recuperamos coeficientes OLS (m1)
+c_ols <- coef(m1)
+
+# Variables clave a comparar
+vars_comp <- c("race_black", "race_hispanic", "relig_catholic", "female")
+names_comp <- c("Black", "Hispanic", "Catholic", "Female")
+
+# Construir tabla
+df_compare_total <- data.frame(
+    Variable = names_comp,
+    Beta_OLS = c_ols[vars_comp],
+    SAR_Total = imp_summary$res$total[vars_comp]
+)
+
+# Calcular reducción
+df_compare_total$Diff_Abs <- df_compare_total$Beta_OLS - df_compare_total$SAR_Total
+df_compare_total$Pct_Reduction <- (df_compare_total$Diff_Abs / df_compare_total$Beta_OLS) * 100
+
+knitr::kable(df_compare_total,
+    digits = 2,
+    row.names = FALSE,
+    col.names = c("Variable", "Beta OLS", "SAR Total", "Diff", "% Reducción")
+)
 ```
 
 ## 3. Interludio: Simulación de Redes Completas
