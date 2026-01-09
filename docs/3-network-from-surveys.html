@@ -4190,7 +4190,7 @@ y_i(t+1)=f\left(y_j(t): j \in N(i)\right)
 </section>
 <section id="pasos-para-imputar-contexto-social" class="level3">
 <h3 class="anchored" data-anchor-id="pasos-para-imputar-contexto-social">Pasos para imputar contexto social</h3>
-<p>Este módulo busca <strong>imputar contexto social en encuestas que no midieron redes personales</strong>. Para ello, se utiliza la metodología presentada en:</p>
+<p>Este módulo busca imputar contexto social en encuestas que no midieron redes personales. Para ello, se utiliza la metodología presentada en:</p>
 <p>McPherson, M., &amp; Smith, J. A. (2019). Network Effects in Blau Space: Imputing Social Context from Survey Data. <em>Socius</em>, 5. [<a href="https://doi.org/10.1177/2378023119868591">10.1177/2378023119868591</a>].</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -4215,8 +4215,8 @@ y_i(t+1)=f\left(y_j(t): j \in N(i)\right)
 (WY)_i=\sum_{j=1}^{n} W_{ij}\,Y_j.
 \]</span> El término <span class="math inline">\((WY)_i\)</span> es el promedio ponderado de <span class="math inline">\(Y\)</span> en los “alters imputados” de <span class="math inline">\(i\)</span>, ponderado por propensión homofílica a interactuar (cercanía en Blau space).</p></li>
 <li><p>Estimamos un modelo de autocorrelación espacial sobre la encuesta focal: <span class="math display">\[
-Y_i = \eta X_i + \Delta (WY)_i + \varepsilon_i,
-\]</span> donde <span class="math inline">\(\Delta\)</span> captura asociación entre outcome individual y el “clima” del entorno social imputado producido por <span class="math inline">\(W\)</span>.</p></li>
+y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).
+\]</span> donde <span class="math inline">\(\rho\)</span> captura asociación entre outcome individual y el “clima” del entorno social imputado producido por <span class="math inline">\(W\)</span>.</p></li>
 </ol>
 </section>
 <section id="término-contextual" class="level3">
@@ -4232,7 +4232,7 @@ w_{ij} \propto \exp\!\left(\boldsymbol{\beta}^\top \mathbf{d}_{ij}\right), \quad
 <p>que inducen una distribución sobre potenciales alters <span class="math inline">\(j\)</span> que favorece pares cercanos en Blau space. A partir de esta estructura construimos una matriz de pesos <span class="math inline">\(W\)</span> que representa “vecindad social” imputada (no geográfica), <span class="math display">\[
 W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}}.
 \]</span></p>
-<p>Los valores en la matriz <span class="math inline">\(W\)</span> reflejan los tipos de personas que <span class="math inline">\(i\)</span> es probablemente conocer, dados las distancias sociales entre <span class="math inline">\(i\)</span> y las demás personas en la población. Finalmente, calculamos el término contextual:</p>
+<p>donde <span class="math inline">\(\mathcal{N}_i \;=\; \{\, j \neq i \;:\; j \text{ está entre los } K \text{ mayores } w_{ij} \,\}\)</span> es un término para seleccionar solo los vecinos más probables. Los valores en la matriz <span class="math inline">\(W\)</span> reflejan los tipos de personas que <span class="math inline">\(i\)</span> es probablemente conocer, dados las distancias sociales entre <span class="math inline">\(i\)</span> y las demás personas en la población. Finalmente, calculamos el término contextual:</p>
 <p><span class="math display">\[
 (Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,
 \]</span></p>
@@ -4243,10 +4243,10 @@ W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathca
 <h2 class="anchored" data-anchor-id="imputando-contexto-social-anes-2016-democrat-scale">2. Imputando Contexto Social (ANES 2016, Democrat Scale)</h2>
 <p>Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey), que <strong>no</strong> tiene EGO-net. Imputaremos contexto social y evaluarémos si mejora la explicación de <em>Democrat Scale</em> (grado de simpatía/afinidad hacia el Partido Demócrata, reportado por McPherson &amp; Smith) más allá de la demografía. Estimaremos dos modelos:</p>
 <p><strong>Modelo 1:</strong> (demografía) <span class="math display">\[
-y_i = \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
+y = X \beta + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2),
 \]</span> donde <span class="math inline">\(\mathbf{x}_i\)</span> incluye edad, educación, género, dummies de raza/etnicidad y religión.</p>
 <p><strong>Modelo 2:</strong> (demografía + contexto social imputado) <span class="math display">\[
-y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
+y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).
 \]</span> donde <span class="math inline">\(\rho\)</span> captura la asociación entre el outcome individual y el clima actitudinal del entorno social imputado.</p>
 <p>El foco interpretativo será (i) si <span class="math inline">\(\rho&gt;0\)</span> y es estadísticamente distinguible de cero, y (ii) si la inclusión de <span class="math inline">\((Wy)_i\)</span> reduce la magnitud de varios coeficientes demográficos, coherente con la lectura “contextual” discutida para Democrat Scale.</p>
 <section id="construcción-de-pesos-w" class="level3">
@@ -5663,7 +5663,7 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a><span class="fu">### Pasos para imputar contexto social</span></span>
 <span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>Este módulo busca **imputar contexto social en encuestas que no midieron redes personales**. Para ello, se utiliza la metodología presentada en:</span>
+<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>Este módulo busca imputar contexto social en encuestas que no midieron redes personales. Para ello, se utiliza la metodología presentada en:</span>
 <span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-63"><a href="#cb28-63" aria-hidden="true" tabindex="-1"></a>McPherson, M., &amp; Smith, J. A. (2019). Network Effects in Blau Space: Imputing Social Context from Survey Data. *Socius*, 5. [<span class="co">[</span><span class="ot">10.1177/2378023119868591</span><span class="co">](https://doi.org/10.1177/2378023119868591)</span>].</span>
 <span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a></span>
@@ -5693,9 +5693,9 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Estimamos un modelo de autocorrelación espacial sobre la encuesta focal:</span>
 <span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a>   $$</span>
-<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>   Y_i = \eta X_i + \Delta (WY)_i + \varepsilon_i,</span>
+<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>   y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).</span>
 <span id="cb28-92"><a href="#cb28-92" aria-hidden="true" tabindex="-1"></a>   $$</span>
-<span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a>   donde $\Delta$ captura asociación entre outcome individual y el “clima” del entorno social imputado producido por $W$.</span>
+<span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a>   donde $\rho$ captura asociación entre outcome individual y el “clima” del entorno social imputado producido por $W$.</span>
 <span id="cb28-94"><a href="#cb28-94" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-95"><a href="#cb28-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### 1.2. Término Contextual</span></span>
 <span id="cb28-96"><a href="#cb28-96" aria-hidden="true" tabindex="-1"></a></span>
@@ -5716,7 +5716,7 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-111"><a href="#cb28-111" aria-hidden="true" tabindex="-1"></a>W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}}.</span>
 <span id="cb28-112"><a href="#cb28-112" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb28-113"><a href="#cb28-113" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-114"><a href="#cb28-114" aria-hidden="true" tabindex="-1"></a>Los valores en la matriz $W$ reflejan los tipos de personas que $i$ es probablemente conocer, dados las distancias sociales entre $i$ y las demás personas en la población. Finalmente, calculamos el término contextual:</span>
+<span id="cb28-114"><a href="#cb28-114" aria-hidden="true" tabindex="-1"></a>donde $\mathcal{N}_i \;=\; \{\, j \neq i \;:\; j \text{ está entre los } K \text{ mayores } w_{ij} \,<span class="sc">\}</span>$ es un término para seleccionar solo los vecinos más probables. Los valores en la matriz $W$ reflejan los tipos de personas que $i$ es probablemente conocer, dados las distancias sociales entre $i$ y las demás personas en la población. Finalmente, calculamos el término contextual:</span>
 <span id="cb28-115"><a href="#cb28-115" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-116"><a href="#cb28-116" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb28-117"><a href="#cb28-117" aria-hidden="true" tabindex="-1"></a>(Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,</span>
@@ -5730,13 +5730,13 @@ Iter 5: Edges Coef = -3.73 -&gt; Densidad = 0.03000</code></pre>
 <span id="cb28-125"><a href="#cb28-125" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-126"><a href="#cb28-126" aria-hidden="true" tabindex="-1"></a>**Modelo 1:** (demografía)</span>
 <span id="cb28-127"><a href="#cb28-127" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb28-128"><a href="#cb28-128" aria-hidden="true" tabindex="-1"></a>y_i = \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,</span>
+<span id="cb28-128"><a href="#cb28-128" aria-hidden="true" tabindex="-1"></a>y = X \beta + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2),</span>
 <span id="cb28-129"><a href="#cb28-129" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb28-130"><a href="#cb28-130" aria-hidden="true" tabindex="-1"></a>donde $\mathbf{x}_i$ incluye edad, educación, género, dummies de raza/etnicidad y religión.</span>
 <span id="cb28-131"><a href="#cb28-131" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-132"><a href="#cb28-132" aria-hidden="true" tabindex="-1"></a>**Modelo 2:** (demografía + contexto social imputado)</span>
 <span id="cb28-133"><a href="#cb28-133" aria-hidden="true" tabindex="-1"></a>$$</span>
-<span id="cb28-134"><a href="#cb28-134" aria-hidden="true" tabindex="-1"></a>y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,</span>
+<span id="cb28-134"><a href="#cb28-134" aria-hidden="true" tabindex="-1"></a>y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).</span>
 <span id="cb28-135"><a href="#cb28-135" aria-hidden="true" tabindex="-1"></a>$$</span>
 <span id="cb28-136"><a href="#cb28-136" aria-hidden="true" tabindex="-1"></a>donde $\rho$ captura la asociación entre el outcome individual y el clima actitudinal del entorno social imputado.</span>
 <span id="cb28-137"><a href="#cb28-137" aria-hidden="true" tabindex="-1"></a></span>

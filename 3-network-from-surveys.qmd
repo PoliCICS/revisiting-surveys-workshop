@@ -58,7 +58,7 @@ Pero el supuesto implícito *las observaciones son independientes condicionalmen
 
 ### Pasos para imputar contexto social
 
-Este módulo busca **imputar contexto social en encuestas que no midieron redes personales**. Para ello, se utiliza la metodología presentada en:
+Este módulo busca imputar contexto social en encuestas que no midieron redes personales. Para ello, se utiliza la metodología presentada en:
 
 McPherson, M., & Smith, J. A. (2019). Network Effects in Blau Space: Imputing Social Context from Survey Data. *Socius*, 5. [[10.1177/2378023119868591](https://doi.org/10.1177/2378023119868591)].
 
@@ -88,9 +88,9 @@ McPherson, M., & Smith, J. A. (2019). Network Effects in Blau Space: Imputing So
 
 4. Estimamos un modelo de autocorrelación espacial sobre la encuesta focal:
    $$
-   Y_i = \eta X_i + \Delta (WY)_i + \varepsilon_i,
+   y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).
    $$
-   donde $\Delta$ captura asociación entre outcome individual y el “clima” del entorno social imputado producido por $W$.
+   donde $\rho$ captura asociación entre outcome individual y el “clima” del entorno social imputado producido por $W$.
 
 ### 1.2. Término Contextual
 
@@ -111,7 +111,7 @@ $$
 W_{ij} = \frac{w_{ij} \cdot \mathbb{I}(j \in \mathcal{N}_i)}{\sum_{k \in \mathcal{N}_i} w_{ik}}.
 $$
 
-Los valores en la matriz $W$ reflejan los tipos de personas que $i$ es probablemente conocer, dados las distancias sociales entre $i$ y las demás personas en la población. Finalmente, calculamos el término contextual:
+donde $\mathcal{N}_i \;=\; \{\, j \neq i \;:\; j \text{ está entre los } K \text{ mayores } w_{ij} \,\}$ es un término para seleccionar solo los vecinos más probables. Los valores en la matriz $W$ reflejan los tipos de personas que $i$ es probablemente conocer, dados las distancias sociales entre $i$ y las demás personas en la población. Finalmente, calculamos el término contextual:
 
 $$
 (Wy)_i = \sum_{j \neq i} W_{ij}\, y_j,
@@ -125,13 +125,13 @@ Para replicar el ejercicio empírico, utilizamos ANES 2016 (pre-election survey)
 
 **Modelo 1:** (demografía)
 $$
-y_i = \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
+y = X \beta + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma^2),
 $$
 donde $\mathbf{x}_i$ incluye edad, educación, género, dummies de raza/etnicidad y religión.
 
 **Modelo 2:** (demografía + contexto social imputado)
 $$
-y_i = \rho (Wy)_i + \mathbf{x}_i^\top \boldsymbol{\beta} + \varepsilon_i,
+y = \rho (W y) + X \beta + \epsilon, \quad \epsilon \sim M V N\left(0, \sigma^2 I\right).
 $$
 donde $\rho$ captura la asociación entre el outcome individual y el clima actitudinal del entorno social imputado.
 
