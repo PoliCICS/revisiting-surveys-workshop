@@ -317,10 +317,6 @@ htmlreg(list(m1, m2_sar),
 c1 <- coef(m1)
 c2 <- coef(m2_sar)
 
-cat("--- Parámetro de Dependencia Espacial (Rho) ---\n")
-rho_val <- m2_sar$rho
-cat(sprintf("Rho: %.3f\n\n", rho_val))
-
 cat("\n--- Comparación Simplificada de Coeficientes ---\n")
 # Precaución interpretativa: Comparar Beta OLS vs Beta SAR es una aproximación.
 df_comp <- data.frame(
@@ -406,33 +402,8 @@ df_impacts_print <- data.frame(
     p_Total = imp_summary$pzmat[, "Total"]
 )
 
-cat("Impactos Promedio (con p-valor para Efecto Total):\n")
-print(round(df_impacts_print, 4))
-
-cat("\n--- Comparación: Beta OLS vs Impacto Total SAR ---\n")
-# Recuperamos coeficientes OLS (m1)
-c_ols <- coef(m1)
-
-# Variables clave a comparar
-vars_comp <- c("race_black", "race_hispanic", "relig_catholic", "female")
-names_comp <- c("Black", "Hispanic", "Catholic", "Female")
-
-# Construir tabla
-df_compare_total <- data.frame(
-    Variable = names_comp,
-    Beta_OLS = c_ols[vars_comp],
-    SAR_Total = imp_summary$res$total[vars_comp]
-)
-
-# Calcular reducción
-df_compare_total$Diff_Abs <- df_compare_total$Beta_OLS - df_compare_total$SAR_Total
-df_compare_total$Pct_Reduction <- (df_compare_total$Diff_Abs / df_compare_total$Beta_OLS) * 100
-
-knitr::kable(df_compare_total,
-    digits = 2,
-    row.names = FALSE,
-    col.names = c("Variable", "Beta OLS", "SAR Total", "Diff", "% Reducción")
-)
+# Impactos Promedio (con p-valor para Efecto Total):
+knitr::kable(df_impacts_print, digits = 4)
 ```
 
 ## 3. Interludio: Simulación de Redes Completas
